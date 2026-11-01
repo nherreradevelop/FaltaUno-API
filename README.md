@@ -59,6 +59,27 @@ docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f
 
 > Los scripts se copian al contenedor en lugar de pasarlos por la tubería de PowerShell para no romper las tildes.
 
+### Usuarios de prueba (opcional, solo local)
+
+`db/seeds/001_usuarios_prueba.sql` crea cuentas para probar cada flujo del CU01 (el detalle está en el propio archivo):
+
+```bash
+docker cp db/seeds/001_usuarios_prueba.sql faltauno-postgres:/tmp/seed.sql
+docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/seed.sql
+```
+
+## Ejecutar la API
+
+Con los servicios de Docker levantados:
+
+```bash
+cd api
+npm install
+npm run dev              # http://localhost:3000, documentación Swagger en http://localhost:3000/api/docs
+npm test                 # pruebas (Jest)
+npm run test:cobertura   # pruebas con cobertura (mínimo 70 % en servicios)
+```
+
 ## Servicios de desarrollo
 
 | Servicio                    | Dirección                                                           | Credenciales                                         |
@@ -81,11 +102,11 @@ docker ps                  # ver qué contenedores están corriendo
 
 ## Variables de entorno
 
-| Archivo                | Uso                                                         | ¿Se sube? |
-| ---------------------- | ----------------------------------------------------------- | --------- |
-| `api/.env.example`     | Plantilla con todas las variables                           | Sí        |
-| `api/.env`             | Desarrollo local contra Docker                              | No        |
-| `api/.env.integracion` | Bases compartidas en la nube (Neon, MongoDB Atlas, Upstash) | No        |
+| Archivo                | Uso                                                             | ¿Se sube? |
+| ---------------------- | --------------------------------------------------------------- | --------- |
+| `api/.env.example`     | Plantilla con todas las variables                               | Sí        |
+| `api/.env`             | Desarrollo local contra Docker                                  | No        |
+| `api/.env.integracion` | Bases compartidas en la nube (Supabase, MongoDB Atlas, Upstash) | No        |
 
 Las contraseñas de la nube se comparten por un canal privado, nunca en el repositorio.
 
@@ -104,7 +125,7 @@ npm run format:check   # verificar el formato sin modificar
 
 ### TypeScript estricto
 
-`tsconfig.base.json` define el modo estricto, y `api/tsconfig.json` lo extiende con las opciones de Node.js 22 (compila de `src/` a `dist/`).
+`tsconfig.base.json` define el modo estricto, y `api/tsconfig.json` lo extiende con las opciones de Node.js 22 y Jest. `api/tsconfig.build.json` compila solo `src/` a `dist/` (`npm run build`).
 
 ## n8n
 

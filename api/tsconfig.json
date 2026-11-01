@@ -1,14 +1,14 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    // API en Node.js 22
-    "target": "ES2022",
-    "lib": ["ES2022"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "target": "ES2023",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["ES2023"],
+    "types": ["node", "jest"],
+    "rootDir": ".",
     "outDir": "dist",
-    "rootDir": "src",
     "sourceMap": true
   },
-  "include": ["src"]
+  "include": ["src", "test"]
 }
