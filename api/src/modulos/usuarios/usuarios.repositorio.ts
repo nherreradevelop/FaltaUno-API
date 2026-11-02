@@ -6,6 +6,7 @@ interface FilaUsuario {
   nombre: string;
   email: string;
   foto_url: string | null;
+  biografia: string | null;
   proveedor_auth: ProveedorAuth;
   proveedor_id: string | null;
   verificado: boolean;
@@ -14,7 +15,7 @@ interface FilaUsuario {
   bloqueado_hasta: Date | null;
 }
 
-const COLUMNAS_USUARIO = `id, nombre, email, foto_url, proveedor_auth, proveedor_id, verificado,
+const COLUMNAS_USUARIO = `id, nombre, email, foto_url, biografia, proveedor_auth, proveedor_id, verificado,
   password_hash, intentos_fallidos, bloqueado_hasta`;
 
 function aUsuario(fila: FilaUsuario): Usuario {
@@ -23,6 +24,7 @@ function aUsuario(fila: FilaUsuario): Usuario {
     fila.nombre,
     fila.email,
     fila.foto_url,
+    fila.biografia,
     fila.proveedor_auth,
     fila.proveedor_id,
     fila.verificado,

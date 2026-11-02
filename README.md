@@ -68,6 +68,13 @@ docker cp db/seeds/001_usuarios_prueba.sql faltauno-postgres:/tmp/seed.sql
 docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/seed.sql
 ```
 
+`db/seeds/002_perfil_prueba.sql` agrega biografías, deportes, valoraciones e historial de actividades para probar el CU04 (Visualizar perfil). Se corre después del anterior:
+
+```bash
+docker cp db/seeds/002_perfil_prueba.sql faltauno-postgres:/tmp/seed2.sql
+docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/seed2.sql
+```
+
 ## Ejecutar la API
 
 Con los servicios de Docker levantados:
