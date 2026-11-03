@@ -18,7 +18,7 @@ import type { UsuariosRepositorio } from './usuarios.repositorio';
 export interface DependenciasUsuarios {
   usuarios: Pick<UsuariosRepositorio, 'buscarPorId'>;
   deportes: Pick<DeportesRepositorio, 'buscarActivosDeUsuario'>;
-  valoraciones: Pick<ValoracionesRepositorio, 'promedioRecibido'>;
+  valoraciones: Pick<ValoracionesRepositorio, 'resumenRecibido'>;
   actividades: Pick<ActividadesRepositorio, 'buscarHistorialDeParticipante' | 'contarHistorialDeParticipante'>;
 }
 
@@ -77,19 +77,19 @@ export class UsuariosServicio {
     const { deportes, valoraciones, actividades } = this.dependencias;
 
     if (esPropio) {
-      const [deportesDelUsuario, valoracionPromedio] = await Promise.all([
+      const [deportesDelUsuario, resumenDeValoraciones] = await Promise.all([
         deportes.buscarActivosDeUsuario(usuario.id),
-        valoraciones.promedioRecibido(usuario.id), // CU04 RN3
+        valoraciones.resumenRecibido(usuario.id), // CU04 RN3
       ]);
-      return aPerfilPropioDto(usuario, deportesDelUsuario, valoracionPromedio);
+      return aPerfilPropioDto(usuario, deportesDelUsuario, resumenDeValoraciones);
     }
 
     // CU04 A1: en el perfil público se muestra cuántas actividades tiene, no cuáles
-    const [deportesDelUsuario, valoracionPromedio, cantidadActividades] = await Promise.all([
+    const [deportesDelUsuario, resumenDeValoraciones, cantidadActividades] = await Promise.all([
       deportes.buscarActivosDeUsuario(usuario.id),
-      valoraciones.promedioRecibido(usuario.id), // CU04 RN3
+      valoraciones.resumenRecibido(usuario.id), // CU04 RN3
       actividades.contarHistorialDeParticipante(usuario.id),
     ]);
-    return aPerfilPublicoDto(usuario, deportesDelUsuario, valoracionPromedio, cantidadActividades);
+    return aPerfilPublicoDto(usuario, deportesDelUsuario, resumenDeValoraciones, cantidadActividades);
   }
 }

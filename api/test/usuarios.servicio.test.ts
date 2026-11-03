@@ -22,7 +22,7 @@ function crearServicio(cambios: Partial<DependenciasUsuarios> = {}) {
       crearUsuarioGuardado({ id: BRUNO, nombre: 'Bruno Silva', email: 'bruno@faltauno.uy', biografia: 'Ciclista.' }),
     ]),
     deportes: new DeportesEnMemoria({ [ANA]: [crearDeporte(1, 'Surf')], [BRUNO]: [crearDeporte(3, 'Ciclismo')] }),
-    valoraciones: new ValoracionesEnMemoria({ [BRUNO]: 4.67 }),
+    valoraciones: new ValoracionesEnMemoria({ [BRUNO]: [5, 5, 4] }),
     actividades: new ActividadesEnMemoria({ [BRUNO]: crearHistorial(3) }),
     ...cambios,
   };
@@ -66,13 +66,19 @@ describe('CU04 – Visualizar perfil de usuario', () => {
       biografia: 'Surfeo los fines de semana.',
       deportes: [{ id: 1, nombre: 'Surf' }],
       valoracionPromedio: null,
+      cantidadValoraciones: 0,
       esPropio: true,
     });
   });
 
-  it('FP / RN3: sin valoraciones, el promedio es null', async () => {
+  it('FP / RN3: sin valoraciones, el promedio es null y la cantidad 0', async () => {
     const perfil = await crearServicio().obtenerPerfil(ANA, ANA);
-    expect(perfil.valoracionPromedio).toBeNull();
+    expect(perfil).toMatchObject({ valoracionPromedio: null, cantidadValoraciones: 0 });
+  });
+
+  it('FP / RN3: el perfil propio informa el promedio con 2 decimales y cuántas valoraciones recibió', async () => {
+    const servicio = crearServicio({ valoraciones: new ValoracionesEnMemoria({ [ANA]: [5, 4, 4] }) });
+    await expect(servicio.obtenerPerfil(ANA, ANA)).resolves.toMatchObject({ valoracionPromedio: 4.33, cantidadValoraciones: 3 });
   });
 
   it('FP: si la cuenta de la sesión ya no está activa responde 401', async () => {
@@ -93,6 +99,7 @@ describe('CU04 – Visualizar perfil de usuario', () => {
       esPropio: false,
     });
     expect(perfil).not.toHaveProperty('email');
+    expect(perfil).not.toHaveProperty('cantidadValoraciones');
   });
 
   it('A1: sin actividades terminadas, la cantidad es 0', async () => {
@@ -109,7 +116,7 @@ describe('CU04 – Visualizar perfil de usuario', () => {
 
   it('ER1: si falla la base al cargar el perfil, el error se propaga y no se devuelve un perfil incompleto', async () => {
     const valoracionesQueFallan = {
-      promedioRecibido: async () => {
+      resumenRecibido: async () => {
         throw new Error('conexión perdida con PostgreSQL');
       },
     };

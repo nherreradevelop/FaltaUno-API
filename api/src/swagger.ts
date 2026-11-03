@@ -68,6 +68,10 @@ export const documentoSwagger = {
             example: 4.75,
             description: 'Promedio con 2 decimales; null si no tiene valoraciones (RN3).',
           },
+          cantidadValoraciones: {
+            type: 'integer',
+            description: 'Solo en el perfil propio (FP): cantidad de valoraciones recibidas.',
+          },
           cantidadActividades: {
             type: 'integer',
             description:

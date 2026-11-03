@@ -189,12 +189,19 @@ export class DeportesEnMemoria implements Pick<DependenciasUsuarios['deportes'],
   }
 }
 
-/** Promedio por usuario, como lo devuelve ValoracionesRepositorio (null si no tiene valoraciones). */
-export class ValoracionesEnMemoria implements Pick<DependenciasUsuarios['valoraciones'], 'promedioRecibido'> {
-  constructor(private readonly promedios: Record<string, number> = {}) {}
+type RepositorioValoraciones = DependenciasUsuarios['valoraciones'];
 
-  async promedioRecibido(usuarioId: string): Promise<number | null> {
-    return this.promedios[usuarioId] ?? null;
+/** Puntajes recibidos por usuario; calcula promedio y cantidad como ValoracionesRepositorio. */
+export class ValoracionesEnMemoria implements RepositorioValoraciones {
+  constructor(private readonly puntajesPorUsuario: Record<string, number[]> = {}) {}
+
+  async resumenRecibido(usuarioId: string): Promise<{ promedio: number | null; cantidad: number }> {
+    const puntajes = this.puntajesPorUsuario[usuarioId] ?? [];
+    if (puntajes.length === 0) {
+      return { promedio: null, cantidad: 0 };
+    }
+    const suma = puntajes.reduce((total, puntaje) => total + puntaje, 0);
+    return { promedio: Math.round((suma / puntajes.length) * 100) / 100, cantidad: puntajes.length };
   }
 }
 

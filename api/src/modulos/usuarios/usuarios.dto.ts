@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { ActividadDelHistorial, EstadoActividad, PaginaDeHistorial } from '../actividades/actividades.repositorio';
 import type { Deporte } from '../deportes/deporte.entidad';
+import type { ResumenDeValoraciones } from '../valoraciones/valoraciones.repositorio';
 import type { Usuario } from './usuario.entidad';
 
 /** CU04 FP: el historial se muestra de a 10 actividades. */
@@ -38,9 +39,13 @@ export interface PerfilPublicoDto {
   esPropio: false;
 }
 
-/** CU04 FP: el perfil propio agrega el correo y, en lugar de la cantidad, el historial, que se pide aparte y paginado. */
+/**
+ * CU04 FP: el perfil propio agrega el correo y la cantidad de valoraciones recibidas. En lugar de la cantidad
+ * de actividades muestra el historial, que se pide aparte y paginado.
+ */
 export interface PerfilPropioDto extends Omit<PerfilPublicoDto, 'esPropio' | 'cantidadActividades'> {
   email: string;
+  cantidadValoraciones: number;
   esPropio: true;
 }
 
@@ -67,7 +72,7 @@ function aDeporteDto(deporte: Deporte): DeporteDto {
 export function aPerfilPublicoDto(
   usuario: Usuario,
   deportes: Deporte[],
-  valoracionPromedio: number | null,
+  valoraciones: ResumenDeValoraciones,
   cantidadActividades: number,
 ): PerfilPublicoDto {
   return {
@@ -76,13 +81,13 @@ export function aPerfilPublicoDto(
     fotoUrl: usuario.fotoUrl,
     biografia: usuario.biografia,
     deportes: deportes.map(aDeporteDto),
-    valoracionPromedio,
+    valoracionPromedio: valoraciones.promedio,
     cantidadActividades,
     esPropio: false,
   };
 }
 
-export function aPerfilPropioDto(usuario: Usuario, deportes: Deporte[], valoracionPromedio: number | null): PerfilPropioDto {
+export function aPerfilPropioDto(usuario: Usuario, deportes: Deporte[], valoraciones: ResumenDeValoraciones): PerfilPropioDto {
   return {
     id: usuario.id,
     nombre: usuario.nombre,
@@ -90,7 +95,8 @@ export function aPerfilPropioDto(usuario: Usuario, deportes: Deporte[], valoraci
     fotoUrl: usuario.fotoUrl,
     biografia: usuario.biografia,
     deportes: deportes.map(aDeporteDto),
-    valoracionPromedio,
+    valoracionPromedio: valoraciones.promedio,
+    cantidadValoraciones: valoraciones.cantidad,
     esPropio: true,
   };
 }
