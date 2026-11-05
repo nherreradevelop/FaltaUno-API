@@ -20,6 +20,11 @@ function error(descripcion: string) {
   return { description: descripcion, content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } };
 }
 
+const perfil = {
+  description: 'Perfil del usuario.',
+  content: { 'application/json': { schema: { $ref: '#/components/schemas/Perfil' } } },
+};
+
 const respuestaLogin = {
   description: 'Sesión creada.',
   content: { 'application/json': { schema: { $ref: '#/components/schemas/RespuestaLogin' } } },
@@ -40,6 +45,59 @@ export const documentoSwagger = {
           nombre: { type: 'string' },
           email: { type: 'string', format: 'email' },
           fotoUrl: { type: 'string', nullable: true },
+        },
+      },
+      Deporte: {
+        type: 'object',
+        properties: { id: { type: 'integer' }, nombre: { type: 'string' } },
+      },
+      Perfil: {
+        type: 'object',
+        description:
+          'CU04. Con esPropio = false (A1) es la información pública (RN1) y no incluye email. Con esPropio = true (FP) incluye email.',
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          nombre: { type: 'string' },
+          email: { type: 'string', format: 'email', description: 'Solo en el perfil propio.' },
+          fotoUrl: { type: 'string', nullable: true },
+          biografia: { type: 'string', nullable: true },
+          deportes: { type: 'array', items: { $ref: '#/components/schemas/Deporte' }, description: 'Solo deportes activos.' },
+          valoracionPromedio: {
+            type: 'number',
+            nullable: true,
+            example: 4.75,
+            description: 'Promedio con 2 decimales; null si no tiene valoraciones (RN3).',
+          },
+          cantidadValoraciones: {
+            type: 'integer',
+            description: 'Solo en el perfil propio (FP): cantidad de valoraciones recibidas.',
+          },
+          cantidadActividades: {
+            type: 'integer',
+            description:
+              'Solo en el perfil de otro usuario (A1): cantidad de actividades archivadas o canceladas en las que participó.',
+          },
+          esPropio: { type: 'boolean', description: 'RN2: el cliente muestra "Editar perfil" solo si es true.' },
+        },
+      },
+      Historial: {
+        type: 'object',
+        properties: {
+          actividades: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'string', format: 'uuid' },
+                nombre: { type: 'string' },
+                deporte: { type: 'string' },
+                fechaHoraInicio: { type: 'string', format: 'date-time' },
+                estado: { type: 'string', enum: ['archivada', 'cancelada'] },
+              },
+            },
+          },
+          pagina: { type: 'integer', example: 1 },
+          hayMas: { type: 'boolean', description: 'true si hay otra página.' },
         },
       },
       RespuestaLogin: {
@@ -118,6 +176,49 @@ export const documentoSwagger = {
             content: { 'application/json': { schema: { $ref: '#/components/schemas/Usuario' } } },
           },
           401: error('Sin sesión o sesión vencida (SESION_INVALIDA).'),
+        },
+      },
+    },
+    '/usuarios/yo/perfil': {
+      get: {
+        tags: ['Usuarios'],
+        summary: 'CU04 FP – Ver mi perfil',
+        security: [{ sesion: [] }],
+        responses: {
+          200: perfil,
+          401: error('Sin sesión o sesión vencida (SESION_INVALIDA).'),
+          500: error('ER1: no se pudo cargar el perfil (ERROR_INTERNO).'),
+        },
+      },
+    },
+    '/usuarios/yo/actividades': {
+      get: {
+        tags: ['Usuarios'],
+        summary: 'CU04 FP – Historial de actividades del perfil propio (archivadas o canceladas, de a 10)',
+        security: [{ sesion: [] }],
+        parameters: [{ name: 'pagina', in: 'query', required: false, schema: { type: 'integer', minimum: 1, default: 1 } }],
+        responses: {
+          200: {
+            description: 'Página del historial, de la actividad más reciente a la más antigua.',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/Historial' } } },
+          },
+          400: error('Página inválida (DATOS_INVALIDOS).'),
+          401: error('Sin sesión o sesión vencida (SESION_INVALIDA).'),
+          500: error('ER1: no se pudo cargar el historial (ERROR_INTERNO).'),
+        },
+      },
+    },
+    '/usuarios/{id}/perfil': {
+      get: {
+        tags: ['Usuarios'],
+        summary: 'CU04 A1 – Ver el perfil de otro usuario (información pública)',
+        security: [{ sesion: [] }],
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        responses: {
+          200: perfil,
+          401: error('Sin sesión o sesión vencida (SESION_INVALIDA).'),
+          404: error('E1: el usuario no existe o cerró su cuenta (PERFIL_NO_DISPONIBLE).'),
+          500: error('ER1: no se pudo cargar el perfil (ERROR_INTERNO).'),
         },
       },
     },

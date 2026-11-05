@@ -3,7 +3,10 @@ import type { DependenciasAuth } from '../src/modulos/auth/auth.servicio';
 import type { SesionCreada } from '../src/modulos/auth/sesiones.repositorio';
 import type { IdentidadExterna } from '../src/infra/oauth';
 import { logger } from '../src/infra/logger';
+import type { PaginaDeHistorial } from '../src/modulos/actividades/actividades.repositorio';
+import { Deporte } from '../src/modulos/deportes/deporte.entidad';
 import { Usuario, type ProveedorAuth } from '../src/modulos/usuarios/usuario.entidad';
+import type { DependenciasUsuarios } from '../src/modulos/usuarios/usuarios.servicio';
 
 type RepositorioUsuarios = DependenciasAuth['usuarios'];
 type RepositorioSesiones = DependenciasAuth['sesiones'];
@@ -15,6 +18,8 @@ export interface UsuarioGuardado {
   id: string;
   nombre: string;
   email: string;
+  fotoUrl: string | null;
+  biografia: string | null;
   proveedorAuth: ProveedorAuth;
   proveedorId: string | null;
   verificado: boolean;
@@ -32,6 +37,8 @@ export function crearUsuarioGuardado(cambios: Partial<UsuarioGuardado> = {}): Us
     id: 'usuario-1',
     nombre: 'Ana Pérez',
     email: 'ana@faltauno.uy',
+    fotoUrl: null,
+    biografia: null,
     proveedorAuth: 'local',
     proveedorId: null,
     verificado: true,
@@ -47,7 +54,8 @@ function aEntidad(guardado: UsuarioGuardado): Usuario {
     guardado.id,
     guardado.nombre,
     guardado.email,
-    null,
+    guardado.fotoUrl,
+    guardado.biografia,
     guardado.proveedorAuth,
     guardado.proveedorId,
     guardado.verificado,
@@ -170,6 +178,55 @@ export class VerificadorGoogleFalso implements Verificador {
     }
     return this.resultado;
   }
+}
+
+/** Deportes activos por usuario, como los devuelve DeportesRepositorio (ya sin los desactivados). */
+export class DeportesEnMemoria implements Pick<DependenciasUsuarios['deportes'], 'buscarActivosDeUsuario'> {
+  constructor(private readonly porUsuario: Record<string, Deporte[]> = {}) {}
+
+  async buscarActivosDeUsuario(usuarioId: string): Promise<Deporte[]> {
+    return this.porUsuario[usuarioId] ?? [];
+  }
+}
+
+type RepositorioValoraciones = DependenciasUsuarios['valoraciones'];
+
+/** Puntajes recibidos por usuario; calcula promedio y cantidad como ValoracionesRepositorio. */
+export class ValoracionesEnMemoria implements RepositorioValoraciones {
+  constructor(private readonly puntajesPorUsuario: Record<string, number[]> = {}) {}
+
+  async resumenRecibido(usuarioId: string): Promise<{ promedio: number | null; cantidad: number }> {
+    const puntajes = this.puntajesPorUsuario[usuarioId] ?? [];
+    if (puntajes.length === 0) {
+      return { promedio: null, cantidad: 0 };
+    }
+    const suma = puntajes.reduce((total, puntaje) => total + puntaje, 0);
+    return { promedio: Math.round((suma / puntajes.length) * 100) / 100, cantidad: puntajes.length };
+  }
+}
+
+/** Historial ya filtrado (archivadas o canceladas) y ordenado; pagina como lo hace ActividadesRepositorio. */
+type RepositorioActividades = DependenciasUsuarios['actividades'];
+
+export class ActividadesEnMemoria implements RepositorioActividades {
+  readonly pedidos: { usuarioId: string; pagina: number; tamanoPagina: number }[] = [];
+
+  constructor(private readonly historialPorUsuario: Record<string, PaginaDeHistorial['actividades']> = {}) {}
+
+  async buscarHistorialDeParticipante(usuarioId: string, pagina: number, tamanoPagina: number): Promise<PaginaDeHistorial> {
+    this.pedidos.push({ usuarioId, pagina, tamanoPagina });
+    const historial = this.historialPorUsuario[usuarioId] ?? [];
+    const desde = (pagina - 1) * tamanoPagina;
+    return { actividades: historial.slice(desde, desde + tamanoPagina), hayMas: historial.length > desde + tamanoPagina };
+  }
+
+  async contarHistorialDeParticipante(usuarioId: string): Promise<number> {
+    return (this.historialPorUsuario[usuarioId] ?? []).length;
+  }
+}
+
+export function crearDeporte(id: number, nombre: string): Deporte {
+  return new Deporte(id, nombre);
 }
 
 export const MAXIMO_INTENTOS = 5;
