@@ -100,6 +100,45 @@ export const documentoSwagger = {
           hayMas: { type: 'boolean', description: 'true si hay otra página.' },
         },
       },
+      ActividadEncontrada: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          nombre: { type: 'string' },
+          deporte: { $ref: '#/components/schemas/Deporte' },
+          fechaHoraInicio: { type: 'string', format: 'date-time' },
+          departamento: { type: 'string', example: 'Rocha' },
+          nivel: { type: 'string', enum: ['principiante', 'intermedio', 'avanzado'] },
+          cuposLibres: {
+            type: 'integer',
+            description: 'Cupo máximo menos participantes (organizador incluido) e invitados externos.',
+          },
+          organizador: {
+            type: 'object',
+            nullable: true,
+            description: 'Quién organiza la actividad; null si cerró su cuenta.',
+            properties: {
+              id: { type: 'string', format: 'uuid' },
+              nombre: { type: 'string', example: 'Diego Pérez' },
+              valoracionPromedio: {
+                type: 'number',
+                nullable: true,
+                example: 4.33,
+                description: 'Promedio de valoraciones recibidas, con 2 decimales; null si no tiene.',
+              },
+            },
+          },
+          esOrganizador: { type: 'boolean', description: 'true si el usuario de la sesión organiza la actividad.' },
+        },
+      },
+      ResultadoBusqueda: {
+        type: 'object',
+        properties: {
+          actividades: { type: 'array', items: { $ref: '#/components/schemas/ActividadEncontrada' } },
+          pagina: { type: 'integer', example: 1 },
+          hayMas: { type: 'boolean' },
+        },
+      },
       RespuestaLogin: {
         type: 'object',
         properties: {
@@ -219,6 +258,119 @@ export const documentoSwagger = {
           401: error('Sin sesión o sesión vencida (SESION_INVALIDA).'),
           404: error('E1: el usuario no existe o cerró su cuenta (PERFIL_NO_DISPONIBLE).'),
           500: error('ER1: no se pudo cargar el perfil (ERROR_INTERNO).'),
+        },
+      },
+    },
+    '/actividades': {
+      get: {
+        tags: ['Actividades'],
+        summary: 'CU08 – Buscar actividades disponibles (programadas, sin empezar y con cupo), de a 10',
+        description:
+          'Todos los filtros son opcionales y se combinan (RN4). Los que admiten varios valores van separados por coma y alcanza con cumplir uno (RN5). Orden (RN1): por día y, dentro del día, por cercanía del destino a lat/lng; sin lat/lng, por fecha y hora.',
+        security: [{ sesion: [] }],
+        parameters: [
+          {
+            name: 'deportes',
+            in: 'query',
+            required: false,
+            schema: { type: 'string' },
+            description: 'A1: ids de deporte, por ejemplo 1,3.',
+          },
+          {
+            name: 'departamentos',
+            in: 'query',
+            required: false,
+            schema: { type: 'string' },
+            description: 'A5: por ejemplo Rocha,Maldonado.',
+          },
+          {
+            name: 'niveles',
+            in: 'query',
+            required: false,
+            schema: { type: 'string' },
+            description: 'A6: principiante, intermedio, avanzado.',
+          },
+          {
+            name: 'franjas',
+            in: 'query',
+            required: false,
+            schema: { type: 'string' },
+            description: 'A4: manana (00:00-11:59), tarde (12:00-19:59), noche (20:00-23:59).',
+          },
+          {
+            name: 'desde',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', format: 'date' },
+            description: 'A2, inclusive (hora de Uruguay).',
+          },
+          {
+            name: 'hasta',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', format: 'date' },
+            description: 'A2, inclusive (hora de Uruguay).',
+          },
+          {
+            name: 'cupoMaximo',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer', minimum: 1 },
+            description: 'A3: cupo máximo igual o menor.',
+          },
+          {
+            name: 'lat',
+            in: 'query',
+            required: false,
+            schema: { type: 'number' },
+            description: 'Ubicación del usuario (con lng).',
+          },
+          {
+            name: 'lng',
+            in: 'query',
+            required: false,
+            schema: { type: 'number' },
+            description: 'Ubicación del usuario (con lat).',
+          },
+          { name: 'pagina', in: 'query', required: false, schema: { type: 'integer', minimum: 1, default: 1 } },
+        ],
+        responses: {
+          200: {
+            description: 'Página de actividades. Una lista vacía es E1.',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/ResultadoBusqueda' } } },
+          },
+          400: error('Filtros inválidos (DATOS_INVALIDOS).'),
+          401: error('ER3: sin sesión o sesión vencida (SESION_INVALIDA).'),
+          500: error('ER1: no se pudieron recuperar las actividades (ERROR_INTERNO).'),
+        },
+      },
+    },
+    '/actividades/departamentos': {
+      get: {
+        tags: ['Actividades'],
+        summary: 'CU08 A5 – Opciones del filtro de departamento',
+        security: [{ sesion: [] }],
+        responses: {
+          200: {
+            description: 'Los 19 departamentos de Uruguay.',
+            content: { 'application/json': { schema: { type: 'array', items: { type: 'string' } } } },
+          },
+          401: error('Sin sesión o sesión vencida (SESION_INVALIDA).'),
+        },
+      },
+    },
+    '/deportes': {
+      get: {
+        tags: ['Deportes'],
+        summary: 'CU08 A1 – Deportes activos del catálogo (opciones del filtro de deporte)',
+        security: [{ sesion: [] }],
+        responses: {
+          200: {
+            description: 'Deportes activos, ordenados por nombre.',
+            content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/Deporte' } } } },
+          },
+          401: error('Sin sesión o sesión vencida (SESION_INVALIDA).'),
+          500: error('ER2: no se pudo cargar el catálogo (ERROR_INTERNO).'),
         },
       },
     },

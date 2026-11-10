@@ -75,6 +75,15 @@ docker cp db/seeds/002_perfil_prueba.sql faltauno-postgres:/tmp/seed2.sql
 docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/seed2.sql
 ```
 
+`db/seeds/003_busqueda_prueba.sql` agrega actividades programadas para probar el CU08 (Buscar actividades). Antes hay que aplicar la migración `003_busqueda_actividades.sql`:
+
+```bash
+docker cp db/migrations/003_busqueda_actividades.sql faltauno-postgres:/tmp/003.sql
+docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/003.sql
+docker cp db/seeds/003_busqueda_prueba.sql faltauno-postgres:/tmp/seed3.sql
+docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/seed3.sql
+```
+
 ## Ejecutar la API
 
 Con los servicios de Docker levantados:

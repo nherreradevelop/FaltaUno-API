@@ -25,4 +25,10 @@ export class DeportesRepositorio {
     );
     return resultado.rows.map((fila) => new Deporte(fila.id, fila.nombre));
   }
+
+  /** CU08 A1: opciones del filtro de deportes. Solo los activos del catálogo. */
+  async listarActivos(): Promise<Deporte[]> {
+    const resultado = await this.db.query<FilaDeporte>(`SELECT id, nombre FROM deporte WHERE activo ORDER BY nombre`);
+    return resultado.rows.map((fila) => new Deporte(fila.id, fila.nombre));
+  }
 }
