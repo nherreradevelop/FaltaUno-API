@@ -1,16 +1,20 @@
 import { errores } from '../../comun/errores';
 import {
+  aActividadEncontradaDto,
   aDetalleActividadDto,
   aParticipantesDto,
+  TAMANO_PAGINA_BUSQUEDA,
   TAMANO_PAGINA_PARTICIPANTES,
   type DetalleActividadDto,
+  type FiltrosDeBusqueda,
   type ParticipantesDto,
+  type ResultadoDeBusquedaDto,
 } from './actividades.dto';
 import type { ActividadesRepositorio } from './actividades.repositorio';
 
 /** Solo los métodos que usa este servicio: permite probarlo con dobles en memoria. */
 export interface DependenciasActividades {
-  actividades: Pick<ActividadesRepositorio, 'buscarDetalle' | 'existe' | 'buscarParticipantes'>;
+  actividades: Pick<ActividadesRepositorio, 'buscarDisponibles' | 'buscarDetalle' | 'existe' | 'buscarParticipantes'>;
 }
 
 /** CU09 E2: la actividad no existe. También se usa para un id con formato inválido. */
@@ -20,6 +24,19 @@ export function actividadNoDisponible() {
 
 export class ActividadesServicio {
   constructor(private readonly dependencias: DependenciasActividades) {}
+
+  /**
+   * CU08 – Buscar actividades. Devuelve una página de actividades disponibles que cumplen los filtros.
+   * Una lista vacía es el caso E1: el cliente informa que no hay actividades y sugiere crear una.
+   */
+  async buscar(usuarioId: string, filtros: FiltrosDeBusqueda, pagina: number): Promise<ResultadoDeBusquedaDto> {
+    const encontradas = await this.dependencias.actividades.buscarDisponibles(filtros, pagina, TAMANO_PAGINA_BUSQUEDA);
+    return {
+      actividades: encontradas.actividades.map((encontrada) => aActividadEncontradaDto(encontrada, usuarioId)),
+      pagina,
+      hayMas: encontradas.hayMas,
+    };
+  }
 
   /**
    * CU09 – Detalle de actividad.

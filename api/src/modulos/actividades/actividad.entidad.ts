@@ -2,6 +2,18 @@ import type { Deporte } from '../deportes/deporte.entidad';
 
 export type EstadoActividad = 'programada' | 'iniciada' | 'archivada' | 'cancelada';
 export type NivelActividad = 'principiante' | 'intermedio' | 'avanzado';
+export const NIVELES_ACTIVIDAD: NivelActividad[] = ['principiante', 'intermedio', 'avanzado'];
+
+/** CU08 A4: franjas horarias, en hora de Uruguay. Las horas son inclusive. */
+export type FranjaHoraria = 'manana' | 'tarde' | 'noche';
+export const FRANJAS_HORARIAS: Record<FranjaHoraria, { desdeHora: number; hastaHora: number }> = {
+  manana: { desdeHora: 0, hastaHora: 11 }, // 00:00 a 11:59
+  tarde: { desdeHora: 12, hastaHora: 19 }, // 12:00 a 19:59
+  noche: { desdeHora: 20, hastaHora: 23 }, // 20:00 a 23:59
+};
+
+/** Las fechas y franjas de las actividades se interpretan en la hora de Uruguay. */
+export const ZONA_HORARIA = 'America/Montevideo';
 
 /** CU09 FP paso 3: relación del usuario con la actividad. */
 export type RolEnActividad = 'organizador' | 'participante' | 'ninguno';
@@ -78,6 +90,8 @@ export class Actividad {
     readonly descripcion: string | null,
     readonly origen: Ubicacion,
     readonly destino: Ubicacion,
+    /** Departamento del destino, calculado a partir del mapa al crear la actividad (CU10). Lo usa el filtro del CU08 A5. */
+    readonly departamento: string,
     readonly cupoMaximo: number,
     /** Participantes más sus invitados externos: los invitados también ocupan cupo (CU10 RN9, CU28 RN2). */
     readonly cuposOcupados: number,

@@ -86,6 +86,13 @@ docker cp db/seeds/003_detalle_actividad_prueba.sql faltauno-postgres:/tmp/seed3
 docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/seed3.sql
 ```
 
+`db/seeds/004_busqueda_prueba.sql` agrega actividades programadas para probar el CU08 (Buscar actividades): distintos deportes, departamentos, niveles, franjas y cupos, más una completa, una con fecha pasada y una cancelada que no tienen que aparecer:
+
+```bash
+docker cp db/seeds/004_busqueda_prueba.sql faltauno-postgres:/tmp/seed4.sql
+docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/seed4.sql
+```
+
 ## Ejecutar la API
 
 Con los servicios de Docker levantados:
