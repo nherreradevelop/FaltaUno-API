@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\api",
+    "\\api\\src",
+    "\\api\\src\\config",
+    "\\api\\src\\modulos",
+    "\\api\\src\\modulos\\auth",
+    "\\api\\src\\modulos\\usuarios"
+  ],
+  "PreviewInSolutionExplorer": false
+}

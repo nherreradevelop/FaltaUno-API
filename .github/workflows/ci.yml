@@ -31,6 +31,13 @@ jobs:
     name: API - compilación y pruebas
     runs-on: ubuntu-latest
     services:
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 10
       postgres:
         image: postgres:17
         env:
@@ -45,6 +52,7 @@ jobs:
     env:
       NODE_ENV: test
       POSTGRES_URL_TEST: postgres://faltauno:faltauno_dev@localhost:5432/faltauno_test
+      REDIS_URL_TEST: redis://localhost:6379/15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -62,4 +70,4 @@ jobs:
       - name: Pruebas
         if: hashFiles('api/package.json') != ''
         working-directory: api
-        run: npm test --if-present
+        run: npm run test:cobertura -- --runInBand

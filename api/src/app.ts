@@ -4,6 +4,7 @@ import { crearManejadorErrores } from './comun/middlewares/manejadorErrores';
 import type { Contexto } from './contexto';
 import { crearRutasAuth } from './modulos/auth/auth.rutas';
 import { crearRutasUsuarios } from './modulos/usuarios/usuarios.rutas';
+import { crearRutasActividades } from './modulos/actividades/actividades.rutas';
 import { documentoSwagger } from './swagger';
 
 /** Arma la aplicación de Express: middlewares globales y routers de cada módulo. */
@@ -18,6 +19,7 @@ export function crearApp(contexto: Contexto): Express {
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(documentoSwagger));
   app.use('/api/auth', crearRutasAuth(contexto));
   app.use('/api/usuarios', crearRutasUsuarios(contexto));
+  app.use('/api/actividades', crearRutasActividades(contexto));
 
   app.use(crearManejadorErrores(contexto.logger));
   return app;
@@ -30,7 +32,7 @@ function permitirOrigenes(origenesPermitidos: string[]): express.RequestHandler 
     if (origen && origenesPermitidos.includes(origen)) {
       res.setHeader('Access-Control-Allow-Origin', origen);
       res.setHeader('Vary', 'Origin');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Idempotency-Key');
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
     }
     if (req.method === 'OPTIONS') {

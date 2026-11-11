@@ -1,3 +1,5 @@
+import { rutasSwaggerActividades } from './modulos/actividades/actividades.swagger';
+
 /**
  * Documentación OpenAPI de la API (Plan de calidad - SQA). Se ve en http://localhost:3000/api/docs.
  * Cada endpoint nuevo se agrega acá.
@@ -53,6 +55,7 @@ export const documentoSwagger = {
     },
   },
   paths: {
+    ...rutasSwaggerActividades,
     '/auth/login': {
       post: {
         tags: ['Autenticación'],

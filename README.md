@@ -53,11 +53,15 @@ Con los servicios levantados, desde la raíz del repositorio (funciona igual en 
 ```bash
 docker cp db/migrations/001_esquema_inicial.sql faltauno-postgres:/tmp/001.sql
 docker cp db/migrations/002_catalogos.sql faltauno-postgres:/tmp/002.sql
+docker cp db/migrations/003_cu10_origen_opcional_destino_provisional.sql faltauno-postgres:/tmp/003.sql
 docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/001.sql
 docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/002.sql
+docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/003.sql
 ```
 
 > Los scripts se copian al contenedor en lugar de pasarlos por la tubería de PowerShell para no romper las tildes.
+
+Si el esquema y los catálogos ya existen, aplicar únicamente la migración `003` una vez. Permite el origen opcional de CU10, conserva la precisión del destino y marca los destinos provisionales usados cuando Google Maps no está disponible.
 
 ### Usuarios de prueba (opcional, solo local)
 
@@ -140,6 +144,19 @@ npm run n8n:importar   # carpeta n8n/ -> tu n8n
 
 GitHub Actions (`.github/workflows/ci.yml`) se ejecuta en cada pull request y push a `develop` o `main`:
 lint y formato siempre; compilación y pruebas de la API en cuanto exista `api/package.json`.
+
+La API ejecuta cobertura y pruebas de CU10 contra PostgreSQL de pruebas y Redis `/15`.
+
+## CU10 Crear actividad
+
+La implementación incluye API, web y mobile. Para seleccionar origen y destino, configurar
+`GOOGLE_MAPS_API_KEY` en `api/.env` con Places API (New) habilitada y reiniciar la API.
+El máximo inicial es 20 (`ACTIVIDAD_MAX_PARTICIPANTES`); el costo manual es total y el clima
+queda como placeholder de CU15, según la revisión del plan.
+
+Ver [configuración y funcionamiento](docs/cu10-implementacion.md) y
+[casos de prueba y resultados](docs/testing/cu10-casos-prueba.md).
+El [inventario de integración con Google Maps](docs/google-maps-integracion.md) detalla SDK, servicios, claves y solicitudes de web, API y mobile.
 
 ## Forma de trabajo
 
