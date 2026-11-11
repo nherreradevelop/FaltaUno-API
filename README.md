@@ -55,7 +55,11 @@ docker cp db/migrations/001_esquema_inicial.sql faltauno-postgres:/tmp/001.sql
 docker cp db/migrations/002_catalogos.sql faltauno-postgres:/tmp/002.sql
 docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/001.sql
 docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/002.sql
+docker cp db/migrations/003_indice_participacion_actividad.sql faltauno-postgres:/tmp/003.sql
+docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/003.sql
 ```
+
+Si la base ya tenía las tablas creadas, alcanza con correr solo la `003`.
 
 > Los scripts se copian al contenedor en lugar de pasarlos por la tubería de PowerShell para no romper las tildes.
 
@@ -73,6 +77,13 @@ docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f
 ```bash
 docker cp db/seeds/002_perfil_prueba.sql faltauno-postgres:/tmp/seed2.sql
 docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/seed2.sql
+```
+
+`db/seeds/003_detalle_actividad_prueba.sql` crea una actividad para cada caso del CU09 (Detalle de actividad): cada rol, cada estado, completa, con y sin pronóstico. El detalle de cada una está en el propio archivo. Requiere la migración 003:
+
+```bash
+docker cp db/seeds/003_detalle_actividad_prueba.sql faltauno-postgres:/tmp/seed3.sql
+docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/seed3.sql
 ```
 
 ## Ejecutar la API
