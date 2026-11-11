@@ -53,15 +53,20 @@ Con los servicios levantados, desde la raíz del repositorio (funciona igual en 
 ```bash
 docker cp db/migrations/001_esquema_inicial.sql faltauno-postgres:/tmp/001.sql
 docker cp db/migrations/002_catalogos.sql faltauno-postgres:/tmp/002.sql
-docker cp db/migrations/003_cu10_origen_opcional_destino_provisional.sql faltauno-postgres:/tmp/003.sql
+docker cp db/migrations/003_indice_participacion_actividad.sql faltauno-postgres:/tmp/003.sql
+docker cp db/migrations/004_cu10_origen_opcional_destino_provisional.sql faltauno-postgres:/tmp/004.sql
 docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/001.sql
 docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/002.sql
 docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/003.sql
+docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/004.sql
 ```
 
-> Los scripts se copian al contenedor en lugar de pasarlos por la tubería de PowerShell para no romper las tildes.
+Si la base ya tenía las tablas creadas, alcanza con correr las que falten (cada una se aplica una sola vez):
 
-Si el esquema y los catálogos ya existen, aplicar únicamente la migración `003` una vez. Permite el origen opcional de CU10, conserva la precisión del destino y marca los destinos provisionales usados cuando Google Maps no está disponible.
+- `003`: índice de participaciones por actividad (CU08 y CU09).
+- `004`: origen opcional del CU10, más precisión en el destino y la marca de destino provisional (cuando Google Maps no está disponible).
+
+> Los scripts se copian al contenedor en lugar de pasarlos por la tubería de PowerShell para no romper las tildes.
 
 ### Usuarios de prueba (opcional, solo local)
 
@@ -70,6 +75,27 @@ Si el esquema y los catálogos ya existen, aplicar únicamente la migración `00
 ```bash
 docker cp db/seeds/001_usuarios_prueba.sql faltauno-postgres:/tmp/seed.sql
 docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/seed.sql
+```
+
+`db/seeds/002_perfil_prueba.sql` agrega biografías, deportes, valoraciones e historial de actividades para probar el CU04 (Visualizar perfil). Se corre después del anterior:
+
+```bash
+docker cp db/seeds/002_perfil_prueba.sql faltauno-postgres:/tmp/seed2.sql
+docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/seed2.sql
+```
+
+`db/seeds/003_detalle_actividad_prueba.sql` crea una actividad para cada caso del CU09 (Detalle de actividad): cada rol, cada estado, completa, con y sin pronóstico. El detalle de cada una está en el propio archivo. Requiere la migración 003:
+
+```bash
+docker cp db/seeds/003_detalle_actividad_prueba.sql faltauno-postgres:/tmp/seed3.sql
+docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/seed3.sql
+```
+
+`db/seeds/004_busqueda_prueba.sql` agrega actividades programadas para probar el CU08 (Buscar actividades): distintos deportes, departamentos, niveles, franjas y cupos, más una completa, una con fecha pasada y una cancelada que no tienen que aparecer:
+
+```bash
+docker cp db/seeds/004_busqueda_prueba.sql faltauno-postgres:/tmp/seed4.sql
+docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/seed4.sql
 ```
 
 ## Ejecutar la API

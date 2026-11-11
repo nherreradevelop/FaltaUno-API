@@ -9,6 +9,7 @@ export class Usuario {
     readonly nombre: string,
     readonly email: string,
     readonly fotoUrl: string | null,
+    readonly biografia: string | null,
     readonly proveedorAuth: ProveedorAuth,
     readonly proveedorId: string | null,
     readonly verificado: boolean,

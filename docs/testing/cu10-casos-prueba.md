@@ -4,7 +4,7 @@ Fecha: 7 de noviembre de 2026. Ejecutor de las comprobaciones automatizadas: Cod
 
 ## Entorno y reproducción
 
-API: Jest, PostgreSQL local `faltauno_test` y Redis local en la base lógica `/15`. La suite de integración crea un esquema aleatorio por ejecución, aplica ahí el SQL inicial y la migración `003`, y lo elimina al terminar. No usa datos de las bases compartidas. Google Maps se simula exclusivamente dentro de los tests.
+API: Jest, PostgreSQL local `faltauno_test` y Redis local en la base lógica `/15`. La suite de integración crea un esquema aleatorio por ejecución, aplica ahí el SQL inicial y la migración `004`, y lo elimina al terminar. No usa datos de las bases compartidas. Google Maps se simula exclusivamente dentro de los tests.
 
 ```powershell
 $env:POSTGRES_URL_TEST = 'postgres://faltauno:faltauno_dev@127.0.0.1:5432/faltauno_test'
@@ -79,7 +79,7 @@ Resultado automatizado por Codex: 14/14 pruebas mobile aprobadas, incluidas cuat
 - CP-CU10-ORIGEN-03: enviar vehículo sin origen directamente a la API. Responde 400 con `campos.origenPlaceId`, sin consultar Google ni crear actividades. Pruebas de servicio y HTTP contra PostgreSQL/Redis locales aprobadas.
 - CP-CU10-ORIGEN-04: guardar sin vehículo y sin origen, con destino provisional. La integración local conserva origen nulo, coordenadas configuradas, departamento y marca provisional; el reintento recupera la misma actividad.
 - Ejecución automatizada local: 97 pruebas de API, 12 de web y 16 de mobile aprobadas; compilación de API/web y tipos de mobile aprobados. No sustituye la revisión humana ni una prueba funcional en dispositivo móvil.
-- Migración `003` aplicada a la Supabase configurada con autorización expresa del usuario. Se verificaron las columnas, la restricción de origen completo y la conservación de la cantidad de actividades existentes. No se modificó el archivo SQL de la migración.
+- Migración `004` (originalmente numerada `003`) aplicada a la Supabase configurada con autorización expresa del usuario. Se verificaron las columnas, la restricción de origen completo y la conservación de la cantidad de actividades existentes. No se modificó el archivo SQL de la migración.
 
 ### Revisión del 10/11/2026: origen opcional y destino provisional
 
@@ -91,7 +91,7 @@ Esta revisión reemplaza la exigencia de origen de los casos previos y habilita 
 - CP-CU10-23 (ER2/E4): búsqueda con 503 y posterior recuperación; esperado/obtenido: activar destino provisional ante indisponibilidad, poder reintentar Google y quitar el provisional tras una búsqueda exitosa. Un error 400 de ubicación no activa la excepción. Aprobado en pruebas unitarias del adaptador y navegador con fixtures.
 - CP-CU10-24 (presentación): etiqueta del vehículo incluye al organizador, origen borrable, aviso provisional en formulario/confirmación y ancho 390 px sin desborde. Aprobado en navegador; al usar el mismo lugar para origen y destino se detectó y corrigió una colisión de claves React.
 
-Resultado de esta revisión, ejecutada por Codex: **10 suites API, 83 pruebas aprobadas, ninguna omitida**; cobertura del servicio de actividades: 100 % en líneas, sentencias, funciones y ramas. Cobertura global de servicios: 100 % en líneas/sentencias/funciones y 96,29 % en ramas. Clientes: **10/10 web y 10/10 mobile**, lint, build web y tipos mobile aprobados. Evidencia del navegador en `cu10-destino-provisional/resultado.json` y capturas del mismo directorio de visualizaciones de la sesión. Los contextos de navegador son aislados y usan fixtures; no crean actividades reales ni prueban Google externo. La integración escribe únicamente en su esquema temporal de `faltauno_test`. La migración `003` se aplicó además a `localhost/faltauno` para que el usuario pueda probar el cambio, conservando sus registros. Edición posterior, prueba en celular, revisión humana y CI remoto siguen pendientes.
+Resultado de esta revisión, ejecutada por Codex: **10 suites API, 83 pruebas aprobadas, ninguna omitida**; cobertura del servicio de actividades: 100 % en líneas, sentencias, funciones y ramas. Cobertura global de servicios: 100 % en líneas/sentencias/funciones y 96,29 % en ramas. Clientes: **10/10 web y 10/10 mobile**, lint, build web y tipos mobile aprobados. Evidencia del navegador en `cu10-destino-provisional/resultado.json` y capturas del mismo directorio de visualizaciones de la sesión. Los contextos de navegador son aislados y usan fixtures; no crean actividades reales ni prueban Google externo. La integración escribe únicamente en su esquema temporal de `faltauno_test`. La migración `004` se aplicó además a `localhost/faltauno` para que el usuario pueda probar el cambio, conservando sus registros. Edición posterior, prueba en celular, revisión humana y CI remoto siguen pendientes.
 
 ### Regresión del 10/11/2026: validación sin Maps
 

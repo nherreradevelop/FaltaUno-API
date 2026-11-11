@@ -1,196 +1,307 @@
-import { ActividadesRepositorio } from '../src/modulos/actividades/actividades.repositorio';
-import { ActividadesServicio, type DependenciasActividades } from '../src/modulos/actividades/actividades.servicio';
-import { aActividadCreada } from '../src/modulos/actividades/actividades.dto';
 import {
-  AHORA_ACTIVIDAD,
-  datosActividad,
-  DESTINO_PROVISIONAL_PRUEBA,
-  LUGAR_ACTIVIDAD,
-  USUARIO_ACTIVIDAD,
-} from './actividades.fixtures';
-import { DESTINO_PROVISIONAL_ID } from '../src/modulos/actividades/destino-provisional';
+  TAMANO_PAGINA_BUSQUEDA,
+  TAMANO_PAGINA_PARTICIPANTES,
+  type FiltrosDeBusqueda,
+} from '../src/modulos/actividades/actividades.dto';
+import { ActividadesServicio } from '../src/modulos/actividades/actividades.servicio';
+import type { ParticipanteDeActividad } from '../src/modulos/actividades/actividades.repositorio';
+import {
+  ACTIVIDAD_ID,
+  BusquedaEnMemoria,
+  crearActividad,
+  crearActividadEncontrada,
+  DetallesDeActividadEnMemoria,
+  ORGANIZADORA,
+  type ActividadGuardada,
+} from './dobles-actividades';
 
-function preparar() {
-  const repo = new ActividadesRepositorio({ query: jest.fn() });
-  jest.spyOn(repo, 'cuentaActiva').mockResolvedValue(true);
-  jest.spyOn(repo, 'deportesActivos').mockResolvedValue([{ id: 1, nombre: 'Surf' }]);
-  jest.spyOn(repo, 'buscarCreada').mockResolvedValue(null);
-  jest.spyOn(repo, 'bloquearAlta').mockResolvedValue();
-  jest.spyOn(repo, 'crear').mockResolvedValue();
-  const dependencias: DependenciasActividades = {
-    repositorio: repo,
-    transaccion: async (operacion) => operacion(repo),
-    mapas: {
-      buscar: jest.fn().mockResolvedValue([]),
-      resolver: jest.fn().mockResolvedValue(LUGAR_ACTIVIDAD),
-      disponible: jest.fn().mockReturnValue(true),
-    },
-    puntos: { resolver: jest.fn().mockImplementation(async (punto) => ({ ...LUGAR_ACTIVIDAD, ...punto })) },
-    idempotencia: { reservar: jest.fn().mockResolvedValue('actividad-1') },
-    sesiones: { buscarUsuarioId: jest.fn().mockResolvedValue(USUARIO_ACTIVIDAD) },
-    maximoParticipantes: 20,
-    destinoProvisional: DESTINO_PROVISIONAL_PRUEBA,
-    ahora: () => AHORA_ACTIVIDAD,
-  };
-  return { repo, dependencias, servicio: new ActividadesServicio(dependencias) };
+const PARTICIPANTE = 'usuario-participante';
+const AJENO = 'usuario-ajeno';
+const ID_INEXISTENTE = '99999999-9999-4999-8999-999999999999';
+
+const PRONOSTICO = {
+  resumen: 'Olas ordenadas por la mañana.',
+  nivelRecomendado: 'intermedio' as const,
+  interpretacionDisponible: true,
+  fechaGeneracion: new Date('2026-11-05T09:00:00.000Z'),
+};
+
+function crearParticipantes(cantidad: number): ParticipanteDeActividad[] {
+  return Array.from({ length: cantidad }, (_, indice) => ({
+    usuario: { id: `usuario-${indice}`, nombre: `Persona ${indice}`, fotoUrl: null },
+    esOrganizador: indice === 0,
+    invitadosExternos: [],
+  }));
 }
-describe('CU10 servicio', () => {
-  it('FP: guarda actividad con ubicación validada y costo total, y calcula la parte orientativa', async () => {
-    const { servicio, repo } = preparar();
-    const resultado = await servicio.crear(USUARIO_ACTIVIDAD, 'clave-intento', datosActividad(), 'token');
-    expect(resultado).toMatchObject({
+
+function guardada(
+  cambios: Partial<ActividadGuardada> & { actividad?: ReturnType<typeof crearActividad> } = {},
+): ActividadGuardada {
+  return {
+    detalle: {
+      actividad: cambios.actividad ?? crearActividad(),
+      organizador: { id: ORGANIZADORA, nombre: 'Martina Rodríguez', fotoUrl: null },
+      pronostico: PRONOSTICO,
+      ...cambios.detalle,
+    },
+    participanteIds: cambios.participanteIds ?? [ORGANIZADORA, PARTICIPANTE],
+    participantes: cambios.participantes ?? [
+      { usuario: { id: ORGANIZADORA, nombre: 'Martina Rodríguez', fotoUrl: null }, esOrganizador: true, invitadosExternos: [] },
+      { usuario: { id: PARTICIPANTE, nombre: 'Juan Pérez', fotoUrl: null }, esOrganizador: false, invitadosExternos: ['Sofía'] },
+      { usuario: null, esOrganizador: false, invitadosExternos: [] },
+    ],
+  };
+}
+
+function crearServicio(actividad: ActividadGuardada = guardada()) {
+  const repositorio = new DetallesDeActividadEnMemoria({ [ACTIVIDAD_ID]: actividad });
+  return { servicio: new ActividadesServicio({ actividades: repositorio }), repositorio };
+}
+
+describe('CU09 – Detalle de actividad', () => {
+  it('FP paso 2: devuelve la información completa de la actividad', async () => {
+    const { servicio } = crearServicio();
+    const detalle = await servicio.obtenerDetalle(AJENO, ACTIVIDAD_ID);
+
+    expect(detalle).toMatchObject({
+      id: ACTIVIDAD_ID,
+      nombre: 'Surf en La Paloma',
+      deporte: { id: 1, nombre: 'Surf' },
       estado: 'programada',
-      cantidadParticipantes: 2,
-      costoEstimadoCentavos: 120050,
-      costoPorPersonaCentavos: 60025,
-    });
-    expect(repo.crear).toHaveBeenCalledWith(
-      'actividad-1',
-      USUARIO_ACTIVIDAD,
-      datosActividad(),
-      LUGAR_ACTIVIDAD,
-      LUGAR_ACTIVIDAD,
-      false,
-    );
-  });
-  it('FP: admite origen omitido y no consulta Google para inventar un origen', async () => {
-    const { servicio, repo, dependencias } = preparar();
-    const datos = datosActividad({ origenPlaceId: null, tieneVehiculo: false, lugaresVehiculo: null });
-    await servicio.crear(USUARIO_ACTIVIDAD, 'sin-origen', datos, 'token');
-    expect(dependencias.mapas.resolver).toHaveBeenCalledTimes(1);
-    expect(repo.crear).toHaveBeenCalledWith('actividad-1', USUARIO_ACTIVIDAD, datos, null, LUGAR_ACTIVIDAD, false);
-  });
-  it('E4: sin Maps permite el destino provisional canónico y guarda su marca', async () => {
-    const { servicio, repo, dependencias } = preparar();
-    jest.mocked(dependencias.mapas.disponible).mockReturnValue(false);
-    const datos = datosActividad({
-      origenPlaceId: null,
-      destinoPlaceId: DESTINO_PROVISIONAL_ID,
-      tieneVehiculo: false,
-      lugaresVehiculo: null,
-    });
-    expect(await servicio.crear(USUARIO_ACTIVIDAD, 'provisional', datos, 'token')).toMatchObject({ destinoProvisional: true });
-    expect(dependencias.mapas.resolver).not.toHaveBeenCalled();
-    expect(repo.crear).toHaveBeenCalledWith('actividad-1', USUARIO_ACTIVIDAD, datos, null, DESTINO_PROVISIONAL_PRUEBA, true);
-    expect(await servicio.opciones(USUARIO_ACTIVIDAD)).toMatchObject({
-      mapasDisponibles: false,
-      destinoPorDefecto: {
-        placeId: DESTINO_PROVISIONAL_ID,
-        descripcion: DESTINO_PROVISIONAL_PRUEBA.direccion,
-        lat: DESTINO_PROVISIONAL_PRUEBA.lat,
-        lng: DESTINO_PROVISIONAL_PRUEBA.lng,
-        provisional: true,
+      fechaHoraInicio: '2026-11-07T10:30:00.000Z',
+      nivel: 'intermedio',
+      descripcion: 'Llevá traje.',
+      origen: { direccion: 'Tres Cruces, Montevideo', lat: -34.894, lng: -56.166 },
+      destino: { direccion: 'Playa La Aguada, Rocha', lat: -34.655, lng: -54.158 },
+      cupoMaximo: 6,
+      cuposOcupados: 3,
+      organizador: { id: ORGANIZADORA, nombre: 'Martina Rodríguez', fotoUrl: null },
+      costoEstimadoCentesimos: 120000,
+      pronostico: {
+        resumen: 'Olas ordenadas por la mañana.',
+        nivelRecomendado: 'intermedio',
+        interpretacionDisponible: true,
+        fechaGeneracion: '2026-11-05T09:00:00.000Z',
       },
     });
   });
-  it('E4: con Maps disponible rechaza el destino provisional sin escrituras', async () => {
-    const { servicio, repo } = preparar();
-    await expect(
-      servicio.crear(USUARIO_ACTIVIDAD, 'provisional', datosActividad({ destinoPlaceId: DESTINO_PROVISIONAL_ID }), 'token'),
-    ).rejects.toMatchObject({ estado: 400, campos: { destinoPlaceId: expect.any(String) } });
-    expect(repo.crear).not.toHaveBeenCalled();
-  });
-  it('E4: vehículo sin origen devuelve el error del campo antes de consultar Maps o persistir', async () => {
-    const { servicio, repo, dependencias } = preparar();
-    await expect(
-      servicio.crear(USUARIO_ACTIVIDAD, 'vehiculo-sin-origen', datosActividad({ origenPlaceId: null }), 'token'),
-    ).rejects.toMatchObject({ estado: 400, campos: { origenPlaceId: expect.any(String) } });
-    expect(dependencias.mapas.resolver).not.toHaveBeenCalled();
-    expect(repo.crear).not.toHaveBeenCalled();
-    expect(repo.bloquearAlta).not.toHaveBeenCalled();
-  });
-  it('E4: el valor provisional no se acepta como origen', async () => {
-    const { servicio, repo } = preparar();
-    await expect(
-      servicio.crear(USUARIO_ACTIVIDAD, 'origen-provisional', datosActividad({ origenPlaceId: DESTINO_PROVISIONAL_ID }), 'token'),
-    ).rejects.toMatchObject({ estado: 400, campos: { origenPlaceId: expect.any(String) } });
-    expect(repo.crear).not.toHaveBeenCalled();
-  });
-  it('FP/E5: devuelve opciones reales y el placeholder acordado de CU15', async () => {
-    const { servicio } = preparar();
-    expect(await servicio.opciones(USUARIO_ACTIVIDAD)).toMatchObject({
-      maximoParticipantes: 20,
-      pronostico: { disponible: false },
-    });
-    expect(await servicio.buscarUbicaciones(USUARIO_ACTIVIDAD, 'Montevideo', 'sesion')).toEqual([]);
-  });
-  it('FP: resuelve origen y destino por pin sin convertirlos en un place ID ni marcar destino provisional', async () => {
-    const { servicio, repo, dependencias } = preparar();
-    const origen = { lat: -34.9055, lng: -56.1913 };
-    const destino = { lat: -34.91635775362398, lng: -56.11543161770436 };
-    const datos = datosActividad({
-      origenPlaceId: null,
-      destinoPlaceId: null,
-      origenCoordenadas: origen,
-      destinoCoordenadas: destino,
-    });
-    expect(await servicio.crear(USUARIO_ACTIVIDAD, 'pins', datos, 'token')).toMatchObject({ destinoProvisional: false });
-    expect(dependencias.mapas.resolver).not.toHaveBeenCalled();
-    expect(dependencias.puntos.resolver).toHaveBeenCalledWith(origen);
-    expect(dependencias.puntos.resolver).toHaveBeenCalledWith(destino);
-    expect(repo.crear).toHaveBeenCalledWith(
-      'actividad-1',
-      USUARIO_ACTIVIDAD,
-      datos,
-      { ...LUGAR_ACTIVIDAD, ...origen },
-      { ...LUGAR_ACTIVIDAD, ...destino },
-      false,
+
+  it('FP paso 2: sin información ambiental el pronóstico es null', async () => {
+    const { servicio } = crearServicio(
+      guardada({ detalle: { actividad: crearActividad(), organizador: null, pronostico: null } }),
     );
+    const detalle = await servicio.obtenerDetalle(AJENO, ACTIVIDAD_ID);
+    expect(detalle.pronostico).toBeNull();
+    expect(detalle.organizador).toBeNull();
   });
-  it('E4: el rechazo del proveedor del pin impide persistir el alta', async () => {
-    const { servicio, repo, dependencias } = preparar();
-    jest.mocked(dependencias.puntos.resolver).mockRejectedValue(new Error('Punto fuera de Uruguay'));
-    const datos = datosActividad({
-      tieneVehiculo: false,
-      lugaresVehiculo: null,
-      origenPlaceId: null,
-      destinoPlaceId: null,
-      destinoCoordenadas: { lat: -34.9, lng: -56.2 },
+
+  it('FP paso 2: una actividad sin punto de partida (CU10) se muestra con el origen en null', async () => {
+    const { servicio } = crearServicio(guardada({ actividad: crearActividad({ origen: null }) }));
+    const detalle = await servicio.obtenerDetalle(AJENO, ACTIVIDAD_ID);
+    expect(detalle.origen).toBeNull();
+    expect(detalle.destino).toEqual({ direccion: 'Playa La Aguada, Rocha', lat: -34.655, lng: -54.158 });
+  });
+
+  it('RN1 / FP paso 3: quien no participa ve el detalle con rol "ninguno" y puede unirse', async () => {
+    const { servicio } = crearServicio();
+    const detalle = await servicio.obtenerDetalle(AJENO, ACTIVIDAD_ID);
+    expect(detalle.miRol).toBe('ninguno');
+    expect(detalle.opciones).toContain('unirse');
+  });
+
+  it('RN2: el participante ve sus opciones y no las del organizador', async () => {
+    const { servicio } = crearServicio();
+    const detalle = await servicio.obtenerDetalle(PARTICIPANTE, ACTIVIDAD_ID);
+    expect(detalle.miRol).toBe('participante');
+    expect(detalle.opciones).toEqual(expect.arrayContaining(['abandonar', 'verChat']));
+    expect(detalle.opciones).not.toContain('editar');
+    expect(detalle.opciones).not.toContain('unirse');
+  });
+
+  it('RN2: el organizador ve editar, remover y cancelar', async () => {
+    const { servicio } = crearServicio();
+    const detalle = await servicio.obtenerDetalle(ORGANIZADORA, ACTIVIDAD_ID);
+    expect(detalle.miRol).toBe('organizador');
+    expect(detalle.opciones).toEqual(expect.arrayContaining(['editar', 'removerParticipantes', 'cancelar']));
+    expect(detalle.opciones).not.toContain('abandonar');
+  });
+
+  it('E1: una actividad cancelada se muestra con su estado y sin la opción de unirse', async () => {
+    const { servicio } = crearServicio(guardada({ actividad: crearActividad({ estado: 'cancelada' }) }));
+    const detalle = await servicio.obtenerDetalle(AJENO, ACTIVIDAD_ID);
+    expect(detalle.estado).toBe('cancelada');
+    expect(detalle.opciones).not.toContain('unirse');
+  });
+
+  it('RN4: una actividad iniciada indica la fecha límite para registrar gastos y pagos', async () => {
+    const { servicio } = crearServicio(guardada({ actividad: crearActividad({ estado: 'iniciada' }) }));
+    const detalle = await servicio.obtenerDetalle(PARTICIPANTE, ACTIVIDAD_ID);
+    expect(detalle.fechaLimiteGastos).toBe('2026-11-21T10:30:00.000Z');
+  });
+
+  it('RN4: en una actividad programada no hay fecha límite', async () => {
+    const { servicio } = crearServicio();
+    expect((await servicio.obtenerDetalle(PARTICIPANTE, ACTIVIDAD_ID)).fechaLimiteGastos).toBeNull();
+  });
+
+  it('RN5: una actividad archivada se puede consultar y solo admite valorar', async () => {
+    const { servicio } = crearServicio(guardada({ actividad: crearActividad({ estado: 'archivada' }) }));
+    const detalle = await servicio.obtenerDetalle(PARTICIPANTE, ACTIVIDAD_ID);
+    expect(detalle.estado).toBe('archivada');
+    expect(detalle.opciones).toEqual(['verParticipantes', 'verMapa', 'verChat', 'verGastos', 'valorar']);
+  });
+
+  it('E2: si la actividad no existe responde 404 ACTIVIDAD_NO_DISPONIBLE', async () => {
+    const { servicio } = crearServicio();
+    await expect(servicio.obtenerDetalle(AJENO, ID_INEXISTENTE)).rejects.toMatchObject({
+      estado: 404,
+      codigo: 'ACTIVIDAD_NO_DISPONIBLE',
     });
-    await expect(servicio.crear(USUARIO_ACTIVIDAD, 'pin-invalido', datos, 'token')).rejects.toThrow('Punto fuera de Uruguay');
-    expect(repo.crear).not.toHaveBeenCalled();
   });
-  it('RNF-10: recupera un alta ya confirmada sin repetir Google ni validar nuevamente la fecha', async () => {
-    const { servicio, repo, dependencias } = preparar();
-    const respuesta = aActividadCreada('actividad-1', datosActividad());
-    jest.mocked(repo.buscarCreada).mockResolvedValue(respuesta);
-    expect(
-      await servicio.crear(USUARIO_ACTIVIDAD, 'clave', datosActividad({ fechaHoraInicio: '2020-01-01T00:00:00Z' }), 'token'),
-    ).toEqual(respuesta);
-    expect(dependencias.mapas.resolver).not.toHaveBeenCalled();
+
+  it('ER1: si la base falla, el error llega al manejador centralizado (500 y log)', async () => {
+    const falla = new Error('conexión perdida');
+    const servicio = new ActividadesServicio({ actividades: new DetallesDeActividadEnMemoria({}, falla) });
+    await expect(servicio.obtenerDetalle(AJENO, ACTIVIDAD_ID)).rejects.toBe(falla);
   });
-  it('RNF-10: el segundo envío concurrente encuentra el resultado después del bloqueo', async () => {
-    const { servicio, repo } = preparar();
-    const respuesta = aActividadCreada('actividad-1', datosActividad());
-    jest.mocked(repo.buscarCreada).mockResolvedValueOnce(null).mockResolvedValueOnce(respuesta);
-    expect(await servicio.crear(USUARIO_ACTIVIDAD, 'clave', datosActividad(), 'token')).toEqual(respuesta);
-    expect(repo.crear).not.toHaveBeenCalled();
+});
+
+describe('CU09 A1 – Ver la lista de participantes', () => {
+  it('A1: incluye usuarios registrados, invitados externos y cuentas cerradas', async () => {
+    const { servicio } = crearServicio();
+    const respuesta = await servicio.obtenerParticipantes(ACTIVIDAD_ID, 1);
+
+    expect(respuesta.pagina).toBe(1);
+    expect(respuesta.hayMas).toBe(false);
+    expect(respuesta.participantes).toEqual([
+      { usuario: { id: ORGANIZADORA, nombre: 'Martina Rodríguez', fotoUrl: null }, esOrganizador: true, invitadosExternos: [] },
+      { usuario: { id: PARTICIPANTE, nombre: 'Juan Pérez', fotoUrl: null }, esOrganizador: false, invitadosExternos: ['Sofía'] },
+      { usuario: null, esOrganizador: false, invitadosExternos: [] },
+    ]);
   });
-  it('E1: rechaza un deporte inactivo sin escritura', async () => {
-    const { servicio, repo } = preparar();
-    jest.mocked(repo.deportesActivos).mockResolvedValue([]);
-    await expect(servicio.crear(USUARIO_ACTIVIDAD, 'clave', datosActividad(), 'token')).rejects.toMatchObject({ estado: 400 });
-    expect(repo.crear).not.toHaveBeenCalled();
+
+  it(`A1: pagina de a ${TAMANO_PAGINA_PARTICIPANTES} e indica si hay más`, async () => {
+    const { servicio, repositorio } = crearServicio(
+      guardada({ participantes: crearParticipantes(TAMANO_PAGINA_PARTICIPANTES + 1) }),
+    );
+
+    const primera = await servicio.obtenerParticipantes(ACTIVIDAD_ID, 1);
+    const segunda = await servicio.obtenerParticipantes(ACTIVIDAD_ID, 2);
+
+    expect(primera.participantes).toHaveLength(TAMANO_PAGINA_PARTICIPANTES);
+    expect(primera.hayMas).toBe(true);
+    expect(segunda.participantes).toHaveLength(1);
+    expect(segunda.hayMas).toBe(false);
+    expect(repositorio.pedidosDeParticipantes[0]).toEqual({
+      actividadId: ACTIVIDAD_ID,
+      pagina: 1,
+      tamanoPagina: TAMANO_PAGINA_PARTICIPANTES,
+    });
   });
-  it.each(['inicio', 'trasMapas', 'alGuardar', 'cuenta'])('ER3: rechaza sesión/cuenta inválida en %s', async (momento) => {
-    const { servicio, repo, dependencias } = preparar();
-    if (momento === 'inicio') jest.mocked(dependencias.sesiones.buscarUsuarioId).mockResolvedValue(null);
-    if (momento === 'trasMapas')
-      jest.mocked(dependencias.sesiones.buscarUsuarioId).mockResolvedValueOnce(USUARIO_ACTIVIDAD).mockResolvedValue(null);
-    if (momento === 'alGuardar') jest.mocked(repo.cuentaActiva).mockResolvedValueOnce(true).mockResolvedValue(false);
-    if (momento === 'cuenta') jest.mocked(repo.cuentaActiva).mockResolvedValue(false);
-    await expect(servicio.crear(USUARIO_ACTIVIDAD, 'clave', datosActividad(), 'token')).rejects.toMatchObject({ estado: 401 });
-    expect(repo.crear).not.toHaveBeenCalled();
+
+  it('E2: si la actividad no existe responde 404 ACTIVIDAD_NO_DISPONIBLE', async () => {
+    const { servicio } = crearServicio();
+    await expect(servicio.obtenerParticipantes(ID_INEXISTENTE, 1)).rejects.toMatchObject({
+      estado: 404,
+      codigo: 'ACTIVIDAD_NO_DISPONIBLE',
+    });
   });
-  it('RN10: admite costo omitido y no genera gastos ni balances', async () => {
-    const { servicio } = preparar();
-    expect(
-      await servicio.crear(USUARIO_ACTIVIDAD, 'clave', datosActividad({ costoEstimadoCentavos: null }), 'token'),
-    ).toMatchObject({ costoEstimadoCentavos: null, costoPorPersonaCentavos: null });
+});
+
+const ANA = 'usuario-1';
+const SIN_FILTROS: FiltrosDeBusqueda = { deportes: [], departamentos: [], niveles: [], franjas: [] };
+
+function crearActividades(cantidad: number) {
+  return Array.from({ length: cantidad }, (_, indice) => crearActividadEncontrada({ id: `actividad-${indice + 1}` }));
+}
+
+describe('CU08 – Buscar actividades', () => {
+  it('FP: devuelve nombre, deporte, fecha y hora, departamento, nivel y cupos libres de cada actividad', async () => {
+    const servicio = new ActividadesServicio({
+      actividades: new BusquedaEnMemoria([crearActividadEncontrada({ id: 'actividad-1' })]),
+    });
+    await expect(servicio.buscar(ANA, SIN_FILTROS, 1)).resolves.toEqual({
+      actividades: [
+        {
+          id: 'actividad-1',
+          nombre: 'Surf en La Paloma',
+          deporte: { id: 1, nombre: 'Surf' },
+          fechaHoraInicio: '2026-11-07T10:30:00.000Z',
+          departamento: 'Rocha',
+          nivel: 'intermedio',
+          cuposLibres: 3,
+          organizador: { id: ORGANIZADORA, nombre: 'Martina Rodríguez', valoracionPromedio: 4.33 },
+          esOrganizador: false,
+        },
+      ],
+      pagina: 1,
+      hayMas: false,
+    });
   });
-  it('ER1/ER2: propaga el fallo de persistencia sin informar éxito', async () => {
-    const { servicio, repo } = preparar();
-    jest.mocked(repo.crear).mockRejectedValue(new Error('Fallo SQL'));
-    await expect(servicio.crear(USUARIO_ACTIVIDAD, 'clave', datosActividad(), 'token')).rejects.toThrow('Fallo SQL');
+
+  it('FP: las actividades que organiza el usuario aparecen marcadas', async () => {
+    const servicio = new ActividadesServicio({
+      actividades: new BusquedaEnMemoria([crearActividadEncontrada({ organizadorId: ANA })]),
+    });
+    const resultado = await servicio.buscar(ANA, SIN_FILTROS, 1);
+    expect(resultado.actividades[0].esOrganizador).toBe(true);
+  });
+
+  it('si el organizador cerró su cuenta, la actividad se muestra sin organizador', async () => {
+    const servicio = new ActividadesServicio({
+      actividades: new BusquedaEnMemoria([crearActividadEncontrada({ organizadorId: null })]),
+    });
+    const resultado = await servicio.buscar(ANA, SIN_FILTROS, 1);
+    expect(resultado.actividades[0].organizador).toBeNull();
+    expect(resultado.actividades[0].esOrganizador).toBe(false);
+  });
+
+  it('el organizador sin valoraciones llega con valoracionPromedio null', async () => {
+    const servicio = new ActividadesServicio({
+      actividades: new BusquedaEnMemoria([crearActividadEncontrada({ organizadorValoracion: null })]),
+    });
+    const resultado = await servicio.buscar(ANA, SIN_FILTROS, 1);
+    expect(resultado.actividades[0].organizador?.valoracionPromedio).toBeNull();
+  });
+
+  it(`FP: se muestra de a ${TAMANO_PAGINA_BUSQUEDA} actividades e indica si hay más`, async () => {
+    const busqueda = new BusquedaEnMemoria(crearActividades(12));
+    const servicio = new ActividadesServicio({ actividades: busqueda });
+
+    const primera = await servicio.buscar(ANA, SIN_FILTROS, 1);
+    const segunda = await servicio.buscar(ANA, SIN_FILTROS, 2);
+
+    expect(primera.actividades).toHaveLength(TAMANO_PAGINA_BUSQUEDA);
+    expect(primera.hayMas).toBe(true);
+    expect(segunda.actividades.map((actividad) => actividad.id)).toEqual(['actividad-11', 'actividad-12']);
+    expect(segunda.hayMas).toBe(false);
+    expect(busqueda.pedidos[0]).toMatchObject({ pagina: 1, tamanoPagina: TAMANO_PAGINA_BUSQUEDA });
+  });
+
+  it('A1 a A6 / RN4: los filtros elegidos llegan tal cual al repositorio, combinados', async () => {
+    const busqueda = new BusquedaEnMemoria();
+    const filtros: FiltrosDeBusqueda = {
+      deportes: [1, 3],
+      departamentos: ['Rocha'],
+      niveles: ['intermedio'],
+      franjas: ['manana', 'tarde'],
+      desde: '2026-11-14',
+      hasta: '2026-11-20',
+      cupoMaximo: 6,
+      ubicacion: { lat: -34.9, lng: -56.16 },
+    };
+    await new ActividadesServicio({ actividades: busqueda }).buscar(ANA, filtros, 1);
+    expect(busqueda.pedidos[0].filtros).toEqual(filtros);
+  });
+
+  it('E1: si no hay actividades para los filtros, devuelve una lista vacía', async () => {
+    const servicio = new ActividadesServicio({ actividades: new BusquedaEnMemoria([]) });
+    await expect(servicio.buscar(ANA, SIN_FILTROS, 1)).resolves.toEqual({ actividades: [], pagina: 1, hayMas: false });
+  });
+
+  it('ER1: si falla la base, el error se propaga y no se devuelve una lista parcial', async () => {
+    const busquedaQueFalla = new BusquedaEnMemoria([], new Error('timeout de PostgreSQL'));
+    const servicio = new ActividadesServicio({ actividades: busquedaQueFalla });
+    await expect(servicio.buscar(ANA, SIN_FILTROS, 1)).rejects.toThrow('timeout de PostgreSQL');
   });
 });

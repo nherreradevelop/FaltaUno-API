@@ -49,7 +49,7 @@ integracion('CU10 HTTP + PostgreSQL + Redis reales', () => {
     db = new Pool({ connectionString: postgresUrl, options: `-c search_path=${esquema},public`, max: 6 });
     await db.query(readFileSync(path.resolve(__dirname, '../../db/migrations/001_esquema_inicial.sql'), 'utf8'));
     await db.query(
-      readFileSync(path.resolve(__dirname, '../../db/migrations/003_cu10_origen_opcional_destino_provisional.sql'), 'utf8'),
+      readFileSync(path.resolve(__dirname, '../../db/migrations/004_cu10_origen_opcional_destino_provisional.sql'), 'utf8'),
     );
     await db.query('INSERT INTO usuario (id,nombre,email,verificado) VALUES ($1,$2,$3,TRUE)', [
       usuario,

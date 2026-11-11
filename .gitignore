@@ -18,3 +18,7 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Archivos de Visual Studio (cachés, índices y estado de la ventana)
+.vs/
+*.code-workspace
