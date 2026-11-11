@@ -3,10 +3,7 @@ import type { DependenciasAuth } from '../src/modulos/auth/auth.servicio';
 import type { SesionCreada } from '../src/modulos/auth/sesiones.repositorio';
 import type { IdentidadExterna } from '../src/infra/oauth';
 import { logger } from '../src/infra/logger';
-import { Actividad, type NivelActividad } from '../src/modulos/actividades/actividad.entidad';
-import type { FiltrosDeBusqueda } from '../src/modulos/actividades/actividades.dto';
-import type { PaginaDeActividades, PaginaDeHistorial } from '../src/modulos/actividades/actividades.repositorio';
-import type { DependenciasActividades } from '../src/modulos/actividades/actividades.servicio';
+import type { PaginaDeHistorial } from '../src/modulos/actividades/actividades.repositorio';
 import { Deporte } from '../src/modulos/deportes/deporte.entidad';
 import { Usuario, type ProveedorAuth } from '../src/modulos/usuarios/usuario.entidad';
 import type { DependenciasUsuarios } from '../src/modulos/usuarios/usuarios.servicio';
@@ -230,74 +227,6 @@ export class ActividadesEnMemoria implements RepositorioActividades {
 
 export function crearDeporte(id: number, nombre: string): Deporte {
   return new Deporte(id, nombre);
-}
-
-/** Datos para armar una Actividad de prueba (equivale a una fila de la búsqueda). */
-export interface ActividadGuardada {
-  id: string;
-  nombre: string;
-  deporteId: number;
-  deporteNombre: string;
-  fechaHoraInicio: Date;
-  departamento: string;
-  nivel: NivelActividad;
-  cupoMaximo: number;
-  lugaresOcupados: number;
-  organizadorId: string | null;
-  organizadorNombre: string;
-  organizadorValoracion: number | null;
-}
-
-export function crearActividad(cambios: Partial<ActividadGuardada> = {}): Actividad {
-  const datos: ActividadGuardada = {
-    id: 'actividad-1',
-    nombre: 'Surf en La Paloma',
-    deporteId: 1,
-    deporteNombre: 'Surf',
-    fechaHoraInicio: new Date('2026-11-14T10:30:00.000Z'),
-    departamento: 'Rocha',
-    nivel: 'intermedio',
-    cupoMaximo: 6,
-    lugaresOcupados: 4,
-    organizadorId: 'usuario-2',
-    organizadorNombre: 'Bruno Silva',
-    organizadorValoracion: 4.33,
-    ...cambios,
-  };
-  return new Actividad(
-    datos.id,
-    datos.nombre,
-    new Deporte(datos.deporteId, datos.deporteNombre),
-    datos.fechaHoraInicio,
-    datos.departamento,
-    datos.nivel,
-    datos.cupoMaximo,
-    datos.lugaresOcupados,
-    datos.organizadorId === null
-      ? null
-      : { id: datos.organizadorId, nombre: datos.organizadorNombre, valoracionPromedio: datos.organizadorValoracion },
-  );
-}
-
-type RepositorioBusqueda = DependenciasActividades['actividades'];
-
-/**
- * Devuelve las actividades configuradas (ya filtradas y ordenadas, como lo haría el SQL) y registra
- * con qué filtros se la llamó. Los filtros en sí se aplican en SQL y se prueban contra la base.
- */
-export class BusquedaEnMemoria implements RepositorioBusqueda {
-  readonly pedidos: { filtros: FiltrosDeBusqueda; pagina: number; tamanoPagina: number }[] = [];
-
-  constructor(private readonly disponibles: Actividad[] = []) {}
-
-  async buscarDisponibles(filtros: FiltrosDeBusqueda, pagina: number, tamanoPagina: number): Promise<PaginaDeActividades> {
-    this.pedidos.push({ filtros, pagina, tamanoPagina });
-    const desde = (pagina - 1) * tamanoPagina;
-    return {
-      actividades: this.disponibles.slice(desde, desde + tamanoPagina),
-      hayMas: this.disponibles.length > desde + tamanoPagina,
-    };
-  }
 }
 
 export const MAXIMO_INTENTOS = 5;

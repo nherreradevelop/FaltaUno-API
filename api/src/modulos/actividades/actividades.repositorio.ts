@@ -1,9 +1,9 @@
 import type { Ejecutor } from '../../infra/postgres';
 import { Deporte } from '../deportes/deporte.entidad';
-import { Actividad, FRANJAS_HORARIAS, ZONA_HORARIA, type NivelActividad, type OrganizadorDeActividad } from './actividad.entidad';
+import { Actividad, FRANJAS_HORARIAS, ZONA_HORARIA, type EstadoActividad, type NivelActividad } from './actividad.entidad';
 import type { FiltrosDeBusqueda } from './actividades.dto';
 
-export type EstadoActividad = 'programada' | 'iniciada' | 'archivada' | 'cancelada';
+export type { EstadoActividad } from './actividad.entidad';
 
 /** Datos de una actividad que se muestran en el historial del perfil (CU04 FP paso 2). */
 export interface ActividadDelHistorial {
@@ -30,8 +30,23 @@ interface FilaHistorial {
 /** El historial muestra solo actividades terminadas: archivadas o canceladas, las haya organizado o no. */
 const ESTADOS_DEL_HISTORIAL: EstadoActividad[] = ['archivada', 'cancelada'];
 
+/** CU08: organizador que se muestra en la tarjeta de la búsqueda, con su valoración promedio (CU04 RN3). */
+export interface OrganizadorEncontrado {
+  id: string;
+  nombre: string;
+  /** Promedio con 2 decimales, o null si todavía no tiene valoraciones. */
+  valoracionPromedio: number | null;
+}
+
+/** CU08: una actividad de la búsqueda con su organizador. */
+export interface ActividadEncontrada {
+  actividad: Actividad;
+  /** null si el organizador cerró su cuenta (CU33). */
+  organizador: OrganizadorEncontrado | null;
+}
+
 export interface PaginaDeActividades {
-  actividades: Actividad[];
+  actividades: ActividadEncontrada[];
   hayMas: boolean;
 }
 
@@ -40,14 +55,23 @@ interface FilaActividadEncontrada {
   nombre: string;
   deporte_id: number;
   deporte_nombre: string;
+  estado: EstadoActividad;
   fecha_hora_inicio: Date;
-  departamento: string;
   nivel: NivelActividad;
+  descripcion: string | null;
+  origen_direccion: string;
+  origen_lat: string;
+  origen_lng: string;
+  destino_direccion: string;
+  destino_lat: string;
+  destino_lng: string;
+  departamento: string;
   cupo_maximo: number;
+  costo_estimado: string | null;
   organizador_id: string | null;
   organizador_nombre: string | null;
   organizador_valoracion: string | null; // NUMERIC, que pg entrega como texto
-  lugares_ocupados: string; // count() devuelve bigint, que pg entrega como texto
+  cupos_ocupados: string; // count() devuelve bigint, que pg entrega como texto
 }
 
 /** Junta las condiciones del WHERE y sus parámetros ($1, $2...) sin concatenar valores en el SQL. */
@@ -64,6 +88,87 @@ class ConsultaConFiltros {
 
 /** Fecha y hora de inicio en la hora de Uruguay (las fechas y franjas se eligen en hora local). */
 const INICIO_EN_HORA_LOCAL = `(a.fecha_hora_inicio AT TIME ZONE '${ZONA_HORARIA}')`;
+
+/** CU09 FP paso 2: datos del organizador que se muestran en el detalle. */
+export interface OrganizadorDeActividad {
+  id: string;
+  nombre: string;
+  fotoUrl: string | null;
+}
+
+/** CU09 FP paso 2: información ambiental disponible (la genera el flujo de n8n del CU15). */
+export interface PronosticoDeActividad {
+  resumen: string;
+  /** null si el agente de IA no pudo interpretar las condiciones (CU15 E2 y ER4). */
+  nivelRecomendado: NivelActividad | null;
+  interpretacionDisponible: boolean;
+  fechaGeneracion: Date;
+}
+
+/** CU09 FP pasos 2 y 3: la actividad, sus datos asociados y si el usuario que consulta participa. */
+export interface DetalleDeActividad {
+  actividad: Actividad;
+  /** null si el organizador cerró su cuenta (CU33). */
+  organizador: OrganizadorDeActividad | null;
+  /** null si todavía no hay información ambiental. */
+  pronostico: PronosticoDeActividad | null;
+  participaElUsuario: boolean;
+}
+
+/** CU09 A1: un participante con los invitados externos que trae. */
+export interface ParticipanteDeActividad {
+  /** null si el usuario cerró su cuenta (CU33: "Usuario eliminado"). */
+  usuario: { id: string; nombre: string; fotoUrl: string | null } | null;
+  esOrganizador: boolean;
+  invitadosExternos: string[];
+}
+
+export interface PaginaDeParticipantes {
+  participantes: ParticipanteDeActividad[];
+  hayMas: boolean;
+}
+
+interface FilaDetalle {
+  id: string;
+  nombre: string;
+  deporte_id: number;
+  deporte_nombre: string;
+  estado: EstadoActividad;
+  fecha_hora_inicio: Date;
+  nivel: NivelActividad;
+  descripcion: string | null;
+  origen_direccion: string;
+  origen_lat: string;
+  origen_lng: string;
+  destino_direccion: string;
+  destino_lat: string;
+  destino_lng: string;
+  departamento: string;
+  cupo_maximo: number;
+  cupos_ocupados: string;
+  costo_estimado: string | null;
+  organizador_id: string | null;
+  organizador_nombre: string | null;
+  organizador_foto_url: string | null;
+  pronostico_resumen: string | null;
+  pronostico_nivel_recomendado: NivelActividad | null;
+  pronostico_interpretacion_disponible: boolean | null;
+  pronostico_fecha_generacion: Date | null;
+  participa: boolean;
+}
+
+interface FilaParticipante {
+  participacion_id: string;
+  usuario_id: string | null;
+  nombre: string | null;
+  foto_url: string | null;
+  es_organizador: boolean;
+}
+
+interface FilaInvitado {
+  participacion_id: string;
+  nombre: string;
+}
 
 /** Acceso a las tablas actividad y participacion. */
 export class ActividadesRepositorio {
@@ -91,17 +196,93 @@ export class ActividadesRepositorio {
     return { actividades: filasDeLaPagina.map(aActividadDelHistorial), hayMas };
   }
 
-  /** CU04 A1: cantidad de actividades del historial (mismo criterio que buscarHistorialDeParticipante). */
-  async contarHistorialDeParticipante(usuarioId: string): Promise<number> {
-    // COUNT devuelve bigint, que pg entrega como texto
-    const resultado = await this.db.query<{ cantidad: string }>(
-      `SELECT count(*) AS cantidad
-       FROM participacion p
-       JOIN actividad a ON a.id = p.actividad_id
-       WHERE p.usuario_id = $1 AND a.estado = ANY($2)`,
-      [usuarioId, ESTADOS_DEL_HISTORIAL],
+  /**
+   * CU09 FP pasos 2 y 3: todo el detalle en una sola consulta.
+   * Los cupos ocupados suman participaciones e invitados externos (usan ix_participacion_actividad e
+   * ix_invitado_participacion). El organizador solo se muestra si su cuenta sigue activa.
+   */
+  async buscarDetalle(actividadId: string, usuarioId: string): Promise<DetalleDeActividad | null> {
+    const resultado = await this.db.query<FilaDetalle>(
+      `SELECT a.id, a.nombre, a.deporte_id, d.nombre AS deporte_nombre, a.estado, a.fecha_hora_inicio, a.nivel,
+              a.descripcion, a.origen_direccion, a.origen_lat, a.origen_lng, a.destino_direccion, a.destino_lat,
+              a.destino_lng, a.departamento, a.cupo_maximo, a.costo_estimado, a.organizador_id,
+              o.nombre AS organizador_nombre, o.foto_url AS organizador_foto_url,
+              ip.resumen AS pronostico_resumen, ip.nivel_recomendado AS pronostico_nivel_recomendado,
+              ip.interpretacion_disponible AS pronostico_interpretacion_disponible,
+              ip.fecha_generacion AS pronostico_fecha_generacion,
+              (SELECT count(*) FROM participacion p WHERE p.actividad_id = a.id)
+                + (SELECT count(*) FROM invitado_externo ie
+                   JOIN participacion p ON p.id = ie.participacion_id
+                   WHERE p.actividad_id = a.id) AS cupos_ocupados,
+              EXISTS (SELECT 1 FROM participacion p WHERE p.actividad_id = a.id AND p.usuario_id = $2) AS participa
+       FROM actividad a
+       JOIN deporte d ON d.id = a.deporte_id
+       LEFT JOIN usuario o ON o.id = a.organizador_id AND o.estado = 'activo'
+       LEFT JOIN informe_pronostico ip ON ip.actividad_id = a.id
+       WHERE a.id = $1`,
+      [actividadId, usuarioId],
     );
-    return Number(resultado.rows[0]?.cantidad ?? 0);
+    const fila = resultado.rows[0];
+    return fila ? aDetalleDeActividad(fila) : null;
+  }
+
+  /** CU09 E2: si la actividad existe (para la lista de participantes). */
+  async existe(actividadId: string): Promise<boolean> {
+    const resultado = await this.db.query<{ existe: boolean }>(
+      `SELECT EXISTS (SELECT 1 FROM actividad WHERE id = $1) AS existe`,
+      [actividadId],
+    );
+    return resultado.rows[0]?.existe ?? false;
+  }
+
+  /**
+   * CU09 A1: participantes de la actividad (el organizador primero, después por orden de llegada), con sus
+   * invitados externos. Dos consultas en total, sin importar el tamaño de la página: la de participaciones y
+   * una sola para los invitados de toda la página (sin N+1).
+   */
+  async buscarParticipantes(actividadId: string, pagina: number, tamanoPagina: number): Promise<PaginaDeParticipantes> {
+    const desplazamiento = (pagina - 1) * tamanoPagina;
+    const resultado = await this.db.query<FilaParticipante>(
+      `SELECT p.id AS participacion_id, u.id AS usuario_id, u.nombre, u.foto_url, p.es_organizador
+       FROM participacion p
+       LEFT JOIN usuario u ON u.id = p.usuario_id AND u.estado = 'activo'
+       WHERE p.actividad_id = $1
+       ORDER BY p.es_organizador DESC, p.fecha_union, p.id
+       LIMIT $2 OFFSET $3`,
+      [actividadId, tamanoPagina + 1, desplazamiento],
+    );
+
+    const hayMas = resultado.rows.length > tamanoPagina;
+    const filasDeLaPagina = resultado.rows.slice(0, tamanoPagina);
+    const invitadosPorParticipacion = await this.buscarInvitados(filasDeLaPagina.map((fila) => fila.participacion_id));
+
+    const participantes = filasDeLaPagina.map((fila) => ({
+      usuario: fila.usuario_id === null ? null : { id: fila.usuario_id, nombre: fila.nombre ?? '', fotoUrl: fila.foto_url },
+      esOrganizador: fila.es_organizador,
+      invitadosExternos: invitadosPorParticipacion.get(fila.participacion_id) ?? [],
+    }));
+    return { participantes, hayMas };
+  }
+
+  /** Invitados externos de varias participaciones en una sola consulta, agrupados por participación. */
+  private async buscarInvitados(participacionIds: string[]): Promise<Map<string, string[]>> {
+    const invitadosPorParticipacion = new Map<string, string[]>();
+    if (participacionIds.length === 0) {
+      return invitadosPorParticipacion;
+    }
+
+    const resultado = await this.db.query<FilaInvitado>(
+      `SELECT participacion_id, nombre FROM invitado_externo
+       WHERE participacion_id = ANY($1::uuid[])
+       ORDER BY nombre, id`,
+      [participacionIds],
+    );
+    for (const fila of resultado.rows) {
+      const invitados = invitadosPorParticipacion.get(fila.participacion_id) ?? [];
+      invitados.push(fila.nombre);
+      invitadosPorParticipacion.set(fila.participacion_id, invitados);
+    }
+    return invitadosPorParticipacion;
   }
 
   /**
@@ -117,12 +298,14 @@ export class ActividadesRepositorio {
     const desplazamiento = consulta.parametro((pagina - 1) * tamanoPagina);
 
     const resultado = await this.db.query<FilaActividadEncontrada>(
-      `SELECT a.id, a.nombre, a.deporte_id, d.nombre AS deporte_nombre, a.fecha_hora_inicio, a.departamento,
-              a.nivel, a.cupo_maximo, a.organizador_id, u.nombre AS organizador_nombre,
-              valoracion_organizador.promedio AS organizador_valoracion, ocupacion.lugares_ocupados
+      `SELECT a.id, a.nombre, a.deporte_id, d.nombre AS deporte_nombre, a.estado, a.fecha_hora_inicio, a.nivel,
+              a.descripcion, a.origen_direccion, a.origen_lat, a.origen_lng, a.destino_direccion, a.destino_lat,
+              a.destino_lng, a.departamento, a.cupo_maximo, a.costo_estimado, a.organizador_id,
+              o.nombre AS organizador_nombre, valoracion_organizador.promedio AS organizador_valoracion,
+              ocupacion.cupos_ocupados
        FROM actividad a
        JOIN deporte d ON d.id = a.deporte_id
-       LEFT JOIN usuario u ON u.id = a.organizador_id
+       LEFT JOIN usuario o ON o.id = a.organizador_id AND o.estado = 'activo'
        -- Valoración promedio del organizador (CU04 RN3), calculada en la misma consulta para no hacer una por actividad
        LEFT JOIN LATERAL (
          SELECT ROUND(AVG(v.puntaje), 2) AS promedio FROM valoracion v WHERE v.evaluado_id = a.organizador_id
@@ -131,7 +314,7 @@ export class ActividadesRepositorio {
          SELECT (SELECT count(*) FROM participacion p WHERE p.actividad_id = a.id)
               + (SELECT count(*) FROM invitado_externo ie
                  JOIN participacion p ON p.id = ie.participacion_id
-                 WHERE p.actividad_id = a.id) AS lugares_ocupados
+                 WHERE p.actividad_id = a.id) AS cupos_ocupados
        ) ocupacion
        WHERE ${consulta.condiciones.join('\n         AND ')}
        ORDER BY ${orden}
@@ -141,7 +324,20 @@ export class ActividadesRepositorio {
 
     const hayMas = resultado.rows.length > tamanoPagina;
     const filasDeLaPagina = resultado.rows.slice(0, tamanoPagina);
-    return { actividades: filasDeLaPagina.map(aActividad), hayMas };
+    return { actividades: filasDeLaPagina.map(aActividadEncontrada), hayMas };
+  }
+
+  /** CU04 A1: cantidad de actividades del historial (mismo criterio que buscarHistorialDeParticipante). */
+  async contarHistorialDeParticipante(usuarioId: string): Promise<number> {
+    // COUNT devuelve bigint, que pg entrega como texto
+    const resultado = await this.db.query<{ cantidad: string }>(
+      `SELECT count(*) AS cantidad
+       FROM participacion p
+       JOIN actividad a ON a.id = p.actividad_id
+       WHERE p.usuario_id = $1 AND a.estado = ANY($2)`,
+      [usuarioId, ESTADOS_DEL_HISTORIAL],
+    );
+    return Number(resultado.rows[0]?.cantidad ?? 0);
   }
 }
 
@@ -155,12 +351,63 @@ function aActividadDelHistorial(fila: FilaHistorial): ActividadDelHistorial {
   };
 }
 
+/** pg devuelve NUMERIC como texto ("1200.50"); se pasa a centésimos sin usar decimales de punto flotante. */
+export function aCentesimos(monto: string): number {
+  const [enteros, decimales = ''] = monto.split('.');
+  const centesimos = decimales.padEnd(2, '0').slice(0, 2);
+  return Number(enteros) * 100 + Number(centesimos);
+}
+
+function aPronostico(fila: FilaDetalle): PronosticoDeActividad | null {
+  if (fila.pronostico_resumen === null || fila.pronostico_fecha_generacion === null) {
+    return null;
+  }
+  return {
+    resumen: fila.pronostico_resumen,
+    nivelRecomendado: fila.pronostico_nivel_recomendado,
+    interpretacionDisponible: fila.pronostico_interpretacion_disponible ?? false,
+    fechaGeneracion: fila.pronostico_fecha_generacion,
+  };
+}
+
+function aOrganizador(fila: FilaDetalle): OrganizadorDeActividad | null {
+  if (fila.organizador_id === null || fila.organizador_nombre === null) {
+    return null;
+  }
+  return { id: fila.organizador_id, nombre: fila.organizador_nombre, fotoUrl: fila.organizador_foto_url };
+}
+
+function aDetalleDeActividad(fila: FilaDetalle): DetalleDeActividad {
+  const actividad = new Actividad(
+    fila.id,
+    fila.nombre,
+    new Deporte(fila.deporte_id, fila.deporte_nombre),
+    fila.estado,
+    fila.fecha_hora_inicio,
+    fila.nivel,
+    fila.descripcion,
+    { direccion: fila.origen_direccion, lat: Number(fila.origen_lat), lng: Number(fila.origen_lng) },
+    { direccion: fila.destino_direccion, lat: Number(fila.destino_lat), lng: Number(fila.destino_lng) },
+    fila.departamento,
+    fila.cupo_maximo,
+    Number(fila.cupos_ocupados), // count(*) es bigint: pg lo entrega como texto
+    fila.organizador_id,
+    fila.costo_estimado === null ? null : aCentesimos(fila.costo_estimado),
+  );
+  return {
+    actividad,
+    organizador: aOrganizador(fila),
+    pronostico: aPronostico(fila),
+    participaElUsuario: fila.participa,
+  };
+}
+
 /** RN2, RN3 y RN7 siempre; después, solo los filtros que eligió el usuario (A1 a A6). */
 function agregarFiltros(consulta: ConsultaConFiltros, filtros: FiltrosDeBusqueda): void {
   // RN2 / RN7: programada y que todavía no empezó
   consulta.condiciones.push(`a.estado = 'programada'`, 'a.fecha_hora_inicio > now()');
   // RN3 / RN7: con al menos un cupo libre
-  consulta.condiciones.push('ocupacion.lugares_ocupados < a.cupo_maximo');
+  consulta.condiciones.push('ocupacion.cupos_ocupados < a.cupo_maximo');
 
   // RN5: dentro de cada filtro alcanza con cumplir uno de los valores elegidos
   if (filtros.deportes.length > 0) {
@@ -214,21 +461,27 @@ function ordenDeLaBusqueda(consulta: ConsultaConFiltros, filtros: FiltrosDeBusqu
   return `${INICIO_EN_HORA_LOCAL}::date, ${distanciaAlDestino}, a.fecha_hora_inicio, a.id`;
 }
 
-function aActividad(fila: FilaActividadEncontrada): Actividad {
-  return new Actividad(
+function aActividadEncontrada(fila: FilaActividadEncontrada): ActividadEncontrada {
+  const actividad = new Actividad(
     fila.id,
     fila.nombre,
     new Deporte(fila.deporte_id, fila.deporte_nombre),
+    fila.estado,
     fila.fecha_hora_inicio,
-    fila.departamento,
     fila.nivel,
+    fila.descripcion,
+    { direccion: fila.origen_direccion, lat: Number(fila.origen_lat), lng: Number(fila.origen_lng) },
+    { direccion: fila.destino_direccion, lat: Number(fila.destino_lat), lng: Number(fila.destino_lng) },
+    fila.departamento,
     fila.cupo_maximo,
-    Number(fila.lugares_ocupados),
-    aOrganizador(fila),
+    Number(fila.cupos_ocupados),
+    fila.organizador_id,
+    fila.costo_estimado === null ? null : aCentesimos(fila.costo_estimado),
   );
+  return { actividad, organizador: aOrganizadorEncontrado(fila) };
 }
 
-function aOrganizador(fila: FilaActividadEncontrada): OrganizadorDeActividad | null {
+function aOrganizadorEncontrado(fila: FilaActividadEncontrada): OrganizadorEncontrado | null {
   if (fila.organizador_id === null || fila.organizador_nombre === null) {
     return null;
   }

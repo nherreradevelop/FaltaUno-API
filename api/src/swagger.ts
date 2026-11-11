@@ -100,6 +100,110 @@ export const documentoSwagger = {
           hayMas: { type: 'boolean', description: 'true si hay otra página.' },
         },
       },
+      Ubicacion: {
+        type: 'object',
+        properties: {
+          direccion: { type: 'string', example: 'Tres Cruces, Montevideo' },
+          lat: { type: 'number', example: -34.894 },
+          lng: { type: 'number', example: -56.166 },
+        },
+      },
+      DetalleActividad: {
+        type: 'object',
+        description: 'CU09 FP. Las opciones dependen del rol del usuario y del estado de la actividad (RN2, RN3, RN5).',
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          nombre: { type: 'string' },
+          deporte: { $ref: '#/components/schemas/Deporte' },
+          estado: { type: 'string', enum: ['programada', 'iniciada', 'archivada', 'cancelada'] },
+          fechaHoraInicio: { type: 'string', format: 'date-time' },
+          fechaLimiteGastos: {
+            type: 'string',
+            format: 'date-time',
+            nullable: true,
+            description: 'RN4: solo en estado iniciada (inicio + 14 días).',
+          },
+          nivel: { type: 'string', enum: ['principiante', 'intermedio', 'avanzado'] },
+          descripcion: { type: 'string', nullable: true },
+          origen: { $ref: '#/components/schemas/Ubicacion' },
+          destino: { $ref: '#/components/schemas/Ubicacion' },
+          cupoMaximo: { type: 'integer', example: 6 },
+          cuposOcupados: { type: 'integer', example: 3, description: 'Participantes más invitados externos.' },
+          organizador: {
+            type: 'object',
+            nullable: true,
+            description: 'null si el organizador cerró su cuenta.',
+            properties: {
+              id: { type: 'string', format: 'uuid' },
+              nombre: { type: 'string' },
+              fotoUrl: { type: 'string', nullable: true },
+            },
+          },
+          costoEstimadoCentesimos: { type: 'integer', nullable: true, example: 120000, description: 'En centésimos.' },
+          pronostico: {
+            type: 'object',
+            nullable: true,
+            description: 'null si no hay información ambiental disponible.',
+            properties: {
+              resumen: { type: 'string' },
+              nivelRecomendado: { type: 'string', nullable: true, enum: ['principiante', 'intermedio', 'avanzado'] },
+              interpretacionDisponible: { type: 'boolean' },
+              fechaGeneracion: { type: 'string', format: 'date-time' },
+            },
+          },
+          miRol: { type: 'string', enum: ['organizador', 'participante', 'ninguno'] },
+          opciones: {
+            type: 'array',
+            items: {
+              type: 'string',
+              enum: [
+                'verParticipantes',
+                'verMapa',
+                'unirse',
+                'abandonar',
+                'verChat',
+                'verGastos',
+                'invitarAmigos',
+                'modificarParticipacion',
+                'silenciar',
+                'valorar',
+                'compartir',
+                'editar',
+                'removerParticipantes',
+                'cancelar',
+                'archivar',
+              ],
+            },
+          },
+        },
+      },
+      Participantes: {
+        type: 'object',
+        properties: {
+          participantes: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                usuario: {
+                  type: 'object',
+                  nullable: true,
+                  description: 'null si el usuario cerró su cuenta.',
+                  properties: {
+                    id: { type: 'string', format: 'uuid' },
+                    nombre: { type: 'string' },
+                    fotoUrl: { type: 'string', nullable: true },
+                  },
+                },
+                esOrganizador: { type: 'boolean' },
+                invitadosExternos: { type: 'array', items: { type: 'string' } },
+              },
+            },
+          },
+          pagina: { type: 'integer', example: 1 },
+          hayMas: { type: 'boolean', description: 'true si hay otra página.' },
+        },
+      },
       ActividadEncontrada: {
         type: 'object',
         properties: {
@@ -258,6 +362,44 @@ export const documentoSwagger = {
           401: error('Sin sesión o sesión vencida (SESION_INVALIDA).'),
           404: error('E1: el usuario no existe o cerró su cuenta (PERFIL_NO_DISPONIBLE).'),
           500: error('ER1: no se pudo cargar el perfil (ERROR_INTERNO).'),
+        },
+      },
+    },
+    '/actividades/{id}': {
+      get: {
+        tags: ['Actividades'],
+        summary: 'CU09 – Detalle de actividad',
+        security: [{ sesion: [] }],
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        responses: {
+          200: {
+            description: 'Detalle de la actividad, rol del usuario y opciones disponibles.',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/DetalleActividad' } } },
+          },
+          401: error('A3: sin sesión o sesión vencida (SESION_INVALIDA).'),
+          404: error('E2: la actividad no existe (ACTIVIDAD_NO_DISPONIBLE).'),
+          500: error('ER1: no se pudo recuperar la actividad (ERROR_INTERNO).'),
+        },
+      },
+    },
+    '/actividades/{id}/participantes': {
+      get: {
+        tags: ['Actividades'],
+        summary: 'CU09 A1 – Participantes de la actividad, con sus invitados externos (de a 20)',
+        security: [{ sesion: [] }],
+        parameters: [
+          { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+          { name: 'pagina', in: 'query', required: false, schema: { type: 'integer', minimum: 1, default: 1 } },
+        ],
+        responses: {
+          200: {
+            description: 'Página de participantes: primero el organizador, después por orden de llegada.',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/Participantes' } } },
+          },
+          400: error('Página inválida (DATOS_INVALIDOS).'),
+          401: error('Sin sesión o sesión vencida (SESION_INVALIDA).'),
+          404: error('E2: la actividad no existe (ACTIVIDAD_NO_DISPONIBLE).'),
+          500: error('ER1: no se pudo recuperar la lista (ERROR_INTERNO).'),
         },
       },
     },

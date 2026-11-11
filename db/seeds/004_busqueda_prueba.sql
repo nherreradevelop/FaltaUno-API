@@ -3,7 +3,7 @@
 -- Las fechas son relativas a hoy, así que siempre quedan en el futuro.
 --
 --   12 actividades disponibles, en distintos deportes, departamentos, niveles, franjas y cupos -> 2 páginas
---   1 organizada por Elian                     -> "Sos el organizador"
+--   1 organizada por Elian                     -> "Organizada por ti"
 --   1 completa (con un invitado externo)       -> NO aparece (RN3)
 --   1 programada con fecha ya pasada           -> NO aparece (RN2)
 --   1 cancelada                                -> NO aparece (RN2)
