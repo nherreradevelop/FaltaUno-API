@@ -48,6 +48,21 @@ export class SesionesRepositorio {
     return this.redis.get(claveSesion(hashDeToken(token)));
   }
 
+  /**
+   * CU37: cierra solo la sesión de este token; las demás sesiones del usuario siguen vigentes (RN1).
+   * Devuelve el id del usuario dueño, o null si la sesión ya no estaba activa (E1, RN6).
+   */
+  async cerrar(token: string): Promise<string | null> {
+    const tokenHash = hashDeToken(token);
+    const usuarioId = await this.redis.get(claveSesion(tokenHash));
+    if (usuarioId === null) {
+      return null;
+    }
+
+    await this.redis.multi().del(claveSesion(tokenHash)).srem(claveSesionesDeUsuario(usuarioId), tokenHash).exec();
+    return usuarioId;
+  }
+
   /** Cierra todas las sesiones abiertas del usuario. */
   async cerrarTodas(usuarioId: string): Promise<void> {
     const claveConjunto = claveSesionesDeUsuario(usuarioId);

@@ -18,7 +18,7 @@ export interface DependenciasAuth {
     | 'verificarYVincularProveedor'
     | 'guardarProveedorId'
   >;
-  sesiones: Pick<SesionesRepositorio, 'crear' | 'cerrarTodas'>;
+  sesiones: Pick<SesionesRepositorio, 'crear' | 'cerrar' | 'cerrarTodas'>;
   bloqueos: Pick<BloqueosRepositorio, 'minutosDeBloqueoRestantes' | 'registrarIntentoFallido'>;
   verificadorGoogle: Pick<VerificadorGoogle, 'verificar'>;
   logger: Logger;
@@ -99,6 +99,24 @@ export class AuthServicio {
     const sesion = await sesiones.crear(usuario.id);
     this.dependencias.logger.info({ evento: 'login_correcto', usuarioId: usuario.id, proveedor: 'google' }, 'Inicio de sesión');
     return aRespuestaLoginDto(usuario, sesion);
+  }
+
+  /**
+   * CU37 – Cierre de sesión (FP pasos 5 y 6). Invalida solo la sesión de este token (RN1, RN3).
+   * Si la sesión ya venció, ya se cerró o no vino token, no hace nada y no falla (E1, RN6).
+   */
+  async cerrarSesion(token: string | null): Promise<void> {
+    const { sesiones, logger } = this.dependencias;
+    if (token === null) {
+      return;
+    }
+
+    const usuarioId = await sesiones.cerrar(token);
+    if (usuarioId === null) {
+      logger.info({ evento: 'logout_sesion_inactiva' }, 'Cierre de una sesión que ya no estaba activa (CU37 E1)');
+      return;
+    }
+    logger.info({ evento: 'logout', usuarioId }, 'Cierre de sesión');
   }
 
   /** CU01 E3 / E4 para un correo que no está registrado: misma respuesta que para una cuenta existente (RNF-12). Siempre lanza. */
