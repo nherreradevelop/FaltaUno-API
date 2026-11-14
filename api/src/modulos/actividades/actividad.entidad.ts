@@ -179,7 +179,7 @@ export class NuevaActividad {
     }
     // Los invitados ocupan lugares igual que el organizador (CU11 RN5/RN6/RN9).
     if (1 + this.datos.invitados.length > this.datos.cupoMaximo) {
-      campos.invitados = 'El organizador y sus invitados no pueden superar el cupo.';
+      campos.invitados = 'El organizador y los participantes externos no pueden superar el cupo.';
     }
     if (Object.keys(campos).length > 0) {
       throw errores.validacion(campos);

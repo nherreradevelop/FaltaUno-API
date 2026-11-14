@@ -6,6 +6,13 @@ function filtrosDe(query: Record<string, string>) {
 }
 
 describe('CU08 – Filtros de la búsqueda', () => {
+  it('dashboard: admite únicamente las tres secciones y descarta un usuario enviado por query', () => {
+    for (const grupo of ['gestionando', 'unido', 'otras']) {
+      expect(filtrosDe({ grupo })).toMatchObject({ grupo });
+    }
+    expect(() => filtrosDe({ grupo: 'todas-las-cuentas' })).toThrow(expect.objectContaining({ estado: 400 }));
+    expect(validar(esquemaBusqueda, { grupo: 'unido', usuarioId: 'otra-persona' })).not.toHaveProperty('usuarioId');
+  });
   it('FP: sin filtros busca todo, desde la página 1 y sin ubicación', () => {
     const datos = validar(esquemaBusqueda, {});
     expect(datos.pagina).toBe(1);

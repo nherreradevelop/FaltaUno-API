@@ -124,15 +124,26 @@ export class DetallesDeActividadEnMemoria implements RepositorioActividades {
 
 /** CU08: una actividad de la búsqueda con su organizador (equivale a una fila de buscarDisponibles). */
 export function crearActividadEncontrada(
-  cambios: Partial<DatosDeActividad> & { organizadorNombre?: string; organizadorValoracion?: number | null } = {},
+  cambios: Partial<DatosDeActividad> & {
+    organizadorNombre?: string;
+    organizadorValoracion?: number | null;
+    tieneVehiculo?: boolean;
+    requiereVehiculo?: boolean;
+  } = {},
 ): ActividadEncontrada {
-  const { organizadorNombre = 'Martina Rodríguez', organizadorValoracion = 4.33, ...datos } = cambios;
+  const {
+    organizadorNombre = 'Martina Rodríguez',
+    organizadorValoracion = 4.33,
+    tieneVehiculo = false,
+    requiereVehiculo = false,
+    ...datos
+  } = cambios;
   const actividad = crearActividad(datos);
   const organizador =
     actividad.organizadorId === null
       ? null
       : { id: actividad.organizadorId, nombre: organizadorNombre, valoracionPromedio: organizadorValoracion };
-  return { actividad, organizador };
+  return { actividad, organizador, tieneVehiculo, requiereVehiculo };
 }
 
 /**
@@ -140,7 +151,7 @@ export function crearActividadEncontrada(
  * con qué filtros se la llamó. Los filtros en sí se aplican en SQL y se prueban contra la base.
  */
 export class BusquedaEnMemoria extends DetallesDeActividadEnMemoria {
-  readonly pedidos: { filtros: FiltrosDeBusqueda; pagina: number; tamanoPagina: number }[] = [];
+  readonly pedidos: { filtros: FiltrosDeBusqueda; pagina: number; tamanoPagina: number; usuarioId?: string }[] = [];
 
   constructor(
     private readonly disponibles: ActividadEncontrada[] = [],
@@ -153,9 +164,10 @@ export class BusquedaEnMemoria extends DetallesDeActividadEnMemoria {
     filtros: FiltrosDeBusqueda,
     pagina: number,
     tamanoPagina: number,
+    usuarioId?: string,
   ): Promise<PaginaDeActividades> {
     this.fallarSiCorresponde();
-    this.pedidos.push({ filtros, pagina, tamanoPagina });
+    this.pedidos.push({ filtros, pagina, tamanoPagina, usuarioId });
     const desde = (pagina - 1) * tamanoPagina;
     return {
       actividades: this.disponibles.slice(desde, desde + tamanoPagina),

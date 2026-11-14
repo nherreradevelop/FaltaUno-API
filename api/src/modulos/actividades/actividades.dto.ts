@@ -64,6 +64,7 @@ const fechaSinHora = z
 /** CU08 FP, A1 a A6: filtros de la búsqueda (query string). Todos son opcionales y se combinan (RN4). */
 export const esquemaBusqueda = z
   .object({
+    grupo: z.enum(['gestionando', 'unido', 'otras']).optional(),
     deportes: listaSeparadaPorComas.pipe(
       z.array(z.coerce.number({ invalid_type_error: 'Los deportes tienen que ser números.' }).int().positive()),
     ),
@@ -99,6 +100,8 @@ export type DatosBusqueda = z.infer<typeof esquemaBusqueda>;
 
 /** Filtros ya validados que recibe el repositorio. Una lista vacía significa "sin ese filtro". */
 export interface FiltrosDeBusqueda {
+  /** Sección del dashboard; si se omite, conserva la búsqueda general de disponibles. */
+  grupo?: 'gestionando' | 'unido' | 'otras';
   deportes: number[];
   departamentos: string[];
   niveles: NivelActividad[];
@@ -112,6 +115,7 @@ export interface FiltrosDeBusqueda {
 export function aFiltrosDeBusqueda(datos: DatosBusqueda): FiltrosDeBusqueda {
   const tieneUbicacion = datos.lat !== undefined && datos.lng !== undefined;
   return {
+    ...(datos.grupo ? { grupo: datos.grupo } : {}),
     deportes: datos.deportes,
     departamentos: datos.departamentos,
     niveles: datos.niveles,
@@ -132,6 +136,10 @@ export interface ActividadEncontradaDto {
   departamento: string;
   nivel: NivelActividad;
   cuposLibres: number;
+  /** El organizador declaró que tiene vehículo; no garantiza asientos disponibles. */
+  tieneVehiculo: boolean;
+  /** El organizador marcó «Buscando traslado» al crear la actividad. */
+  requiereVehiculo: boolean;
   /** Quién la organiza y su valoración promedio; null si el organizador cerró su cuenta. */
   organizador: { id: string; nombre: string; valoracionPromedio: number | null } | null;
   /** El cliente muestra "Organizada por ti". */
@@ -154,6 +162,8 @@ export function aActividadEncontradaDto(encontrada: ActividadEncontrada, usuario
     departamento: actividad.departamento,
     nivel: actividad.nivel,
     cuposLibres: actividad.cuposLibres(),
+    tieneVehiculo: encontrada.tieneVehiculo,
+    requiereVehiculo: encontrada.requiereVehiculo,
     organizador:
       organizador === null
         ? null
@@ -296,7 +306,7 @@ export const esquemaCrearActividad = z
     tieneVehiculo: z.boolean(),
     lugaresVehiculo: z.number().int().min(0).max(32767).nullable(),
     requiereVehiculo: z.boolean(),
-    invitados: z.array(z.string().trim().min(1, 'Ingresá el nombre del invitado.').max(100)).max(32766),
+    invitados: z.array(z.string().trim().min(1, 'Ingresá el nombre del participante externo.').max(100)).max(32766),
     costoEstimadoCentavos: z.number().int().min(0).max(999999999999).nullable(),
   })
   .strict()
