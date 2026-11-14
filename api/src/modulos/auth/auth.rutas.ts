@@ -25,8 +25,16 @@ export function crearRutasAuth(contexto: Contexto): Router {
     ventanaEnMinutos: config.LIMITE_AUTH_VENTANA_MINUTOS,
   });
 
+  // CU37 RNF-11: contador propio, para que cerrar sesión no consuma los intentos de login de la misma IP
+  const limiteCierreDeSesion = limitarIntentos(contexto.redis, 'cierre-sesion', {
+    maximo: config.LIMITE_AUTH_SOLICITUDES,
+    ventanaEnMinutos: config.LIMITE_AUTH_VENTANA_MINUTOS,
+  });
+
   const rutas = Router();
   rutas.post('/login', limiteAuth, controlador.iniciarSesion);
   rutas.post('/google', limiteAuth, controlador.iniciarSesionConGoogle);
+  // Sin requiereSesion: con una sesión ya vencida también tiene que responder bien (CU37 E1)
+  rutas.post('/cerrar-sesion', limiteCierreDeSesion, controlador.cerrarSesion);
   return rutas;
 }

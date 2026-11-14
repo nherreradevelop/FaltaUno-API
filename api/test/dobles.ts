@@ -135,6 +135,12 @@ export class SesionesEnMemoria implements RepositorioSesiones {
     return this.abiertas.get(token) ?? null;
   }
 
+  async cerrar(token: string): Promise<string | null> {
+    const usuarioId = this.abiertas.get(token) ?? null;
+    this.abiertas.delete(token);
+    return usuarioId;
+  }
+
   async cerrarTodas(usuarioId: string): Promise<void> {
     for (const [token, dueño] of this.abiertas) {
       if (dueño === usuarioId) {
