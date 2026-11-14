@@ -53,13 +53,18 @@ Con los servicios levantados, desde la raíz del repositorio (funciona igual en 
 ```bash
 docker cp db/migrations/001_esquema_inicial.sql faltauno-postgres:/tmp/001.sql
 docker cp db/migrations/002_catalogos.sql faltauno-postgres:/tmp/002.sql
+docker cp db/migrations/003_indice_participacion_actividad.sql faltauno-postgres:/tmp/003.sql
+docker cp db/migrations/004_cu10_origen_opcional_destino_provisional.sql faltauno-postgres:/tmp/004.sql
 docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/001.sql
 docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/002.sql
-docker cp db/migrations/003_indice_participacion_actividad.sql faltauno-postgres:/tmp/003.sql
 docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/003.sql
+docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/004.sql
 ```
 
-Si la base ya tenía las tablas creadas, alcanza con correr solo la `003`.
+Si la base ya tenía las tablas creadas, alcanza con correr las que falten (cada una se aplica una sola vez):
+
+- `003`: índice de participaciones por actividad (CU08 y CU09).
+- `004`: origen opcional del CU10, más precisión en el destino y la marca de destino provisional (cuando Google Maps no está disponible).
 
 > Los scripts se copian al contenedor en lugar de pasarlos por la tubería de PowerShell para no romper las tildes.
 
@@ -165,6 +170,19 @@ npm run n8n:importar   # carpeta n8n/ -> tu n8n
 
 GitHub Actions (`.github/workflows/ci.yml`) se ejecuta en cada pull request y push a `develop` o `main`:
 lint y formato siempre; compilación y pruebas de la API en cuanto exista `api/package.json`.
+
+La API ejecuta cobertura y pruebas de CU10 contra PostgreSQL de pruebas y Redis `/15`.
+
+## CU10 Crear actividad
+
+La implementación incluye API, web y mobile. Para seleccionar origen y destino, configurar
+`GOOGLE_MAPS_API_KEY` en `api/.env` con Places API (New) habilitada y reiniciar la API.
+El máximo inicial es 20 (`ACTIVIDAD_MAX_PARTICIPANTES`); el costo manual es total y el clima
+queda como placeholder de CU15, según la revisión del plan.
+
+Ver [configuración y funcionamiento](docs/cu10-implementacion.md) y
+[casos de prueba y resultados](docs/testing/cu10-casos-prueba.md).
+El [inventario de integración con Google Maps](docs/google-maps-integracion.md) detalla SDK, servicios, claves y solicitudes de web, API y mobile.
 
 ## Forma de trabajo
 

@@ -1,4 +1,9 @@
-import { Actividad, type EstadoActividad, type NivelActividad } from '../src/modulos/actividades/actividad.entidad';
+import {
+  Actividad,
+  type EstadoActividad,
+  type NivelActividad,
+  type Ubicacion,
+} from '../src/modulos/actividades/actividad.entidad';
 import type { FiltrosDeBusqueda } from '../src/modulos/actividades/actividades.dto';
 import type {
   ActividadEncontrada,
@@ -17,6 +22,8 @@ export const ORGANIZADORA = 'usuario-organizadora';
 
 interface DatosDeActividad {
   id: string;
+  /** null: la actividad no tiene punto de partida (CU10). */
+  origen: Ubicacion | null;
   departamento: string;
   estado: EstadoActividad;
   fechaHoraInicio: Date;
@@ -30,6 +37,7 @@ interface DatosDeActividad {
 export function crearActividad(cambios: Partial<DatosDeActividad> = {}): Actividad {
   const datos: DatosDeActividad = {
     id: ACTIVIDAD_ID,
+    origen: { direccion: 'Tres Cruces, Montevideo', lat: -34.894, lng: -56.166 },
     departamento: 'Rocha',
     estado: 'programada',
     fechaHoraInicio: new Date('2026-11-07T10:30:00.000Z'),
@@ -48,7 +56,7 @@ export function crearActividad(cambios: Partial<DatosDeActividad> = {}): Activid
     datos.fechaHoraInicio,
     datos.nivel,
     'Llevá traje.',
-    { direccion: 'Tres Cruces, Montevideo', lat: -34.894, lng: -56.166 },
+    datos.origen,
     { direccion: 'Playa La Aguada, Rocha', lat: -34.655, lng: -54.158 },
     datos.departamento,
     datos.cupoMaximo,
@@ -116,15 +124,26 @@ export class DetallesDeActividadEnMemoria implements RepositorioActividades {
 
 /** CU08: una actividad de la búsqueda con su organizador (equivale a una fila de buscarDisponibles). */
 export function crearActividadEncontrada(
-  cambios: Partial<DatosDeActividad> & { organizadorNombre?: string; organizadorValoracion?: number | null } = {},
+  cambios: Partial<DatosDeActividad> & {
+    organizadorNombre?: string;
+    organizadorValoracion?: number | null;
+    tieneVehiculo?: boolean;
+    requiereVehiculo?: boolean;
+  } = {},
 ): ActividadEncontrada {
-  const { organizadorNombre = 'Martina Rodríguez', organizadorValoracion = 4.33, ...datos } = cambios;
+  const {
+    organizadorNombre = 'Martina Rodríguez',
+    organizadorValoracion = 4.33,
+    tieneVehiculo = false,
+    requiereVehiculo = false,
+    ...datos
+  } = cambios;
   const actividad = crearActividad(datos);
   const organizador =
     actividad.organizadorId === null
       ? null
       : { id: actividad.organizadorId, nombre: organizadorNombre, valoracionPromedio: organizadorValoracion };
-  return { actividad, organizador };
+  return { actividad, organizador, tieneVehiculo, requiereVehiculo };
 }
 
 /**
@@ -132,7 +151,7 @@ export function crearActividadEncontrada(
  * con qué filtros se la llamó. Los filtros en sí se aplican en SQL y se prueban contra la base.
  */
 export class BusquedaEnMemoria extends DetallesDeActividadEnMemoria {
-  readonly pedidos: { filtros: FiltrosDeBusqueda; pagina: number; tamanoPagina: number }[] = [];
+  readonly pedidos: { filtros: FiltrosDeBusqueda; pagina: number; tamanoPagina: number; usuarioId?: string }[] = [];
 
   constructor(
     private readonly disponibles: ActividadEncontrada[] = [],
@@ -145,9 +164,10 @@ export class BusquedaEnMemoria extends DetallesDeActividadEnMemoria {
     filtros: FiltrosDeBusqueda,
     pagina: number,
     tamanoPagina: number,
+    usuarioId?: string,
   ): Promise<PaginaDeActividades> {
     this.fallarSiCorresponde();
-    this.pedidos.push({ filtros, pagina, tamanoPagina });
+    this.pedidos.push({ filtros, pagina, tamanoPagina, usuarioId });
     const desde = (pagina - 1) * tamanoPagina;
     return {
       actividades: this.disponibles.slice(desde, desde + tamanoPagina),

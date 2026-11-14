@@ -29,6 +29,17 @@ const esquemaEnv = z.object({
 
   // Vacío mientras no se configure el login con Google (ver README)
   GOOGLE_CLIENT_IDS: z.string().default('').transform(listaSeparadaPorComas),
+
+  // CU10: máximo inicial acordado; permite ajustarlo sin cambiar el código.
+  ACTIVIDAD_MAX_PARTICIPANTES: z.coerce.number().int().min(2).max(32767).default(20),
+  // CU10 E4: destino provisional administrado por el servidor, sin valores geográficos implícitos.
+  ACTIVIDAD_DESTINO_PROVISIONAL_LAT: z.string().trim().min(1).pipe(z.coerce.number().min(-90).max(90)),
+  ACTIVIDAD_DESTINO_PROVISIONAL_LNG: z.string().trim().min(1).pipe(z.coerce.number().min(-180).max(180)),
+  ACTIVIDAD_DESTINO_PROVISIONAL_DEPARTAMENTO: z.string().trim().min(1).max(30),
+  IDEMPOTENCIA_HORAS: z.coerce.number().int().positive().default(24),
+  GOOGLE_MAPS_API_KEY: z.string().default(''),
+  GOOGLE_MAPS_TIMEOUT_MS: z.coerce.number().int().positive().default(8000),
+  LIMITE_MAPAS_SOLICITUDES_MINUTO: z.coerce.number().int().positive().default(60),
 });
 
 export type Config = z.infer<typeof esquemaEnv>;

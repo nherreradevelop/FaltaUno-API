@@ -34,7 +34,7 @@ function permitirOrigenes(origenesPermitidos: string[]): express.RequestHandler 
     if (origen && origenesPermitidos.includes(origen)) {
       res.setHeader('Access-Control-Allow-Origin', origen);
       res.setHeader('Vary', 'Origin');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Idempotency-Key');
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
     }
     if (req.method === 'OPTIONS') {

@@ -95,6 +95,13 @@ describe('CU09 – Detalle de actividad', () => {
     expect(detalle.organizador).toBeNull();
   });
 
+  it('FP paso 2: una actividad sin punto de partida (CU10) se muestra con el origen en null', async () => {
+    const { servicio } = crearServicio(guardada({ actividad: crearActividad({ origen: null }) }));
+    const detalle = await servicio.obtenerDetalle(AJENO, ACTIVIDAD_ID);
+    expect(detalle.origen).toBeNull();
+    expect(detalle.destino).toEqual({ direccion: 'Playa La Aguada, Rocha', lat: -34.655, lng: -54.158 });
+  });
+
   it('RN1 / FP paso 3: quien no participa ve el detalle con rol "ninguno" y puede unirse', async () => {
     const { servicio } = crearServicio();
     const detalle = await servicio.obtenerDetalle(AJENO, ACTIVIDAD_ID);
@@ -209,6 +216,27 @@ function crearActividades(cantidad: number) {
 }
 
 describe('CU08 – Buscar actividades', () => {
+  it.each([
+    [false, false],
+    [true, false],
+    [false, true],
+    [true, true],
+  ])(
+    'tarjeta previa a unirse: conserva tieneVehiculo=%s y requiereVehiculo=%s sin inferir uno del otro',
+    async (tieneVehiculo, requiereVehiculo) => {
+      const servicio = new ActividadesServicio({
+        actividades: new BusquedaEnMemoria([crearActividadEncontrada({ tieneVehiculo, requiereVehiculo })]),
+      });
+      const resultado = await servicio.buscar(AJENO, SIN_FILTROS, 1);
+      expect(resultado.actividades[0]).toMatchObject({ tieneVehiculo, requiereVehiculo, esOrganizador: false });
+    },
+  );
+  it('dashboard: usa el usuario de la sesión para resolver la sección, sin aceptar otro propietario', async () => {
+    const busqueda = new BusquedaEnMemoria();
+    const servicio = new ActividadesServicio({ actividades: busqueda });
+    await servicio.buscar(ANA, { ...SIN_FILTROS, grupo: 'unido' }, 2);
+    expect(busqueda.pedidos[0]).toMatchObject({ usuarioId: ANA, pagina: 2, filtros: { grupo: 'unido' } });
+  });
   it('FP: devuelve nombre, deporte, fecha y hora, departamento, nivel y cupos libres de cada actividad', async () => {
     const servicio = new ActividadesServicio({
       actividades: new BusquedaEnMemoria([crearActividadEncontrada({ id: 'actividad-1' })]),
@@ -223,6 +251,8 @@ describe('CU08 – Buscar actividades', () => {
           departamento: 'Rocha',
           nivel: 'intermedio',
           cuposLibres: 3,
+          tieneVehiculo: false,
+          requiereVehiculo: false,
           organizador: { id: ORGANIZADORA, nombre: 'Martina Rodríguez', valoracionPromedio: 4.33 },
           esOrganizador: false,
         },
