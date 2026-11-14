@@ -1,4 +1,6 @@
+import { errores } from '../../comun/errores';
 import type { Deporte } from '../deportes/deporte.entidad';
+import type { DatosCrearActividad } from './actividades.dto';
 
 export type EstadoActividad = 'programada' | 'iniciada' | 'archivada' | 'cancelada';
 export type NivelActividad = 'principiante' | 'intermedio' | 'avanzado';
@@ -88,7 +90,8 @@ export class Actividad {
     readonly fechaHoraInicio: Date,
     readonly nivel: NivelActividad,
     readonly descripcion: string | null,
-    readonly origen: Ubicacion,
+    /** null si el organizador no indicó punto de partida (CU10: el origen es opcional). */
+    readonly origen: Ubicacion | null,
     readonly destino: Ubicacion,
     /** Departamento del destino, calculado a partir del mapa al crear la actividad (CU10). Lo usa el filtro del CU08 A5. */
     readonly departamento: string,
@@ -152,5 +155,34 @@ export class Actividad {
       return this.admiteIncorporaciones();
     }
     return true;
+  }
+}
+
+/**
+ * CU10: actividad por crear, todavía sin id ni estado. Agrupa las reglas que dependen solo de los datos del formulario.
+ * Se valida al abrir el alta y otra vez dentro de la transacción (RN1, RN2, RN5).
+ */
+export class NuevaActividad {
+  constructor(readonly datos: DatosCrearActividad) {}
+
+  /** CU10 RN1/RN2/RN5: se vuelve a validar al guardar, no solo al abrir el formulario. */
+  validarCreacion(maximoParticipantes: number, ahora: Date): void {
+    const campos: Record<string, string> = {};
+    if (new Date(this.datos.fechaHoraInicio) <= ahora) {
+      campos.fechaHoraInicio = 'La fecha y hora deben ser futuras.';
+    }
+    if (this.datos.cupoMaximo > maximoParticipantes) {
+      campos.cupoMaximo = `El máximo permitido es ${maximoParticipantes}.`;
+    }
+    if (this.datos.tieneVehiculo && this.datos.origenPlaceId === null && !this.datos.origenCoordenadas) {
+      campos.origenPlaceId = 'Si tenés vehículo propio, seleccioná tu punto de origen.';
+    }
+    // Los invitados ocupan lugares igual que el organizador (CU11 RN5/RN6/RN9).
+    if (1 + this.datos.invitados.length > this.datos.cupoMaximo) {
+      campos.invitados = 'El organizador y los participantes externos no pueden superar el cupo.';
+    }
+    if (Object.keys(campos).length > 0) {
+      throw errores.validacion(campos);
+    }
   }
 }

@@ -1,3 +1,5 @@
+import { rutasSwaggerActividades } from './modulos/actividades/actividades.swagger';
+
 /**
  * Documentación OpenAPI de la API (Plan de calidad - SQA). Se ve en http://localhost:3000/api/docs.
  * Cada endpoint nuevo se agrega acá.
@@ -125,7 +127,11 @@ export const documentoSwagger = {
           },
           nivel: { type: 'string', enum: ['principiante', 'intermedio', 'avanzado'] },
           descripcion: { type: 'string', nullable: true },
-          origen: { $ref: '#/components/schemas/Ubicacion' },
+          origen: {
+            allOf: [{ $ref: '#/components/schemas/Ubicacion' }],
+            nullable: true,
+            description: 'null si la actividad no tiene punto de partida (CU10: el origen es opcional).',
+          },
           destino: { $ref: '#/components/schemas/Ubicacion' },
           cupoMaximo: { type: 'integer', example: 6 },
           cuposOcupados: { type: 'integer', example: 3, description: 'Participantes más invitados externos.' },
@@ -233,6 +239,11 @@ export const documentoSwagger = {
             },
           },
           esOrganizador: { type: 'boolean', description: 'true si el usuario de la sesión organiza la actividad.' },
+          tieneVehiculo: {
+            type: 'boolean',
+            description: 'El organizador declaró que tiene vehículo. No garantiza asientos disponibles.',
+          },
+          requiereVehiculo: { type: 'boolean', description: 'El organizador marcó Buscando traslado.' },
         },
       },
       ResultadoBusqueda: {
@@ -254,6 +265,7 @@ export const documentoSwagger = {
     },
   },
   paths: {
+    ...rutasSwaggerActividades,
     '/auth/login': {
       post: {
         tags: ['Autenticación'],
@@ -404,13 +416,23 @@ export const documentoSwagger = {
       },
     },
     '/actividades': {
+      // CU10: el alta (POST) está en actividades.swagger.ts; acá se suma la búsqueda (GET) a la misma ruta
+      ...rutasSwaggerActividades['/actividades'],
       get: {
         tags: ['Actividades'],
-        summary: 'CU08 – Buscar actividades disponibles (programadas, sin empezar y con cupo), de a 10',
+        summary: 'CU08 – Actividades programadas y futuras, de a 10 por sección del dashboard',
         description:
           'Todos los filtros son opcionales y se combinan (RN4). Los que admiten varios valores van separados por coma y alcanza con cumplir uno (RN5). Orden (RN1): por día y, dentro del día, por cercanía del destino a lat/lng; sin lat/lng, por fecha y hora.',
         security: [{ sesion: [] }],
         parameters: [
+          {
+            name: 'grupo',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', enum: ['gestionando', 'unido', 'otras'] },
+            description:
+              'Relación con el usuario autenticado. Las secciones son excluyentes; gestionando y unido incluyen completas. Sin grupo, conserva la búsqueda general con cupo.',
+          },
           {
             name: 'deportes',
             in: 'query',

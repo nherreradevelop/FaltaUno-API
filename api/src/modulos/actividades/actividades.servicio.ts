@@ -30,7 +30,7 @@ export class ActividadesServicio {
    * Una lista vacía es el caso E1: el cliente informa que no hay actividades y sugiere crear una.
    */
   async buscar(usuarioId: string, filtros: FiltrosDeBusqueda, pagina: number): Promise<ResultadoDeBusquedaDto> {
-    const encontradas = await this.dependencias.actividades.buscarDisponibles(filtros, pagina, TAMANO_PAGINA_BUSQUEDA);
+    const encontradas = await this.dependencias.actividades.buscarDisponibles(filtros, pagina, TAMANO_PAGINA_BUSQUEDA, usuarioId);
     return {
       actividades: encontradas.actividades.map((encontrada) => aActividadEncontradaDto(encontrada, usuarioId)),
       pagina,

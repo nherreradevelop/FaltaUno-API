@@ -1,7 +1,20 @@
 import type { Ejecutor } from '../../infra/postgres';
 import { Deporte } from '../deportes/deporte.entidad';
-import { Actividad, FRANJAS_HORARIAS, ZONA_HORARIA, type EstadoActividad, type NivelActividad } from './actividad.entidad';
-import type { FiltrosDeBusqueda } from './actividades.dto';
+import {
+  Actividad,
+  FRANJAS_HORARIAS,
+  ZONA_HORARIA,
+  type EstadoActividad,
+  type NivelActividad,
+  type Ubicacion,
+} from './actividad.entidad';
+import {
+  aActividadCreada,
+  type ActividadCreadaDto,
+  type DatosCrearActividad,
+  type FiltrosDeBusqueda,
+  type UbicacionActividad,
+} from './actividades.dto';
 
 export type { EstadoActividad } from './actividad.entidad';
 
@@ -41,6 +54,9 @@ export interface OrganizadorEncontrado {
 /** CU08: una actividad de la búsqueda con su organizador. */
 export interface ActividadEncontrada {
   actividad: Actividad;
+  /** Datos declarados por el organizador; no representan disponibilidad de asientos. */
+  tieneVehiculo: boolean;
+  requiereVehiculo: boolean;
   /** null si el organizador cerró su cuenta (CU33). */
   organizador: OrganizadorEncontrado | null;
 }
@@ -51,6 +67,8 @@ export interface PaginaDeActividades {
 }
 
 interface FilaActividadEncontrada {
+  organizador_tiene_vehiculo: boolean;
+  requiere_vehiculo: boolean;
   id: string;
   nombre: string;
   deporte_id: number;
@@ -59,9 +77,10 @@ interface FilaActividadEncontrada {
   fecha_hora_inicio: Date;
   nivel: NivelActividad;
   descripcion: string | null;
-  origen_direccion: string;
-  origen_lat: string;
-  origen_lng: string;
+  // El origen es opcional (CU10): las tres columnas vienen juntas o las tres en null
+  origen_direccion: string | null;
+  origen_lat: string | null;
+  origen_lng: string | null;
   destino_direccion: string;
   destino_lat: string;
   destino_lng: string;
@@ -137,9 +156,10 @@ interface FilaDetalle {
   fecha_hora_inicio: Date;
   nivel: NivelActividad;
   descripcion: string | null;
-  origen_direccion: string;
-  origen_lat: string;
-  origen_lng: string;
+  // El origen es opcional (CU10): las tres columnas vienen juntas o las tres en null
+  origen_direccion: string | null;
+  origen_lat: string | null;
+  origen_lng: string | null;
   destino_direccion: string;
   destino_lat: string;
   destino_lng: string;
@@ -286,13 +306,19 @@ export class ActividadesRepositorio {
   }
 
   /**
-   * CU08 – Buscar actividades: disponibles (RN2, RN3, RN7) que cumplen todos los filtros (RN4), de a una página.
+   * CU08 – Buscar actividades programadas y futuras por sección, de a una página.
+   * Las propias se conservan aunque estén completas; las demás requieren cupo disponible.
    * Los cupos ocupados se cuentan en la misma consulta (sin N+1), con el organizador y los invitados externos.
    * Se pide una fila de más para saber si hay otra página sin hacer un COUNT.
    */
-  async buscarDisponibles(filtros: FiltrosDeBusqueda, pagina: number, tamanoPagina: number): Promise<PaginaDeActividades> {
+  async buscarDisponibles(
+    filtros: FiltrosDeBusqueda,
+    pagina: number,
+    tamanoPagina: number,
+    usuarioId?: string,
+  ): Promise<PaginaDeActividades> {
     const consulta = new ConsultaConFiltros();
-    agregarFiltros(consulta, filtros);
+    agregarFiltros(consulta, filtros, usuarioId);
     const orden = ordenDeLaBusqueda(consulta, filtros);
     const limite = consulta.parametro(tamanoPagina + 1);
     const desplazamiento = consulta.parametro((pagina - 1) * tamanoPagina);
@@ -301,6 +327,7 @@ export class ActividadesRepositorio {
       `SELECT a.id, a.nombre, a.deporte_id, d.nombre AS deporte_nombre, a.estado, a.fecha_hora_inicio, a.nivel,
               a.descripcion, a.origen_direccion, a.origen_lat, a.origen_lng, a.destino_direccion, a.destino_lat,
               a.destino_lng, a.departamento, a.cupo_maximo, a.costo_estimado, a.organizador_id,
+              a.organizador_tiene_vehiculo, a.requiere_vehiculo,
               o.nombre AS organizador_nombre, valoracion_organizador.promedio AS organizador_valoracion,
               ocupacion.cupos_ocupados
        FROM actividad a
@@ -338,6 +365,119 @@ export class ActividadesRepositorio {
       [usuarioId, ESTADOS_DEL_HISTORIAL],
     );
     return Number(resultado.rows[0]?.cantidad ?? 0);
+  }
+
+  // --- CU10 – Crear actividad ---
+
+  async deportesActivos(): Promise<{ id: number; nombre: string }[]> {
+    const resultado = await this.db.query<{ id: number; nombre: string }>(
+      'SELECT id, nombre FROM deporte WHERE activo ORDER BY nombre',
+    );
+    return resultado.rows;
+  }
+
+  async cuentaActiva(usuarioId: string): Promise<boolean> {
+    const resultado = await this.db.query('SELECT id FROM usuario WHERE id = $1 AND estado = $2 AND verificado FOR SHARE', [
+      usuarioId,
+      'activo',
+    ]);
+    return resultado.rows.length > 0;
+  }
+
+  /** Serializa los reintentos del mismo UUID sin tablas nuevas de idempotencia. */
+  async bloquearAlta(id: string): Promise<void> {
+    await this.db.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', [id]);
+  }
+
+  async buscarCreada(id: string, usuarioId: string): Promise<ActividadCreadaDto | null> {
+    const resultado = await this.db.query<{
+      id: string;
+      nombre: string;
+      cupo_maximo: number;
+      cantidad: number;
+      costo_centavos: string | null;
+      destino_provisional: boolean;
+    }>(
+      `SELECT a.id, a.nombre, a.cupo_maximo, a.destino_provisional, (a.costo_estimado * 100)::bigint::text AS costo_centavos,
+        (SELECT count(*)::integer FROM participacion p WHERE p.actividad_id = a.id) +
+        (SELECT count(*)::integer FROM invitado_externo i JOIN participacion p ON p.id = i.participacion_id
+          WHERE p.actividad_id = a.id) AS cantidad
+       FROM actividad a WHERE a.id = $1 AND a.organizador_id = $2`,
+      [id, usuarioId],
+    );
+    const fila = resultado.rows[0];
+    if (!fila) return null;
+    return aActividadCreada(
+      fila.id,
+      {
+        nombre: fila.nombre,
+        cupoMaximo: fila.cupo_maximo,
+        invitados: Array.from({ length: fila.cantidad - 1 }, () => ''),
+        costoEstimadoCentavos: fila.costo_centavos === null ? null : Number(fila.costo_centavos),
+      },
+      fila.destino_provisional,
+    );
+  }
+
+  async crear(
+    id: string,
+    usuarioId: string,
+    datos: DatosCrearActividad,
+    origen: UbicacionActividad | null,
+    destino: UbicacionActividad,
+    destinoProvisional: boolean,
+  ): Promise<void> {
+    // Centésimos -> decimal exacto para NUMERIC, sin división de punto flotante.
+    const costo = datos.costoEstimadoCentavos;
+    const costoDecimal = costo === null ? null : `${Math.trunc(costo / 100)}.${String(costo % 100).padStart(2, '0')}`;
+    await this.db.query(
+      `INSERT INTO actividad (id, organizador_id, deporte_id, nombre, descripcion, fecha_hora_inicio, cupo_maximo, nivel,
+        origen_direccion, origen_lat, origen_lng, destino_direccion, destino_lat, destino_lng, departamento,
+        organizador_tiene_vehiculo, lugares_vehiculo, requiere_vehiculo, costo_estimado, destino_provisional, estado)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,'programada')`,
+      [
+        id,
+        usuarioId,
+        datos.deporteId,
+        datos.nombre,
+        datos.descripcion,
+        datos.fechaHoraInicio,
+        datos.cupoMaximo,
+        datos.nivel,
+        origen?.direccion ?? null,
+        origen?.lat ?? null,
+        origen?.lng ?? null,
+        destino.direccion,
+        destino.lat,
+        destino.lng,
+        destino.departamento,
+        datos.tieneVehiculo,
+        datos.lugaresVehiculo,
+        datos.requiereVehiculo,
+        costoDecimal,
+        destinoProvisional,
+      ],
+    );
+    const participacion = await this.db.query<{ id: string }>(
+      `INSERT INTO participacion (actividad_id, usuario_id, es_organizador, tiene_vehiculo, lugares_vehiculo,
+        punto_partida_direccion, punto_partida_lat, punto_partida_lng)
+       VALUES ($1,$2,TRUE,$3,$4,$5,$6,$7) RETURNING id`,
+      [
+        id,
+        usuarioId,
+        datos.tieneVehiculo,
+        datos.lugaresVehiculo,
+        origen?.direccion ?? null,
+        origen?.lat ?? null,
+        origen?.lng ?? null,
+      ],
+    );
+    if (datos.invitados.length > 0) {
+      await this.db.query('INSERT INTO invitado_externo (participacion_id, nombre) SELECT $1, unnest($2::text[])', [
+        participacion.rows[0].id,
+        datos.invitados,
+      ]);
+    }
   }
 }
 
@@ -386,7 +526,7 @@ function aDetalleDeActividad(fila: FilaDetalle): DetalleDeActividad {
     fila.fecha_hora_inicio,
     fila.nivel,
     fila.descripcion,
-    { direccion: fila.origen_direccion, lat: Number(fila.origen_lat), lng: Number(fila.origen_lng) },
+    aOrigen(fila),
     { direccion: fila.destino_direccion, lat: Number(fila.destino_lat), lng: Number(fila.destino_lng) },
     fila.departamento,
     fila.cupo_maximo,
@@ -402,12 +542,28 @@ function aDetalleDeActividad(fila: FilaDetalle): DetalleDeActividad {
   };
 }
 
-/** RN2, RN3 y RN7 siempre; después, solo los filtros que eligió el usuario (A1 a A6). */
-function agregarFiltros(consulta: ConsultaConFiltros, filtros: FiltrosDeBusqueda): void {
+/** Sección del dashboard y filtros de búsqueda; las actividades propias no requieren cupo libre. */
+function agregarFiltros(consulta: ConsultaConFiltros, filtros: FiltrosDeBusqueda, usuarioId?: string): void {
   // RN2 / RN7: programada y que todavía no empezó
   consulta.condiciones.push(`a.estado = 'programada'`, 'a.fecha_hora_inicio > now()');
-  // RN3 / RN7: con al menos un cupo libre
-  consulta.condiciones.push('ocupacion.cupos_ocupados < a.cupo_maximo');
+  // RN3 / RN7: con cupo libre para descubrir actividades; las propias también se muestran completas.
+  if (!filtros.grupo || filtros.grupo === 'otras') {
+    consulta.condiciones.push('ocupacion.cupos_ocupados < a.cupo_maximo');
+  }
+
+  if (filtros.grupo) {
+    if (!usuarioId) throw new Error('La búsqueda por grupo requiere el usuario autenticado.');
+    const usuario = consulta.parametro(usuarioId);
+    const participa = `EXISTS (SELECT 1 FROM participacion propia
+      WHERE propia.actividad_id = a.id AND propia.usuario_id = ${usuario})`;
+    if (filtros.grupo === 'gestionando') {
+      consulta.condiciones.push(`a.organizador_id = ${usuario}`);
+    } else {
+      // El organizador también participa: se excluye explícitamente de las otras dos secciones.
+      consulta.condiciones.push(`a.organizador_id IS DISTINCT FROM ${usuario}`);
+      consulta.condiciones.push(filtros.grupo === 'unido' ? participa : `NOT ${participa}`);
+    }
+  }
 
   // RN5: dentro de cada filtro alcanza con cumplir uno de los valores elegidos
   if (filtros.deportes.length > 0) {
@@ -470,7 +626,7 @@ function aActividadEncontrada(fila: FilaActividadEncontrada): ActividadEncontrad
     fila.fecha_hora_inicio,
     fila.nivel,
     fila.descripcion,
-    { direccion: fila.origen_direccion, lat: Number(fila.origen_lat), lng: Number(fila.origen_lng) },
+    aOrigen(fila),
     { direccion: fila.destino_direccion, lat: Number(fila.destino_lat), lng: Number(fila.destino_lng) },
     fila.departamento,
     fila.cupo_maximo,
@@ -478,7 +634,12 @@ function aActividadEncontrada(fila: FilaActividadEncontrada): ActividadEncontrad
     fila.organizador_id,
     fila.costo_estimado === null ? null : aCentesimos(fila.costo_estimado),
   );
-  return { actividad, organizador: aOrganizadorEncontrado(fila) };
+  return {
+    actividad,
+    organizador: aOrganizadorEncontrado(fila),
+    tieneVehiculo: fila.organizador_tiene_vehiculo,
+    requiereVehiculo: fila.requiere_vehiculo,
+  };
 }
 
 function aOrganizadorEncontrado(fila: FilaActividadEncontrada): OrganizadorEncontrado | null {
@@ -491,4 +652,16 @@ function aOrganizadorEncontrado(fila: FilaActividadEncontrada): OrganizadorEncon
     nombre: fila.organizador_nombre,
     valoracionPromedio: valoracion === null ? null : Number(valoracion),
   };
+}
+
+/** El origen es opcional (CU10, ck_actividad_origen_completo): las tres columnas llegan juntas o ninguna. */
+function aOrigen(fila: {
+  origen_direccion: string | null;
+  origen_lat: string | null;
+  origen_lng: string | null;
+}): Ubicacion | null {
+  if (fila.origen_direccion === null || fila.origen_lat === null || fila.origen_lng === null) {
+    return null;
+  }
+  return { direccion: fila.origen_direccion, lat: Number(fila.origen_lat), lng: Number(fila.origen_lng) };
 }
