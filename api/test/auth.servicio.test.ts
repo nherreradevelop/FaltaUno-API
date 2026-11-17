@@ -222,3 +222,61 @@ describe('CU01 A1 – Inicio de sesión con Google', () => {
     expect(sesiones.abiertas.size).toBe(0);
   });
 });
+
+describe('CU37 – Cierre de sesión', () => {
+  it('FP: invalida la sesión y el token deja de ser aceptado (RN3)', async () => {
+    const { servicio, sesiones } = armarServicio([crearUsuarioGuardado()]);
+    const { token } = await servicio.iniciarSesion({ email: 'ana@faltauno.uy', password: PASSWORD_CORRECTA });
+
+    await servicio.cerrarSesion(token);
+
+    expect(await sesiones.buscarUsuarioId(token)).toBeNull();
+  });
+
+  it('RN1: las sesiones del mismo usuario en otros dispositivos siguen vigentes', async () => {
+    const { servicio, sesiones } = armarServicio([crearUsuarioGuardado()]);
+    const credenciales = { email: 'ana@faltauno.uy', password: PASSWORD_CORRECTA };
+    const enEsteDispositivo = await servicio.iniciarSesion(credenciales);
+    const enOtroDispositivo = await servicio.iniciarSesion(credenciales);
+
+    await servicio.cerrarSesion(enEsteDispositivo.token);
+
+    expect(await sesiones.buscarUsuarioId(enOtroDispositivo.token)).toBe('usuario-1');
+  });
+
+  it('E1 / RN6: cerrar una sesión que ya no está activa termina bien y no crea ni cierra otras sesiones', async () => {
+    const { servicio, sesiones } = armarServicio([crearUsuarioGuardado()]);
+    const otraSesion = await sesiones.crear('usuario-1');
+
+    await expect(servicio.cerrarSesion('token-que-no-existe')).resolves.toBeUndefined();
+
+    expect(sesiones.abiertas.size).toBe(1);
+    expect(await sesiones.buscarUsuarioId(otraSesion.token)).toBe('usuario-1');
+  });
+
+  it('RN6: repetir el cierre de la misma sesión mantiene el mismo resultado', async () => {
+    const { servicio, sesiones } = armarServicio([crearUsuarioGuardado()]);
+    const { token } = await sesiones.crear('usuario-1');
+
+    await servicio.cerrarSesion(token);
+    await expect(servicio.cerrarSesion(token)).resolves.toBeUndefined();
+
+    expect(sesiones.abiertas.size).toBe(0);
+  });
+
+  it('E1: sin token no hace nada y no falla', async () => {
+    const { servicio, sesiones } = armarServicio([crearUsuarioGuardado()]);
+    await sesiones.crear('usuario-1');
+
+    await expect(servicio.cerrarSesion(null)).resolves.toBeUndefined();
+
+    expect(sesiones.abiertas.size).toBe(1);
+  });
+
+  it('ER1: si falla el almacenamiento de sesiones, el error se propaga y no se informa el cierre', async () => {
+    const { servicio, sesiones } = armarServicio([crearUsuarioGuardado()]);
+    jest.spyOn(sesiones, 'cerrar').mockRejectedValue(new Error('Redis no responde'));
+
+    await expect(servicio.cerrarSesion('token-1')).rejects.toThrow('Redis no responde');
+  });
+});

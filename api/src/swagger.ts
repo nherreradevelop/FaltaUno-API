@@ -320,6 +320,21 @@ export const documentoSwagger = {
         },
       },
     },
+    '/auth/cerrar-sesion': {
+      post: {
+        tags: ['Autenticación'],
+        summary: 'CU37 – Cierre de sesión',
+        description:
+          'Invalida solo la sesión del token enviado (RN1). Es idempotente: si la sesión ya venció o ya se cerró, ' +
+          'o si no se envía token, responde 204 igual (E1, RN6).',
+        security: [{ sesion: [] }],
+        responses: {
+          204: { description: 'La sesión quedó cerrada (o ya no estaba activa).' },
+          429: error('Límite por IP (DEMASIADAS_SOLICITUDES).'),
+          500: error('ER1: no se pudo cerrar la sesión en el servidor (ERROR_INTERNO).'),
+        },
+      },
+    },
     '/usuarios/yo': {
       get: {
         tags: ['Usuarios'],
