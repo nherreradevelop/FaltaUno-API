@@ -1,7 +1,13 @@
-# FaltaUno - servicios locales de desarrollo
-# Levantar:  docker compose up -d
-# Detener:   docker compose down        (los datos se conservan en los volúmenes)
+# FaltaUno - API y servicios locales de desarrollo
+# Levantar todo:            docker compose up -d --build
+# Recarga en caliente:      docker compose watch        (deja la API sincronizada con api/src)
+# Producción / demo:        docker compose -f docker-compose.yml -f docker-compose.produccion.yml up -d --build
+# Detener:                  docker compose down          (los datos se conservan en los volúmenes)
 # Borrar todo, incluidos los datos:  docker compose down -v
+#
+# Base de datos de la API (variable BASE_DATOS, en un archivo .env en esta carpeta o en la terminal):
+#   supabase (por defecto): usa POSTGRES_URL de api/.env
+#   local:                  usa el servicio "postgres" de este archivo
 
 # Nombre del proyecto: separa estos contenedores y volúmenes de otras copias (por ejemplo, la demo)
 name: faltauno-dev
@@ -19,6 +25,14 @@ services:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      # Con el volumen vacío, aplica las migraciones y los datos de prueba (db/docker-init)
+      - ./db/docker-init:/docker-entrypoint-initdb.d:ro
+      - ./db:/faltauno-db:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U faltauno -d faltauno']
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   mongo:
     image: mongo:8
@@ -31,6 +45,11 @@ services:
       - '27017:27017'
     volumes:
       - mongo_data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   redis:
     image: redis:7
@@ -40,6 +59,11 @@ services:
       - '6379:6379'
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   # Correos de desarrollo: todo lo que envía la API se ve en http://localhost:8025
   mailpit:
@@ -81,6 +105,46 @@ services:
       - n8n_data:/home/node/.n8n
       # Flujos exportados en JSON (npm run n8n:exportar / n8n:importar), versionados en Git
       - ./n8n:/home/node/flujos
+
+  # API REST (api/Dockerfile). Lee api/.env; acá solo se cambian las direcciones que dentro de Docker
+  # no son "localhost" sino el nombre del servicio.
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+      target: desarrollo
+    image: faltauno-api:desarrollo
+    container_name: faltauno-api
+    restart: unless-stopped
+    env_file: api/.env
+    environment:
+      BASE_DATOS: ${BASE_DATOS:-supabase}
+      POSTGRES_URL_LOCAL: postgres://faltauno:faltauno_dev@postgres:5432/faltauno
+      MONGO_URL: mongodb://faltauno:faltauno_dev@mongo:27017/?authSource=admin
+      REDIS_URL: redis://redis:6379
+      SMTP_HOST: mailpit
+      SMTP_PUERTO: '1025'
+      N8N_WEBHOOK_URL: http://n8n:5678/webhook/pronostico
+    ports:
+      - '3000:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    # docker compose watch: copia los cambios de api/src al contenedor (tsx recarga solo)
+    # y reconstruye la imagen si cambian las dependencias.
+    develop:
+      watch:
+        - action: sync
+          path: ./api/src
+          target: /app/api/src
+        - action: rebuild
+          path: ./api/package-lock.json
 
 volumes:
   postgres_data:

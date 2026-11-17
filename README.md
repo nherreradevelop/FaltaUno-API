@@ -110,6 +110,40 @@ npm test                 # pruebas (Jest)
 npm run test:cobertura   # pruebas con cobertura (mínimo 70 % en servicios)
 ```
 
+## Ejecutar con Docker
+
+La API también corre en un contenedor, junto con las bases y los servicios de `docker-compose.yml`. No hace falta tener Node instalado.
+
+```bash
+# api/.env tiene que existir (copiar api/.env.example y completar POSTGRES_URL con la base de Supabase)
+docker compose up -d --build     # levanta la API (http://localhost:3000) y todos los servicios
+docker compose watch             # recarga en caliente: copia los cambios de api/src al contenedor
+docker compose logs -f api       # ver los logs de la API
+```
+
+**Base de datos.** La variable `BASE_DATOS` elige contra qué Postgres se conecta la API:
+
+| Valor                    | Base                             |
+| ------------------------ | -------------------------------- |
+| `supabase` (por defecto) | `POSTGRES_URL` de `api/.env`     |
+| `local`                  | El servicio `postgres` de Docker |
+
+Se cambia con un archivo `.env` en la raíz del repositorio (no se sube a Git) con `BASE_DATOS=local`, o solo para un comando:
+
+```powershell
+$env:BASE_DATOS="local"; docker compose up -d   # PowerShell
+```
+
+Cuando el volumen de Postgres está vacío (la primera vez, o después de `docker compose down -v`), el contenedor aplica solo todas las migraciones y los datos de prueba (`db/docker-init`). Con un volumen que ya tenía datos no se aplica nada: las migraciones nuevas se siguen corriendo a mano como en [Crear las tablas](#crear-las-tablas).
+
+Dentro de Docker, Mongo, Redis, Mailpit y n8n se encuentran por el nombre del servicio, no por `localhost`; `docker-compose.yml` ya reemplaza esas direcciones de `api/.env`.
+
+**Producción / demo** (JavaScript compilado, sin recarga en caliente y sin usuario root):
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.produccion.yml up -d --build
+```
+
 ## Servicios de desarrollo
 
 | Servicio                    | Dirección                                                           | Credenciales                                         |

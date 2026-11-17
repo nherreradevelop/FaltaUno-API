@@ -1,0 +1,10 @@
+# FaltaUno - API en modo producción (JavaScript compilado, sin recarga en caliente, sin usuario root).
+# Se usa junto con docker-compose.yml:
+#   docker compose -f docker-compose.yml -f docker-compose.produccion.yml up -d --build
+services:
+  api:
+    build:
+      target: produccion
+    image: faltauno-api:produccion
+    environment:
+      NODE_ENV: production

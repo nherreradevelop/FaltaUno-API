@@ -1,0 +1,16 @@
+# Solo entra al build lo que copia api/Dockerfile. Nunca los .env (secretos).
+**/node_modules
+**/dist
+**/coverage
+**/.env
+**/.env.*
+.git
+.github
+.husky
+.vscode
+.vs
+docs
+n8n
+pgadmin
+db
+*.md
