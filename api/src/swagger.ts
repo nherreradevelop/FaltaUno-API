@@ -1,4 +1,5 @@
 import { rutasSwaggerActividades } from './modulos/actividades/actividades.swagger';
+import { esquemaSwaggerNotificacion, rutasSwaggerNotificaciones } from './modulos/notificaciones/notificaciones.swagger';
 
 /**
  * Documentación OpenAPI de la API (Plan de calidad - SQA). Se ve en http://localhost:3000/api/docs.
@@ -39,6 +40,7 @@ export const documentoSwagger = {
   components: {
     securitySchemes: { sesion: { type: 'http', scheme: 'bearer' } },
     schemas: {
+      Notificacion: esquemaSwaggerNotificacion,
       Error: respuestaError,
       Usuario: {
         type: 'object',
@@ -266,6 +268,7 @@ export const documentoSwagger = {
   },
   paths: {
     ...rutasSwaggerActividades,
+    ...rutasSwaggerNotificaciones,
     '/auth/login': {
       post: {
         tags: ['Autenticación'],
