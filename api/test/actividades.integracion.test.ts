@@ -80,6 +80,8 @@ integracion('CU10 HTTP + PostgreSQL + Redis reales', () => {
       ACTIVIDAD_DESTINO_PROVISIONAL_LAT: String(DESTINO_PROVISIONAL_PRUEBA.lat),
       ACTIVIDAD_DESTINO_PROVISIONAL_LNG: String(DESTINO_PROVISIONAL_PRUEBA.lng),
       ACTIVIDAD_DESTINO_PROVISIONAL_DEPARTAMENTO: DESTINO_PROVISIONAL_PRUEBA.departamento,
+      // Obligatoria desde CU40; esta prueba no se conecta a MongoDB (ver mongo más abajo)
+      MONGO_URL: 'mongodb://localhost:27017',
     });
     // CU10 no usa MongoDB ni notificaciones: se pasan vacíos para no levantar esas conexiones
     const app = crearApp({
