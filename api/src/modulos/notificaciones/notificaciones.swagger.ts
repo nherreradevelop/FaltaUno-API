@@ -82,22 +82,7 @@ export const rutasSwaggerNotificaciones = {
   '/notificaciones/{id}/leida': {
     patch: {
       tags: ['Notificaciones'],
-      summary: 'CU40 FP paso 6 – Marcar una notificación como leída',
-      security: seguridad,
-      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', pattern: '^[0-9a-fA-F]{24}$' } }],
-      responses: {
-        200: cantidadNoLeidas,
-        400: error('El id no es válido (DATOS_INVALIDOS).'),
-        401: sinSesion,
-        404: error('RN6: no existe o es de otro usuario (NOTIFICACION_NO_ENCONTRADA).'),
-        500: errorInterno,
-      },
-    },
-  },
-  '/notificaciones/{id}': {
-    delete: {
-      tags: ['Notificaciones'],
-      summary: 'CU40 A5 – Descartar (eliminar) una notificación',
+      summary: 'CU40 FP paso 6 y A5 – Marcar una notificación como leída (al abrirla o sin abrirla)',
       security: seguridad,
       parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', pattern: '^[0-9a-fA-F]{24}$' } }],
       responses: {

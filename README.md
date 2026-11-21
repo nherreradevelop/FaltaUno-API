@@ -211,18 +211,17 @@ La API ejecuta cobertura y pruebas de CU10 contra PostgreSQL de pruebas y Redis 
 
 Las notificaciones se guardan en MongoDB (colección `notificaciones`) y se conservan 30 días: un índice TTL las borra solas (RNF-16). Los índices los crea la API al arrancar.
 
-| Método y ruta                                  | Para qué                                           |
-| ---------------------------------------------- | -------------------------------------------------- |
-| `GET /api/notificaciones?antesDe=<id>`         | Lista de a 20, de la más nueva a la más vieja (A2) |
-| `GET /api/notificaciones/no-leidas`            | Cantidad sin leer, para el indicador               |
-| `PATCH /api/notificaciones/:id/leida`          | Marca una como leída                               |
-| `POST /api/notificaciones/marcar-todas-leidas` | Marca las recibidas hasta `hasta` (A1)             |
+| Método y ruta                                  | Para qué                                            |
+| ---------------------------------------------- | --------------------------------------------------- |
+| `GET /api/notificaciones?antesDe=<id>`         | Lista de a 20, de la más nueva a la más vieja (A2)  |
+| `GET /api/notificaciones/no-leidas`            | Cantidad sin leer, para el indicador                |
+| `PATCH /api/notificaciones/:id/leida`          | Marca una como leída, al abrirla o sin abrirla (A5) |
+| `POST /api/notificaciones/marcar-todas-leidas` | Marca las recibidas hasta `hasta` (A1)              |
 
 **Tiempo real (Socket.IO).** Comparte el puerto de la API. El cliente se conecta con `auth: { token }` (el mismo token de sesión) y recibe:
 
 - `notificaciones:nueva` → `{ notificacion, noLeidas }` cuando llega una notificación.
 - `notificaciones:no-leidas` → `{ cantidad }` cuando cambia la cantidad sin leer (por ejemplo, se leyó desde otro dispositivo).
-- `notificaciones:descartada` → `{ id }` cuando se descarta una, para quitarla de los otros dispositivos.
 
 **Crear una notificación** desde otro caso de uso: `contexto.notificaciones.notificar(usuarioId, { tipo, texto, destino })`, siempre después del commit. Los tipos están en `notificacion.entidad.ts`; cada caso de uso define su texto.
 

@@ -15,14 +15,9 @@ export const EVENTOS_EN_VIVO = {
   nueva: 'notificaciones:nueva',
   /** Cambió la cantidad sin leer (por ejemplo, se leyó en otro dispositivo): { cantidad } */
   noLeidas: 'notificaciones:no-leidas',
-  /** Se descartó una notificación (A5), para quitarla también de los otros dispositivos: { id } */
-  descartada: 'notificaciones:descartada',
 } as const;
 
-type Repositorio = Pick<
-  NotificacionesRepositorio,
-  'listar' | 'contarNoLeidas' | 'marcarLeida' | 'marcarTodasLeidas' | 'descartar' | 'crear'
->;
+type Repositorio = Pick<NotificacionesRepositorio, 'listar' | 'contarNoLeidas' | 'marcarLeida' | 'marcarTodasLeidas' | 'crear'>;
 
 /** CU40 – Notificaciones. */
 export class NotificacionesServicio {
@@ -46,7 +41,7 @@ export class NotificacionesServicio {
     return { cantidad: await this.repositorio.contarNoLeidas(usuarioId) };
   }
 
-  /** FP paso 6 y RN5: marca como leída una notificación propia. */
+  /** FP paso 6, A5 y RN5: marca como leída una notificación propia (al abrirla o sin abrirla). */
   async marcarLeida(usuarioId: string, id: string): Promise<CantidadNoLeidas> {
     const existe = await this.repositorio.marcarLeida(usuarioId, id);
     if (!existe) {
@@ -59,17 +54,6 @@ export class NotificacionesServicio {
   /** A1: marca como leídas todas las recibidas hasta el momento en que el usuario lo pidió. */
   async marcarTodasLeidas(usuarioId: string, hasta: Date): Promise<CantidadNoLeidas> {
     await this.repositorio.marcarTodasLeidas(usuarioId, hasta);
-    return this.avisarCantidadNoLeidas(usuarioId);
-  }
-
-  /** A5: descarta (elimina) una notificación propia; si no estaba leída, baja el indicador. */
-  async descartar(usuarioId: string, id: string): Promise<CantidadNoLeidas> {
-    const existia = await this.repositorio.descartar(usuarioId, id);
-    if (!existia) {
-      // RN6: la de otro usuario responde igual que una inexistente
-      throw errores.noEncontrado('NOTIFICACION_NO_ENCONTRADA', 'La notificación ya no está disponible.');
-    }
-    this.enVivo.emitirAUsuario(usuarioId, EVENTOS_EN_VIVO.descartada, { id });
     return this.avisarCantidadNoLeidas(usuarioId);
   }
 

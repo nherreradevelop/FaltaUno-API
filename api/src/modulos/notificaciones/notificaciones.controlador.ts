@@ -18,16 +18,10 @@ export class NotificacionesControlador {
     res.json(await this.servicio.contarNoLeidas(req.usuarioId!));
   };
 
-  /** PATCH /api/notificaciones/:id/leida */
+  /** PATCH /api/notificaciones/:id/leida (FP paso 6 y A5) */
   marcarLeida = async (req: Request, res: Response): Promise<void> => {
     const { id } = validar(esquemaIdNotificacion, req.params);
     res.json(await this.servicio.marcarLeida(req.usuarioId!, id));
-  };
-
-  /** DELETE /api/notificaciones/:id (A5) */
-  descartar = async (req: Request, res: Response): Promise<void> => {
-    const { id } = validar(esquemaIdNotificacion, req.params);
-    res.json(await this.servicio.descartar(req.usuarioId!, id));
   };
 
   /** POST /api/notificaciones/marcar-todas-leidas */

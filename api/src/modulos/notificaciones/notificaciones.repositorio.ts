@@ -57,7 +57,7 @@ export class NotificacionesRepositorio {
 
   /**
    * Notificaciones del usuario de la más nueva a la más vieja. Con "antesDe" (id de la última ya mostrada)
-   * devuelve las que siguen a esa (A2). Si esa notificación ya no existe (se descartó), empieza desde el principio.
+   * devuelve las que siguen a esa (A2). Si esa notificación ya no existe (venció, RN8), empieza desde el principio.
    */
   async listar(usuarioId: string, antesDe: string | null, cantidad: number): Promise<Notificacion[]> {
     const filtro = await this.filtroDePagina(usuarioId, antesDe);
@@ -89,12 +89,6 @@ export class NotificacionesRepositorio {
   async marcarLeida(usuarioId: string, id: string): Promise<boolean> {
     const resultado = await this.coleccion.updateOne({ _id: new ObjectId(id), usuarioId }, { $set: { leida: true } });
     return resultado.matchedCount === 1;
-  }
-
-  /** A5: elimina una notificación del usuario. Devuelve false si no existe o es de otro usuario (RN6). */
-  async descartar(usuarioId: string, id: string): Promise<boolean> {
-    const resultado = await this.coleccion.deleteOne({ _id: new ObjectId(id), usuarioId });
-    return resultado.deletedCount === 1;
   }
 
   /** A1: marca como leídas las recibidas hasta ese momento; las que lleguen después siguen sin leer. */
