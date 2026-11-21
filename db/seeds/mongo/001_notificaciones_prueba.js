@@ -3,8 +3,9 @@
 // Mientras no existan los casos de uso que notifican (CU06, CU12, CU13, ...), sirven para probar la campana.
 // Los textos son de ejemplo: cada caso de uso definirá los suyos.
 //
-// Cargar (desde FaltaUno-API, con docker compose levantado):
-//   docker compose exec -T mongo mongosh "mongodb://faltauno:faltauno_dev@localhost:27017/faltauno?authSource=admin" < db/seeds/mongo/001_notificaciones_prueba.js
+// Cargar (desde FaltaUno-API, con docker compose levantado). El archivo se lee adentro del contenedor,
+// así no lo altera la codificación de la terminal (en Windows PowerShell, pasarlo con "<" o Get-Content rompe los tildes):
+//   docker compose exec mongo mongosh "mongodb://faltauno:faltauno_dev@localhost:27017/faltauno?authSource=admin" /seeds-mongo/001_notificaciones_prueba.js
 // Se puede correr más de una vez: borra antes las notificaciones de prueba de estos usuarios.
 
 const ELIAN = '00000000-0000-4000-8000-000000000001';

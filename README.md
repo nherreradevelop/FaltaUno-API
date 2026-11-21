@@ -222,13 +222,14 @@ Las notificaciones se guardan en MongoDB (colección `notificaciones`) y se cons
 
 - `notificaciones:nueva` → `{ notificacion, noLeidas }` cuando llega una notificación.
 - `notificaciones:no-leidas` → `{ cantidad }` cuando cambia la cantidad sin leer (por ejemplo, se leyó desde otro dispositivo).
+- `notificaciones:descartada` → `{ id }` cuando se descarta una, para quitarla de los otros dispositivos.
 
 **Crear una notificación** desde otro caso de uso: `contexto.notificaciones.notificar(usuarioId, { tipo, texto, destino })`, siempre después del commit. Los tipos están en `notificacion.entidad.ts`; cada caso de uso define su texto.
 
-**Datos de prueba** en el Mongo local (25 notificaciones para Elian y 1 para Diego):
+**Datos de prueba** en el Mongo local (25 notificaciones para Elian y 1 para Diego). El archivo se lee dentro del contenedor, así no se rompen los tildes en Windows:
 
 ```bash
-docker compose exec -T mongo mongosh "mongodb://faltauno:faltauno_dev@localhost:27017/faltauno?authSource=admin" < db/seeds/mongo/001_notificaciones_prueba.js
+docker compose exec mongo mongosh "mongodb://faltauno:faltauno_dev@localhost:27017/faltauno?authSource=admin" /seeds-mongo/001_notificaciones_prueba.js
 ```
 
 ## CU10 Crear actividad

@@ -32,11 +32,20 @@ class RepositorioEnMemoria {
     return notificacion;
   }
 
+  /** Igual que MongoDB: por fecha de creación (más nueva primero) y, a igual fecha, por id. */
   async listar(usuarioId: string, antesDe: string | null, cantidad: number): Promise<Notificacion[]> {
-    return this.guardadas
-      .filter((n) => n.usuarioId === usuarioId && (antesDe === null || n.id < antesDe))
-      .sort((a, b) => b.id.localeCompare(a.id))
-      .slice(0, cantidad);
+    const ordenadas = this.guardadas
+      .filter((n) => n.usuarioId === usuarioId)
+      .sort((a, b) => b.creadaEn.getTime() - a.creadaEn.getTime() || b.id.localeCompare(a.id));
+    const desde = antesDe === null ? 0 : ordenadas.findIndex((n) => n.id === antesDe) + 1;
+    return ordenadas.slice(desde, desde + cantidad);
+  }
+
+  async descartar(usuarioId: string, id: string): Promise<boolean> {
+    const indice = this.guardadas.findIndex((n) => n.id === id && n.usuarioId === usuarioId);
+    if (indice === -1) return false;
+    this.guardadas.splice(indice, 1);
+    return true;
   }
 
   async contarNoLeidas(usuarioId: string): Promise<number> {
@@ -105,6 +114,17 @@ describe('CU40 – Notificaciones', () => {
     expect(pagina.hayMas).toBe(false);
   });
 
+  it('FP: ordena por fecha de creación aunque se hayan guardado en otro orden', async () => {
+    const { repositorio, servicio } = armar();
+    const deHaceUnDia = repositorio.agregar(YO, { creadaEn: new Date('2026-11-18T21:00:00Z') });
+    const deHaceUnaHora = repositorio.agregar(YO, { creadaEn: new Date('2026-11-19T20:00:00Z') });
+    const deHaceUnaSemana = repositorio.agregar(YO, { creadaEn: new Date('2026-11-12T21:00:00Z') });
+
+    const pagina = await servicio.listar(YO, null);
+
+    expect(pagina.notificaciones.map((n) => n.id)).toEqual([deHaceUnaHora.id, deHaceUnDia.id, deHaceUnaSemana.id]);
+  });
+
   it('A2: devuelve de a 20 y la página siguiente continúa sin repetir ni saltear notificaciones', async () => {
     const { repositorio, servicio } = armar();
     for (let i = 0; i < NOTIFICACIONES_POR_PAGINA + 5; i++) repositorio.agregar(YO);
@@ -155,6 +175,28 @@ describe('CU40 – Notificaciones', () => {
     await expect(intento).rejects.toBeInstanceOf(AppError);
     await expect(intento).rejects.toMatchObject({ estado: 404, codigo: 'NOTIFICACION_NO_ENCONTRADA' });
     expect(repositorio.guardadas[0].leida).toBe(false);
+    expect(enVivo.avisos).toHaveLength(0);
+  });
+
+  it('A5: descartar una notificación sin leer la elimina, baja el indicador y avisa a los otros dispositivos', async () => {
+    const { repositorio, enVivo, servicio } = armar();
+    const descartada = repositorio.agregar(YO);
+    repositorio.agregar(YO);
+
+    await expect(servicio.descartar(YO, descartada.id)).resolves.toEqual({ cantidad: 1 });
+    expect(repositorio.guardadas.map((n) => n.id)).not.toContain(descartada.id);
+    expect(enVivo.avisos).toEqual([
+      { usuarioId: YO, evento: EVENTOS_EN_VIVO.descartada, datos: { id: descartada.id } },
+      { usuarioId: YO, evento: EVENTOS_EN_VIVO.noLeidas, datos: { cantidad: 1 } },
+    ]);
+  });
+
+  it('A5/RN6: no permite descartar la notificación de otro usuario', async () => {
+    const { repositorio, enVivo, servicio } = armar();
+    const ajena = repositorio.agregar(OTRO);
+
+    await expect(servicio.descartar(YO, ajena.id)).rejects.toMatchObject({ estado: 404, codigo: 'NOTIFICACION_NO_ENCONTRADA' });
+    expect(repositorio.guardadas).toHaveLength(1);
     expect(enVivo.avisos).toHaveLength(0);
   });
 

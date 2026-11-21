@@ -94,6 +94,21 @@ export const rutasSwaggerNotificaciones = {
       },
     },
   },
+  '/notificaciones/{id}': {
+    delete: {
+      tags: ['Notificaciones'],
+      summary: 'CU40 A5 – Descartar (eliminar) una notificación',
+      security: seguridad,
+      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', pattern: '^[0-9a-fA-F]{24}$' } }],
+      responses: {
+        200: cantidadNoLeidas,
+        400: error('El id no es válido (DATOS_INVALIDOS).'),
+        401: sinSesion,
+        404: error('RN6: no existe o es de otro usuario (NOTIFICACION_NO_ENCONTRADA).'),
+        500: errorInterno,
+      },
+    },
+  },
   '/notificaciones/marcar-todas-leidas': {
     post: {
       tags: ['Notificaciones'],

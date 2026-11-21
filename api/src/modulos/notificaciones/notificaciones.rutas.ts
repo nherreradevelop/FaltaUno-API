@@ -13,5 +13,6 @@ export function crearRutasNotificaciones(contexto: Contexto): Router {
   rutas.get('/no-leidas', controlador.contarNoLeidas);
   rutas.post('/marcar-todas-leidas', controlador.marcarTodasLeidas);
   rutas.patch('/:id/leida', controlador.marcarLeida);
+  rutas.delete('/:id', controlador.descartar);
   return rutas;
 }
