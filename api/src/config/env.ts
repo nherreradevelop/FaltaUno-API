@@ -15,6 +15,9 @@ const esquemaEnv = z.object({
 
   POSTGRES_URL: z.string().min(1),
   REDIS_URL: z.string().min(1),
+  // RNF-26 / CU40 RN8: notificaciones (y más adelante chats y auditoría)
+  MONGO_URL: z.string().min(1),
+  MONGO_DB: z.string().min(1).default('faltauno'),
 
   // CU01 RN4: vencimiento de la sesión
   SESION_DIAS: z.coerce.number().int().positive(),

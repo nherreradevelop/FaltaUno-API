@@ -5,6 +5,7 @@ import type { AddressInfo } from 'node:net';
 import path from 'node:path';
 import { Pool } from 'pg';
 import Redis from 'ioredis';
+import type { Db } from 'mongodb';
 import { crearApp } from '../src/app';
 import { leerConfig } from '../src/config/env';
 import { GoogleMaps } from '../src/infra/google-maps';
@@ -12,6 +13,7 @@ import { GoogleGeocoding } from '../src/infra/google-geocoding';
 import { logger } from '../src/infra/logger';
 import { VerificadorGoogle } from '../src/infra/oauth';
 import { SesionesRepositorio } from '../src/modulos/auth/sesiones.repositorio';
+import type { NotificacionesServicio } from '../src/modulos/notificaciones/notificaciones.servicio';
 import { datosActividad, DESTINO_PROVISIONAL_PRUEBA, LUGAR_ACTIVIDAD } from './actividades.fixtures';
 import { DESTINO_PROVISIONAL_ID } from '../src/modulos/actividades/destino-provisional';
 
@@ -78,8 +80,20 @@ integracion('CU10 HTTP + PostgreSQL + Redis reales', () => {
       ACTIVIDAD_DESTINO_PROVISIONAL_LAT: String(DESTINO_PROVISIONAL_PRUEBA.lat),
       ACTIVIDAD_DESTINO_PROVISIONAL_LNG: String(DESTINO_PROVISIONAL_PRUEBA.lng),
       ACTIVIDAD_DESTINO_PROVISIONAL_DEPARTAMENTO: DESTINO_PROVISIONAL_PRUEBA.departamento,
+      // Obligatoria desde CU40; esta prueba no se conecta a MongoDB (ver mongo más abajo)
+      MONGO_URL: 'mongodb://localhost:27017',
     });
-    const app = crearApp({ config, db, redis, sesiones, logger, verificadorGoogle: new VerificadorGoogle([], logger) });
+    // CU10 no usa MongoDB ni notificaciones: se pasan vacíos para no levantar esas conexiones
+    const app = crearApp({
+      config,
+      db,
+      redis,
+      mongo: {} as Db,
+      sesiones,
+      logger,
+      verificadorGoogle: new VerificadorGoogle([], logger),
+      notificaciones: {} as NotificacionesServicio,
+    });
     servidor = await new Promise<Server>((resolve) => {
       const activo = app.listen(0, '127.0.0.1', () => resolve(activo));
     });
