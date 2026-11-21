@@ -207,6 +207,30 @@ lint y formato siempre; compilación y pruebas de la API en cuanto exista `api/p
 
 La API ejecuta cobertura y pruebas de CU10 contra PostgreSQL de pruebas y Redis `/15`.
 
+## CU40 Notificaciones
+
+Las notificaciones se guardan en MongoDB (colección `notificaciones`) y se conservan 30 días: un índice TTL las borra solas (RNF-16). Los índices los crea la API al arrancar.
+
+| Método y ruta                                  | Para qué                                            |
+| ---------------------------------------------- | --------------------------------------------------- |
+| `GET /api/notificaciones?antesDe=<id>`         | Lista de a 20, de la más nueva a la más vieja (A2)  |
+| `GET /api/notificaciones/no-leidas`            | Cantidad sin leer, para el indicador                |
+| `PATCH /api/notificaciones/:id/leida`          | Marca una como leída, al abrirla o sin abrirla (A5) |
+| `POST /api/notificaciones/marcar-todas-leidas` | Marca las recibidas hasta `hasta` (A1)              |
+
+**Tiempo real (Socket.IO).** Comparte el puerto de la API. El cliente se conecta con `auth: { token }` (el mismo token de sesión) y recibe:
+
+- `notificaciones:nueva` → `{ notificacion, noLeidas }` cuando llega una notificación.
+- `notificaciones:no-leidas` → `{ cantidad }` cuando cambia la cantidad sin leer (por ejemplo, se leyó desde otro dispositivo).
+
+**Crear una notificación** desde otro caso de uso: `contexto.notificaciones.notificar(usuarioId, { tipo, texto, destino })`, siempre después del commit. Los tipos están en `notificacion.entidad.ts`; cada caso de uso define su texto.
+
+**Datos de prueba** en el Mongo local (25 notificaciones para Elian y 1 para Diego). El archivo se lee dentro del contenedor, así no se rompen los tildes en Windows:
+
+```bash
+docker compose exec mongo mongosh "mongodb://faltauno:faltauno_dev@localhost:27017/faltauno?authSource=admin" /seeds-mongo/001_notificaciones_prueba.js
+```
+
 ## CU10 Crear actividad
 
 La implementación incluye API, web y mobile. Para seleccionar origen y destino, configurar
