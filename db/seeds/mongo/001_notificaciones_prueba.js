@@ -3,8 +3,9 @@
 // Mientras no existan los casos de uso que notifican (CU06, CU12, CU13, ...), sirven para probar la campana.
 // Los textos son de ejemplo: cada caso de uso definirá los suyos.
 //
-// Cargar (desde FaltaUno-API, con docker compose levantado). El archivo se lee adentro del contenedor,
-// así no lo altera la codificación de la terminal (en Windows PowerShell, pasarlo con "<" o Get-Content rompe los tildes):
+// Los tildes y eñes de los textos van escritos como \uXXXX (por ejemplo \u00e9 = é) para que lleguen bien a MongoDB
+// aunque la terminal cambie la codificación del archivo (Windows PowerShell lo hace con "<" o Get-Content).
+// Cargar (desde FaltaUno-API, con docker compose levantado); el archivo se lee adentro del contenedor:
 //   docker compose exec mongo mongosh "mongodb://faltauno:faltauno_dev@localhost:27017/faltauno?authSource=admin" /seeds-mongo/001_notificaciones_prueba.js
 // Se puede correr más de una vez: borra antes las notificaciones de prueba de estos usuarios.
 
@@ -30,7 +31,7 @@ const deElian = [
     ELIAN,
     3,
     'invitacionRecibida',
-    'Carla Méndez te invitó a "Surf en La Paloma".',
+    'Carla M\u00e9ndez te invit\u00f3 a "Surf en La Paloma".',
     { tipo: 'actividad', id: SURF_LA_PALOMA },
     false,
   ),
@@ -38,7 +39,7 @@ const deElian = [
     ELIAN,
     45,
     'solicitudAmistadRecibida',
-    'Carla Méndez te envió una solicitud de amistad.',
+    'Carla M\u00e9ndez te envi\u00f3 una solicitud de amistad.',
     { tipo: 'usuario', id: CARLA },
     false,
   ),
@@ -46,7 +47,7 @@ const deElian = [
     ELIAN,
     180,
     'participanteAbandono',
-    'Diego Rodríguez abandonó "Pedaleada a Atlántida".',
+    'Diego Rodr\u00edguez abandon\u00f3 "Pedaleada a Atl\u00e1ntida".',
     { tipo: 'actividad', id: PEDALEADA },
     false,
   ),
@@ -54,7 +55,7 @@ const deElian = [
     ELIAN,
     60 * 26,
     'actividadEditada',
-    'Cambió el punto de encuentro de "Trekking en el Pan de Azúcar".',
+    'Cambi\u00f3 el punto de encuentro de "Trekking en el Pan de Az\u00facar".',
     { tipo: 'actividad', id: TREKKING },
     true,
   ),
@@ -66,7 +67,7 @@ for (let i = 1; i <= 21; i++) {
       ELIAN,
       60 * 24 * (i + 1),
       'valoracionPendiente',
-      `Ya podés valorar a los participantes de la salida ${i}.`,
+      `Ya pod\u00e9s valorar a los participantes de la salida ${i}.`,
       { tipo: 'actividad', id: TREKKING },
       true,
     ),
@@ -79,7 +80,7 @@ coleccion.insertOne(
     DIEGO,
     10,
     'actividadCancelada',
-    'Se canceló "Surf en La Paloma".',
+    'Se cancel\u00f3 "Surf en La Paloma".',
     { tipo: 'actividad', id: SURF_LA_PALOMA },
     false,
   ),
