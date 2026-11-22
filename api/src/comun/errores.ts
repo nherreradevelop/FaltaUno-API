@@ -32,6 +32,10 @@ export const errores = {
     return new AppError(404, codigo, mensaje);
   },
 
+  conflicto(codigo: string, mensaje: string): AppError {
+    return new AppError(409, codigo, mensaje);
+  },
+
   demasiadosIntentos(codigo: string, mensaje: string): AppError {
     return new AppError(429, codigo, mensaje);
   },
