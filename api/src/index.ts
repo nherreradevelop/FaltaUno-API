@@ -5,9 +5,12 @@ import { logger } from './infra/logger';
 import { VerificadorGoogle } from './infra/oauth';
 import { crearPoolPostgres } from './infra/postgres';
 import { crearClienteRedis } from './infra/redis';
+import { crearEventosDeActividades } from './modulos/actividades/actividades.eventos';
+import { ActividadesRepositorio } from './modulos/actividades/actividades.repositorio';
 import { SesionesRepositorio } from './modulos/auth/sesiones.repositorio';
+import { conectarSuscripciones } from './suscripciones';
 
-/** Arranque: lee la configuración, abre las conexiones, arma el contexto y levanta el servidor. */
+/** Arranque: lee la configuración, abre las conexiones, arma el contexto, conecta las suscripciones y levanta el servidor. */
 function iniciar(): void {
   const config = leerConfig();
   const db = crearPoolPostgres(config.POSTGRES_URL);
@@ -26,7 +29,16 @@ function iniciar(): void {
     redis,
     sesiones: new SesionesRepositorio(redis, config.SESION_DIAS),
     verificadorGoogle: new VerificadorGoogle(config.GOOGLE_CLIENT_IDS, logger),
+    eventosActividades: crearEventosDeActividades(logger),
   };
+  // Las suscripciones viven lo mismo que el proceso: no hace falta desuscribirlas al apagar
+  conectarSuscripciones({
+    eventosActividades: contexto.eventosActividades,
+    logger,
+    actividades: new ActividadesRepositorio(db),
+    // Pendiente: CU40 – pasar contexto.notificaciones cuando el PR del CU40 entre a develop (CU11 paso 9)
+    notificador: null,
+  });
 
   const app = crearApp(contexto);
   app.listen(config.PUERTO, () => {

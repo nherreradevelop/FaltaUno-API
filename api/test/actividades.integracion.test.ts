@@ -14,6 +14,7 @@ import { VerificadorGoogle } from '../src/infra/oauth';
 import { SesionesRepositorio } from '../src/modulos/auth/sesiones.repositorio';
 import { datosActividad, DESTINO_PROVISIONAL_PRUEBA, LUGAR_ACTIVIDAD } from './actividades.fixtures';
 import { DESTINO_PROVISIONAL_ID } from '../src/modulos/actividades/destino-provisional';
+import { crearEventosDeActividades } from '../src/modulos/actividades/actividades.eventos';
 
 const postgresUrl = process.env.POSTGRES_URL_TEST;
 const redisUrl = process.env.REDIS_URL_TEST;
@@ -79,7 +80,15 @@ integracion('CU10 HTTP + PostgreSQL + Redis reales', () => {
       ACTIVIDAD_DESTINO_PROVISIONAL_LNG: String(DESTINO_PROVISIONAL_PRUEBA.lng),
       ACTIVIDAD_DESTINO_PROVISIONAL_DEPARTAMENTO: DESTINO_PROVISIONAL_PRUEBA.departamento,
     });
-    const app = crearApp({ config, db, redis, sesiones, logger, verificadorGoogle: new VerificadorGoogle([], logger) });
+    const app = crearApp({
+      config,
+      db,
+      redis,
+      sesiones,
+      logger,
+      verificadorGoogle: new VerificadorGoogle([], logger),
+      eventosActividades: crearEventosDeActividades(logger),
+    });
     servidor = await new Promise<Server>((resolve) => {
       const activo = app.listen(0, '127.0.0.1', () => resolve(activo));
     });

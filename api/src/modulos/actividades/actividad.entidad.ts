@@ -76,6 +76,14 @@ const REGLAS_DE_OPCIONES: Record<OpcionDeActividad, ReglaDeOpcion> = {
   archivar: { roles: ['organizador'], estados: ['iniciada'] }, // CU32
 };
 
+/** CU11 paso 4: por qué un usuario no puede unirse. Cada motivo corresponde a un flujo de la ficha. */
+export type MotivoSinIncorporacion =
+  | 'cancelada' // E3
+  | 'yaNoAdmite' // E2: iniciada, archivada o con la hora de inicio ya cumplida
+  | 'yaParticipa' // RN2 (incluye al organizador, RN6)
+  | 'completa' // E1
+  | 'faltanLugaresParaInvitados'; // RN7/RN9: hay lugar, pero no para el usuario y todos sus invitados
+
 /** Glosario, Estado Iniciada: dura 14 días desde el inicio; ese es el plazo para registrar gastos y pagos. */
 const DIAS_PARA_REGISTRAR_GASTOS = 14;
 const MILISEGUNDOS_POR_DIA = 24 * 60 * 60 * 1000;
@@ -116,6 +124,31 @@ export class Actividad {
   /** CU09 RN3 y glosario: solo una actividad Programada con cupo libre admite nuevas incorporaciones. */
   admiteIncorporaciones(): boolean {
     return this.estado === 'programada' && !this.estaCompleta();
+  }
+
+  /**
+   * CU11 paso 4: verifica si el usuario puede unirse ocupando `lugaresPedidos` (él más sus invitados, RN5).
+   * Devuelve el motivo del rechazo, o null si puede unirse.
+   * E2 también contempla la hora: ningún proceso pasa todavía la actividad a Iniciada cuando llega su inicio.
+   */
+  motivoSinIncorporacion(lugaresPedidos: number, yaParticipa: boolean, ahora: Date): MotivoSinIncorporacion | null {
+    if (this.estado === 'cancelada') {
+      return 'cancelada';
+    }
+    const yaEmpezo = this.fechaHoraInicio <= ahora;
+    if (this.estado !== 'programada' || yaEmpezo) {
+      return 'yaNoAdmite';
+    }
+    if (yaParticipa) {
+      return 'yaParticipa';
+    }
+    if (this.estaCompleta()) {
+      return 'completa';
+    }
+    if (lugaresPedidos > this.cuposLibres()) {
+      return 'faltanLugaresParaInvitados';
+    }
+    return null;
   }
 
   /** CU09 RN4: en estado Iniciada se indica la fecha límite para registrar gastos y pagos. */

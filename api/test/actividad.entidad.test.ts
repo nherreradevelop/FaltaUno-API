@@ -192,3 +192,43 @@ describe('CU10 reglas de datos y dominio', () => {
     expect(esquemaCrearActividad.safeParse({ ...datosActividad(), ...cambios }).success).toBe(false);
   });
 });
+
+describe('CU11 – Actividad.motivoSinIncorporacion (entidad)', () => {
+  const ANTES_DEL_INICIO = new Date('2026-11-06T10:30:00.000Z');
+
+  it('FP: programada, futura y con lugar para el usuario y sus invitados → puede unirse', () => {
+    const actividad = actividadEn('programada', { cupoMaximo: 6, cuposOcupados: 3 });
+    expect(actividad.motivoSinIncorporacion(3, false, ANTES_DEL_INICIO)).toBeNull();
+  });
+
+  it('E3: cancelada → cancelada, aunque tenga cupo', () => {
+    expect(actividadEn('cancelada').motivoSinIncorporacion(1, false, ANTES_DEL_INICIO)).toBe('cancelada');
+  });
+
+  it.each<EstadoActividad>(['iniciada', 'archivada'])('E2: %s → yaNoAdmite', (estado) => {
+    expect(actividadEn(estado).motivoSinIncorporacion(1, false, ANTES_DEL_INICIO)).toBe('yaNoAdmite');
+  });
+
+  it('E2: programada pero con la hora de inicio cumplida → yaNoAdmite', () => {
+    expect(actividadEn('programada').motivoSinIncorporacion(1, false, INICIO)).toBe('yaNoAdmite');
+  });
+
+  it('RN2: quien ya participa (también el organizador, RN6) → yaParticipa', () => {
+    expect(actividadEn('programada').motivoSinIncorporacion(1, true, ANTES_DEL_INICIO)).toBe('yaParticipa');
+  });
+
+  it('E1: sin cupos libres → completa', () => {
+    const actividad = actividadEn('programada', { cupoMaximo: 4, cuposOcupados: 4 });
+    expect(actividad.motivoSinIncorporacion(1, false, ANTES_DEL_INICIO)).toBe('completa');
+  });
+
+  it('RN7/RN9: hay lugar, pero no para todos los invitados → faltanLugaresParaInvitados', () => {
+    const actividad = actividadEn('programada', { cupoMaximo: 6, cuposOcupados: 4 });
+    expect(actividad.motivoSinIncorporacion(3, false, ANTES_DEL_INICIO)).toBe('faltanLugaresParaInvitados');
+  });
+
+  it('RN9: los invitados pueden ocupar exactamente hasta el último lugar', () => {
+    const actividad = actividadEn('programada', { cupoMaximo: 6, cuposOcupados: 4 });
+    expect(actividad.motivoSinIncorporacion(2, false, ANTES_DEL_INICIO)).toBeNull();
+  });
+});

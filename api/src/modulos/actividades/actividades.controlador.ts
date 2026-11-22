@@ -11,18 +11,21 @@ import {
   esquemaCrearActividad,
   esquemaIdDeActividad,
   esquemaPaginaParticipantes,
+  esquemaUnirseActividad,
 } from './actividades.dto';
 import { actividadNoDisponible, type ActividadesServicio } from './actividades.servicio';
 import type { CrearActividadServicio } from './crear-actividad.servicio';
+import type { UnirseActividadServicio } from './unirse-actividad.servicio';
 
 /**
- * HTTP ↔ servicios de actividades: búsqueda y detalle (CU08, CU09) y alta (CU10).
+ * HTTP ↔ servicios de actividades: búsqueda y detalle (CU08, CU09), alta (CU10) e incorporación (CU11).
  * En todas las rutas, requiereSesion ya completó req.usuarioId.
  */
 export class ActividadesControlador {
   constructor(
     private readonly servicio: ActividadesServicio,
     private readonly creacion: CrearActividadServicio,
+    private readonly incorporacion: UnirseActividadServicio,
   ) {}
 
   /** GET /api/actividades?deportes=1,3&departamentos=Rocha&niveles=intermedio&franjas=manana&desde=…&hasta=…&cupoMaximo=6&lat=…&lng=…&pagina=1 – CU08. */
@@ -46,7 +49,7 @@ export class ActividadesControlador {
   obtenerParticipantes = async (req: Request, res: Response): Promise<void> => {
     const actividadId = leerIdDeActividad(req);
     const { pagina } = validar(esquemaPaginaParticipantes, req.query);
-    res.json(await this.servicio.obtenerParticipantes(actividadId, pagina));
+    res.json(await this.servicio.obtenerParticipantes(req.usuarioId!, actividadId, pagina));
   };
 
   /** GET /api/actividades/opciones – CU10: catálogos y límites del formulario. */
@@ -76,6 +79,13 @@ export class ActividadesControlador {
     const datos = validar(esquemaCrearActividad, req.body);
     const clave = validar(esquemaClaveIdempotencia, req.get('Idempotency-Key'));
     res.status(201).json(await this.creacion.crear(req.usuarioId!, clave, datos, req.get('Authorization')!.slice(7)));
+  };
+
+  /** POST /api/actividades/:id/participantes – CU11 FP: el usuario de la sesión se une a la actividad. */
+  unirse = async (req: Request, res: Response): Promise<void> => {
+    const actividadId = leerIdDeActividad(req);
+    const datos = validar(esquemaUnirseActividad, req.body);
+    res.status(201).json(await this.incorporacion.unirse(req.usuarioId!, actividadId, datos));
   };
 }
 
