@@ -4,6 +4,7 @@ import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import path from 'node:path';
 import Redis from 'ioredis';
+import type { Db } from 'mongodb';
 import { Pool } from 'pg';
 import { crearApp } from '../src/app';
 import { leerConfig } from '../src/config/env';
@@ -12,6 +13,7 @@ import { VerificadorGoogle } from '../src/infra/oauth';
 import { crearEventosDeActividades, type ParticipanteUnido } from '../src/modulos/actividades/actividades.eventos';
 import { ActividadesRepositorio } from '../src/modulos/actividades/actividades.repositorio';
 import { SesionesRepositorio } from '../src/modulos/auth/sesiones.repositorio';
+import type { NotificacionesServicio } from '../src/modulos/notificaciones/notificaciones.servicio';
 
 const postgresUrl = process.env.POSTGRES_URL_TEST;
 const redisUrl = process.env.REDIS_URL_TEST;
@@ -79,6 +81,7 @@ integracion('CU11 HTTP + PostgreSQL + Redis reales', () => {
       ACTIVIDAD_DESTINO_PROVISIONAL_LAT: '-34.47',
       ACTIVIDAD_DESTINO_PROVISIONAL_LNG: '-57.84',
       ACTIVIDAD_DESTINO_PROVISIONAL_DEPARTAMENTO: 'Colonia',
+      MONGO_URL: 'mongodb://localhost:27017',
     });
     const eventosActividades = crearEventosDeActividades(logger);
     eventosActividades.participanteUnido.suscribir((evento) => {
@@ -88,9 +91,12 @@ integracion('CU11 HTTP + PostgreSQL + Redis reales', () => {
       config,
       db,
       redis,
+      // El aviso al organizador (CU40) se prueba aparte: acá no se levanta MongoDB
+      mongo: {} as Db,
       sesiones,
       logger,
       verificadorGoogle: new VerificadorGoogle([], logger),
+      notificaciones: {} as NotificacionesServicio,
       eventosActividades,
     });
     servidor = await new Promise<Server>((resolve) => {
