@@ -225,7 +225,7 @@ Las notificaciones se guardan en MongoDB (colección `notificaciones`) y se cons
 
 **Crear una notificación** desde otro caso de uso: `contexto.notificaciones.notificar(usuarioId, { tipo, texto, destino })`, siempre después del commit. Los tipos están en `notificacion.entidad.ts`; cada caso de uso define su texto.
 
-**Datos de prueba** en el Mongo local (25 notificaciones para Elian y 1 para Diego). El archivo se lee dentro del contenedor, así no se rompen los tildes en Windows:
+**Datos de prueba** en el Mongo local (6 notificaciones para Elian y 1 para Diego, cada una lleva a una actividad o un usuario de los datos de prueba de PostgreSQL). El archivo se lee dentro del contenedor, así no se rompen los tildes en Windows:
 
 ```bash
 docker compose exec mongo mongosh "mongodb://faltauno:faltauno_dev@localhost:27017/faltauno?authSource=admin" /seeds-mongo/001_notificaciones_prueba.js
