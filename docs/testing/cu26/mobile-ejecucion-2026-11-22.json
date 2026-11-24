@@ -1,0 +1,84 @@
+{
+  "fecha": "2026-11-22",
+  "responsable": "Codex",
+  "plataforma": "Android nativo",
+  "dispositivo": "Android Emulator Medium_Phone_API_37.0, x86_64",
+  "cliente": "Development build uy.faltauno.app, JavaScript actual de la rama codex/cu23-cu24-cu25-gastos servido por Metro 8082",
+  "api": "API temporal local 3001, esquema PostgreSQL efímero faltauno_test y Redis local /15",
+  "supabase": "Se aplicaron migraciones 005, 006 y 007 por solicitud del usuario. Las pruebas funcionales mobile usaron datos ficticios locales.",
+  "casos": [
+    {
+      "id": "CP-CU26-M01",
+      "flujo": "FP4",
+      "resultado": "Abrir Registrar pago desde deuda de Bruno a Ana precarga 1200,00 y muestra máximo $1200.",
+      "estado": "Aprobado",
+      "captura": "pago-formulario-android.png"
+    },
+    {
+      "id": "CP-CU26-M02",
+      "flujo": "A1",
+      "resultado": "Cancelar vuelve a balances, conserva deuda $1200 y el historial sigue vacío.",
+      "estado": "Aprobado"
+    },
+    {
+      "id": "CP-CU26-M03",
+      "flujo": "E1",
+      "resultado": "1200.01 se rechaza con máximo $1200. Se puede corregir a 300. Campo y botones siguen visibles junto al teclado numérico.",
+      "estado": "Aprobado",
+      "captura": "pago-invalido-android.png"
+    },
+    {
+      "id": "CP-CU26-M04",
+      "flujo": "FP / RN3",
+      "resultado": "Pago parcial $300 confirmado; deuda $900 y un pago en historial.",
+      "estado": "Aprobado",
+      "captura": "pago-parcial-android.png"
+    },
+    {
+      "id": "CP-CU26-M05",
+      "flujo": "RN5 / CU24",
+      "resultado": "Editar ofrece máximo $1200 excluyendo el pago anterior; cambiar a $450 confirma y deja deuda $750.",
+      "estado": "Aprobado",
+      "captura": "pago-editado-android.png"
+    },
+    {
+      "id": "CP-CU26-M06",
+      "flujo": "RN5 / CU25 FP y A1",
+      "resultado": "Cancelar la eliminación conserva el pago. Confirmar el diálogo con partes e importe elimina el pago $450 y restituye deuda $1200.",
+      "estado": "Aprobado",
+      "captura": "pago-eliminado-android.png"
+    },
+    {
+      "id": "CP-CU26-M07",
+      "flujo": "ER1 / RNF-23",
+      "resultado": "La API confirma $500 y sustituye la respuesta por 503. Mobile conserva el importe, bloquea edición y ofrece Verificar resultado. Verificar recupera un solo pago y deja deuda $700.",
+      "estado": "Aprobado",
+      "capturas": ["pago-respuesta-perdida-android.png", "pago-verificado-android.png"]
+    },
+    {
+      "id": "CP-CU26-M08",
+      "flujo": "FP / E2",
+      "resultado": "El siguiente formulario sugiere $700. Registrar el total deja No hay deudas pendientes y dos pagos activos que suman $1200. Verificado también por SQL.",
+      "estado": "Aprobado",
+      "captura": "pago-total-android.png"
+    },
+    {
+      "id": "CP-CU26-M09",
+      "flujo": "RN6",
+      "resultado": "Al archivar la actividad ficticia, muestra el aviso de solo lectura y fecha de conservación a seis meses. El detalle no ofrece editar ni eliminar.",
+      "estado": "Aprobado",
+      "captura": "pagos-archivados-android.png"
+    },
+    {
+      "id": "CP-CU26-M10",
+      "flujo": "RNF-16",
+      "resultado": "Simular siete meses desde archivo y actualizar oculta los pagos y muestra que venció el plazo de conservación. El balance sigue sin deudas.",
+      "estado": "Aprobado",
+      "captura": "pagos-retencion-vencida-android.png"
+    }
+  ],
+  "ios": {
+    "estado": "Pendiente",
+    "motivo": "No hay dispositivo iOS ni simulador iOS disponible en este entorno Windows. No se atribuyen a iOS resultados obtenidos en Android."
+  }
+}

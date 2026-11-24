@@ -1,0 +1,52 @@
+{
+  "pagos": [
+    {
+      "id": "345259bd-ed61-4699-95a9-22168f583df0",
+      "monto": "450.00",
+      "eliminado": true
+    },
+    {
+      "id": "3c65633f-f22a-4f27-b17f-e280728ffd55",
+      "monto": "500.00",
+      "eliminado": true
+    },
+    {
+      "id": "2a0d67ab-fbf8-48c0-b9b2-645e281f2902",
+      "monto": "700.00",
+      "eliminado": true
+    },
+    {
+      "id": "fbf91578-61cb-4313-a5f2-cf0e6f5aaafe",
+      "monto": "450.00",
+      "eliminado": true
+    },
+    {
+      "id": "e6df0712-5c5f-4344-a8e7-728337c19e14",
+      "monto": "500.00",
+      "eliminado": false
+    },
+    {
+      "id": "418e6fdf-fb35-41cd-8b7f-53ed752cbb4c",
+      "monto": "700.00",
+      "eliminado": false
+    }
+  ],
+  "balances": [],
+  "gastos": [
+    {
+      "concepto": "Combustible de prueba",
+      "monto": "1200.00",
+      "eliminado": false
+    },
+    {
+      "concepto": "Alimentos editados web",
+      "monto": "180.02",
+      "eliminado": true
+    },
+    {
+      "concepto": "Alimentos Android",
+      "monto": "250.00",
+      "eliminado": true
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "pagos": [
+    {
+      "id": "2a0d67ab-fbf8-48c0-b9b2-645e281f2902",
+      "actividadId": "c509b503-3745-4e86-8b72-f36e162bcd75",
+      "pagadorId": "a8cd8cbf-9246-48ef-9229-31a58dd26c33",
+      "receptorId": "7c225b2f-2115-4e31-9b86-cc2c2a907ac7",
+      "registradoPorId": "7c225b2f-2115-4e31-9b86-cc2c2a907ac7",
+      "montoCentesimos": 70000,
+      "version": 1,
+      "fechaRegistro": "2026-11-24T00:11:26.836Z",
+      "eliminado": false
+    },
+    {
+      "id": "3c65633f-f22a-4f27-b17f-e280728ffd55",
+      "actividadId": "c509b503-3745-4e86-8b72-f36e162bcd75",
+      "pagadorId": "a8cd8cbf-9246-48ef-9229-31a58dd26c33",
+      "receptorId": "7c225b2f-2115-4e31-9b86-cc2c2a907ac7",
+      "registradoPorId": "7c225b2f-2115-4e31-9b86-cc2c2a907ac7",
+      "montoCentesimos": 50000,
+      "version": 1,
+      "fechaRegistro": "2026-11-24T00:11:11.004Z",
+      "eliminado": false
+    }
+  ],
+  "balances": []
+}

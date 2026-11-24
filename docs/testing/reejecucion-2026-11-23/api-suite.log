@@ -1,0 +1,31 @@
+
+> faltauno-api@0.1.0 test:cobertura
+> jest --coverage --runInBand --json --outputFile=../docs/testing/reejecucion-2026-11-23/api-resultados.json
+
+------------------------------|---------|----------|---------|---------|-------------------
+File                          | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+------------------------------|---------|----------|---------|---------|-------------------
+All files                     |   97.67 |    96.47 |   98.87 |   98.45 |                   
+ actividades                  |   95.94 |    97.22 |   94.44 |   95.38 |                   
+  actividades.servicio.ts     |     100 |      100 |     100 |     100 |                   
+  crear-actividad.servicio.ts |   94.64 |    96.87 |   91.66 |   93.61 | 66-67,121         
+ auth                         |     100 |    93.33 |     100 |     100 |                   
+  auth.servicio.ts            |     100 |    93.33 |     100 |     100 | 36,167            
+ deportes                     |     100 |      100 |     100 |     100 |                   
+  deportes.servicio.ts        |     100 |      100 |     100 |     100 |                   
+ gastos                       |   95.57 |    94.66 |     100 |   97.95 |                   
+  gastos.servicio.ts          |   95.57 |    94.66 |     100 |   97.95 | 50,204            
+ notificaciones               |     100 |      100 |     100 |     100 |                   
+  notificaciones.servicio.ts  |     100 |      100 |     100 |     100 |                   
+ pagos                        |   98.27 |    98.01 |     100 |      99 |                   
+  pagos.servicio.ts           |   98.27 |    98.01 |     100 |      99 | 172               
+ usuarios                     |     100 |      100 |     100 |     100 |                   
+  usuarios.servicio.ts        |     100 |      100 |     100 |     100 |                   
+------------------------------|---------|----------|---------|---------|-------------------
+
+Test Suites: 27 passed, 27 total
+Tests:       331 passed, 331 total
+Snapshots:   0 total
+Time:        11.244 s
+Ran all test suites.
+Test results written to: ..\docs\testing\reejecucion-2026-11-23\api-resultados.json
