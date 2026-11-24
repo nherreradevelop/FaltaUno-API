@@ -1,3 +1,4 @@
+import { crearRutasPagos } from './modulos/pagos/pagos.rutas';
 import express, { type Express } from 'express';
 import swaggerUi from 'swagger-ui-express';
 import { crearManejadorErrores } from './comun/middlewares/manejadorErrores';
@@ -8,6 +9,7 @@ import { crearRutasDeportes } from './modulos/deportes/deportes.rutas';
 import { crearRutasNotificaciones } from './modulos/notificaciones/notificaciones.rutas';
 import { crearRutasUsuarios } from './modulos/usuarios/usuarios.rutas';
 import { documentoSwagger } from './swagger';
+import { crearRutasGastos } from './modulos/gastos/gastos.rutas';
 
 /** Arma la aplicación de Express: middlewares globales y routers de cada módulo. */
 export function crearApp(contexto: Contexto): Express {
@@ -22,6 +24,8 @@ export function crearApp(contexto: Contexto): Express {
   app.use('/api/auth', crearRutasAuth(contexto));
   app.use('/api/usuarios', crearRutasUsuarios(contexto));
   app.use('/api/actividades', crearRutasActividades(contexto));
+  app.use('/api/actividades/:actividadId', crearRutasGastos(contexto));
+  app.use('/api/actividades/:actividadId', crearRutasPagos(contexto));
   app.use('/api/deportes', crearRutasDeportes(contexto));
   app.use('/api/notificaciones', crearRutasNotificaciones(contexto));
 

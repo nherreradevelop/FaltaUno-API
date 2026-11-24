@@ -1,4 +1,6 @@
+import { esquemasSwaggerPagos, rutasSwaggerPagos } from './modulos/pagos/pagos.swagger';
 import { rutasSwaggerActividades } from './modulos/actividades/actividades.swagger';
+import { esquemasSwaggerGastos, rutasSwaggerGastos } from './modulos/gastos/gastos.swagger';
 import { esquemaSwaggerNotificacion, rutasSwaggerNotificaciones } from './modulos/notificaciones/notificaciones.swagger';
 
 /**
@@ -40,6 +42,8 @@ export const documentoSwagger = {
   components: {
     securitySchemes: { sesion: { type: 'http', scheme: 'bearer' } },
     schemas: {
+      ...esquemasSwaggerGastos,
+      ...esquemasSwaggerPagos,
       Notificacion: esquemaSwaggerNotificacion,
       Error: respuestaError,
       Usuario: {
@@ -267,6 +271,8 @@ export const documentoSwagger = {
     },
   },
   paths: {
+    ...rutasSwaggerGastos,
+    ...rutasSwaggerPagos,
     ...rutasSwaggerActividades,
     ...rutasSwaggerNotificaciones,
     '/auth/login': {

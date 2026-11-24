@@ -207,6 +207,18 @@ lint y formato siempre; compilación y pruebas de la API en cuanto exista `api/p
 
 La API ejecuta cobertura y pruebas de CU10 contra PostgreSQL de pruebas y Redis `/15`.
 
+## CU23–CU25 Gastos de actividades
+
+La API, web y mobile incluyen registro, edición y eliminación de gastos, reparto igual exacto,
+balances transaccionales, control de versiones y recuperación de confirmaciones sin duplicados.
+La parte de pagos de CU24/CU25 se completa con CU26, documentado más abajo.
+
+Los cambios avisan al pagador y al reparto mediante el módulo CU40; al editar se avisa solo al pagador y reparto nuevos.
+Requiere las migraciones `005_cu23_cu24_cu25_gastos.sql` y `006_notificaciones_gastos.sql`; un volumen existente no las aplica automáticamente.
+Ver [activación y funcionamiento](docs/cu23-cu24-cu25-implementacion.md),
+[dudas y decisiones aprobadas](docs/plan-cu23-cu24-cu25-gastos.md) y
+[evidencia de pruebas](docs/testing/cu23-cu25-casos-prueba.md).
+
 ## CU40 Notificaciones
 
 Las notificaciones se guardan en MongoDB (colección `notificaciones`) y se conservan 30 días: un índice TTL las borra solas (RNF-16). Los índices los crea la API al arrancar.
@@ -249,3 +261,7 @@ El [inventario de integración con Google Maps](docs/google-maps-integracion.md)
 - Cada entrega se pasa de `develop` a `main` y se etiqueta con su versión (`v0.1.0`, ...).
 - **Migraciones:** nunca modificar un script que ya se aplicó; los cambios van siempre en un archivo nuevo con el número siguiente (`003_...sql`).
 - Las pruebas automáticas se ejecutan siempre contra la base local, nunca contra la compartida.
+
+## CU26 Pagos entre participantes
+
+Registro total o parcial desde balances, historial privado de las dos partes y edición/eliminación por el autor. Retención: seis meses desde el archivo. Requiere la migración `007_cu26_pagos.sql` después de 005 y 006, aplicadas a Supabase el 22/11/2026. Ver [implementación y depuración](docs/cu26-implementacion.md) y [evidencia de ejecución](docs/testing/cu26-ejecucion.md).

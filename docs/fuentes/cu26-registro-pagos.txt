@@ -1,0 +1,90 @@
+CU26 — Fuente documental
+Documento: C:\Users\Usuario\.codex\visualizations\2026\11\14\01a1dc4d-48ef-7150-bc6a-9f06bfd37b7c\postman-2026-11-15\FaltaUno_documento_con_evidencia_Postman_2026-11-15.docx
+SHA256: d22472542f47c79cc34cf0459aa13b0a3be878258ed7f5471d16fe41d58b0d43
+Extracción de texto de la ficha completa, en orden del cuerpo y de las filas de tablas. No se alteró el documento original.
+
+CU26 – Registro de pagos entre participantes
+1. Ficha del caso de uso
+Campo | Descripción
+ID | CU26
+Nombre | Registro de pagos entre participantes
+Actor principal | Usuario participante de la actividad
+Actores secundarios | Sistema
+Objetivo | Permitir que un participante registre el pago de una deuda pendiente con otro participante de la misma actividad, actualizando el balance de gastos entre ambos.
+Trigger (disparador) | El usuario selecciona la opción “Registrar pago” desde la sección de balances de una actividad.
+Prioridad | Media – MoSCoW: Should Have
+Precondiciones | 1. El usuario está autenticado y participa en la actividad. 2. Existe un balance pendiente (gasto) entre el usuario y otro participante de la actividad. 3. La actividad existe en el sistema.
+Postcondición de éxito | El pago queda registrado y el balance de gastos entre los participantes involucrados se actualiza en función del monto pagado.
+Postcondición de fracaso | El pago no se registra y el balance entre los participantes permanece sin cambios.
+Requerimientos relacionados | RF-21 (Registro de pagos entre participantes), RF-20 (Registro de gastos de actividades), RF-17 (Visualización de actividades en las cuales el usuario participa)
+Origen | Encuesta de estudio de mercado – 26/08/2026
+2. Flujo Principal (FP)
+Paso | Actor | Acción
+1 | Usuario | Accede a la sección de balances de una actividad de la que participa (ver CU34 – Ver gastos y balances).
+2 | Sistema | Muestra los balances pendientes entre el usuario y los demás participantes.
+3 | Usuario | Selecciona la opción “Registrar pago” sobre un balance pendiente con otro participante.
+4 | Sistema | Muestra el formulario de registro de pago, con el monto adeudado sugerido por defecto.
+5 | Usuario | Indica el monto pagado (puede coincidir con el total adeudado o ser parcial).
+6 | Usuario | Confirma el registro del pago.
+7 | Sistema | Valida que el monto ingresado sea válido y no supere el monto adeudado.
+8 | Sistema | Registra el pago asociado a la actividad y a los dos participantes involucrados.
+9 | Sistema | Actualiza el balance pendiente entre ambos participantes.
+10 | Sistema | Informa que el pago fue registrado correctamente.
+Postcondición del flujo principal: El pago queda registrado y el balance entre los participantes involucrados se actualiza.
+3. Flujos Alternativos (A)
+A1 — Cancelar el registro del pago
+Se dispara en: pasos 4 a 6 del flujo principal, antes de confirmar.
+Descripción: el usuario decide no registrar el pago.
+Pasos:
+El usuario selecciona la opción de cancelar.
+El sistema descarta los datos ingresados.
+El sistema vuelve a la sección de balances sin modificar el balance pendiente.
+Postcondición: No se registra ningún pago y el balance permanece sin cambios.
+4. Flujos de Excepción (E)
+E1 — Monto de pago inválido
+Se dispara en: paso 7 del flujo principal.
+Descripción: el monto ingresado es menor o igual a cero, no es numérico, o supera el monto total adeudado.
+Pasos:
+El sistema detecta que el monto no es válido.
+El sistema informa al usuario el motivo y el monto máximo permitido.
+El usuario corrige el monto y confirma nuevamente.
+El flujo continúa en el paso 7 del flujo principal.
+Postcondición: El pago no se registra hasta que el monto sea válido.
+E2 — No existe un balance pendiente con el participante seleccionado
+Se dispara en: paso 3 del flujo principal.
+Descripción: no existe una deuda pendiente entre el usuario y el participante seleccionado (por ejemplo, ya fue saldada previamente).
+Pasos:
+El sistema detecta que no hay balance pendiente entre ambos usuarios.
+El sistema informa que no existe una deuda pendiente para registrar.
+Postcondición: No se registra ningún pago.
+E3 — Actividad en estado no válido para registrar pagos
+Se dispara en: paso 7 del flujo principal.
+Descripción: la actividad ya no está en estado Iniciada (fue archivada mientras el usuario completaba el formulario).
+Pasos:
+El sistema detecta el estado de la actividad.
+El sistema informa que la actividad está archivada y ya no admite pagos.
+El sistema no registra el pago.
+Postcondición: No se registra ningún pago y el balance permanece sin cambios.
+5. Flujos de Error (ER)
+(Fallas técnicas o inesperadas que impiden continuar con el procesamiento normal.)
+ER1 — Error al registrar el pago o actualizar el balance
+Se dispara en: paso 8 del flujo principal.
+Descripción: ocurre un error del sistema al intentar persistir el pago y actualizar el balance, como una única operación.
+Pasos:
+El sistema detecta el error y revierte los cambios parciales de la operación.
+El sistema conserva el balance anterior entre los participantes.
+El sistema informa que no fue posible registrar el pago.
+El usuario puede intentar nuevamente.
+Postcondición: El balance entre los participantes conserva un estado consistente.
+6. Reglas de negocio asociadas
+RN1: Solo puede registrarse un pago entre dos participantes que efectivamente formen parte de la misma actividad y tengan un balance pendiente entre sí.
+RN2: El monto registrado como pago no puede superar el monto total adeudado entre ambos participantes al momento de la operación.
+RN3: Un pago puede ser parcial; en ese caso, el balance pendiente se reduce en el monto pagado, sin saldarse completamente.
+RN4: El historial de pagos de una actividad queda disponible para su consulta por los participantes involucrados.
+RN5: Un pago registrado puede editarse o eliminarse mientras la actividad esté en estado Iniciada (ver CU24 – Editar un gasto o pago y CU25 – Eliminar un gasto o pago).
+RN6: Solo se registran pagos en actividades en estado Iniciada. Al archivarse la actividad, las deudas pendientes quedan visibles en modo solo lectura y no pueden registrarse nuevos pagos.
+RN7: Las deudas de los invitados externos se imputan al usuario que los incorporó a la actividad: los pagos correspondientes se registran entre ese usuario y el otro participante.
+7. Requerimientos no funcionales relevantes para este caso de uso
+ID | Requerimiento
+RNF-23 | Una falla o un reintento no debe producir balances parciales ni registrar o descontar dos veces el mismo gasto o pago.
+RNF-16 | Definición de un período de retención para los historiales del sistema (actividades archivadas, chats grupales, pagos)

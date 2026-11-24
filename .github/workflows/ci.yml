@@ -31,6 +31,16 @@ jobs:
     name: API - compilación y pruebas
     runs-on: ubuntu-latest
     services:
+      mongo:
+        image: mongo:8
+        env:
+          MONGO_INITDB_ROOT_USERNAME: faltauno
+          MONGO_INITDB_ROOT_PASSWORD: faltauno_dev
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ping:1})'"
+          --health-interval 5s --health-timeout 5s --health-retries 10
       redis:
         image: redis:7
         ports:
@@ -53,6 +63,7 @@ jobs:
       NODE_ENV: test
       POSTGRES_URL_TEST: postgres://faltauno:faltauno_dev@localhost:5432/faltauno_test
       REDIS_URL_TEST: redis://localhost:6379/15
+      MONGO_URL_TEST: mongodb://faltauno:faltauno_dev@localhost:27017/?authSource=admin
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
