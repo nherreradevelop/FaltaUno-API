@@ -226,6 +226,8 @@ export interface ParticipanteDto {
   usuario: { id: string; nombre: string; fotoUrl: string | null } | null;
   esOrganizador: boolean;
   invitadosExternos: string[];
+  /** null si no lo indicó o si quien consulta no puede verlo (solo lo ven quienes forman parte de la actividad). */
+  puntoPartida: Ubicacion | null;
 }
 
 export interface ParticipantesDto {
@@ -268,17 +270,24 @@ export function aDetalleActividadDto(detalle: DetalleDeActividad, usuarioId: str
   };
 }
 
-function aParticipanteDto(participante: ParticipanteDeActividad): ParticipanteDto {
+function aParticipanteDto(participante: ParticipanteDeActividad, mostrarPuntoDePartida: boolean): ParticipanteDto {
   return {
     usuario: participante.usuario,
     esOrganizador: participante.esOrganizador,
     invitadosExternos: participante.invitadosExternos,
+    puntoPartida: mostrarPuntoDePartida ? participante.puntoPartida : null,
   };
 }
 
-export function aParticipantesDto(paginaDeParticipantes: PaginaDeParticipantes, pagina: number): ParticipantesDto {
+export function aParticipantesDto(
+  paginaDeParticipantes: PaginaDeParticipantes,
+  pagina: number,
+  mostrarPuntosDePartida: boolean,
+): ParticipantesDto {
   return {
-    participantes: paginaDeParticipantes.participantes.map(aParticipanteDto),
+    participantes: paginaDeParticipantes.participantes.map((participante) =>
+      aParticipanteDto(participante, mostrarPuntosDePartida),
+    ),
     pagina,
     hayMas: paginaDeParticipantes.hayMas,
   };
@@ -339,6 +348,47 @@ export const esquemaConsultaPunto = z.object({
   lng: z.string().trim().min(1).pipe(z.coerce.number().min(-180).max(180)),
 });
 export const esquemaConsultaLugar = z.object({ placeId: lugarId });
+
+/**
+ * CU11 FP pasos 5 y 6: datos con los que el usuario se une.
+ * Vehículo: mismas reglas de forma que el CU10. El punto de partida es opcional siempre (paso 5, RN10), con o sin vehículo.
+ */
+export const esquemaUnirseActividad = z
+  .object({
+    tieneVehiculo: z.boolean(),
+    lugaresVehiculo: z.number().int().min(0).max(32767).nullable(),
+    puntoPartidaPlaceId: lugarId.nullable().default(null),
+    puntoPartidaCoordenadas: esquemaCoordenadas.optional(),
+    // RN9: el único límite de invitados es el cupo, que se verifica en el servicio
+    invitados: z.array(z.string().trim().min(1, 'Ingresá el nombre del invitado.').max(100)).max(32766),
+  })
+  .strict()
+  .superRefine((datos, contexto) => {
+    if (datos.puntoPartidaPlaceId && datos.puntoPartidaCoordenadas) {
+      contexto.addIssue({
+        code: 'custom',
+        path: ['puntoPartidaPlaceId'],
+        message: 'Elegí un lugar o un pin como punto de partida, no ambos.',
+      });
+    }
+    if (datos.tieneVehiculo && datos.lugaresVehiculo === null) {
+      contexto.addIssue({ code: 'custom', path: ['lugaresVehiculo'], message: 'Indicá cuántas personas podés llevar.' });
+    }
+    if (!datos.tieneVehiculo && datos.lugaresVehiculo !== null) {
+      contexto.addIssue({ code: 'custom', path: ['lugaresVehiculo'], message: 'Solo indicá lugares si tenés vehículo.' });
+    }
+  });
+
+export type DatosUnirseActividad = z.infer<typeof esquemaUnirseActividad>;
+
+/** CU11 FP paso 8: cupos de la actividad después de la incorporación. */
+export interface IncorporacionDto {
+  actividadId: string;
+  cupoMaximo: number;
+  /** Participantes más invitados externos, ya contando al usuario y sus invitados. */
+  cuposOcupados: number;
+  cuposLibres: number;
+}
 
 export type DatosCrearActividad = z.infer<typeof esquemaCrearActividad>;
 

@@ -19,6 +19,8 @@ const PARTICIPANTE = 'usuario-participante';
 const AJENO = 'usuario-ajeno';
 const ID_INEXISTENTE = '99999999-9999-4999-8999-999999999999';
 
+const PUNTO_DE_JUAN = { direccion: 'Tres Cruces, Montevideo', lat: -34.894, lng: -56.166 };
+
 const PRONOSTICO = {
   resumen: 'Olas ordenadas por la mañana.',
   nivelRecomendado: 'intermedio' as const,
@@ -31,6 +33,7 @@ function crearParticipantes(cantidad: number): ParticipanteDeActividad[] {
     usuario: { id: `usuario-${indice}`, nombre: `Persona ${indice}`, fotoUrl: null },
     esOrganizador: indice === 0,
     invitadosExternos: [],
+    puntoPartida: null,
   }));
 }
 
@@ -46,9 +49,19 @@ function guardada(
     },
     participanteIds: cambios.participanteIds ?? [ORGANIZADORA, PARTICIPANTE],
     participantes: cambios.participantes ?? [
-      { usuario: { id: ORGANIZADORA, nombre: 'Martina Rodríguez', fotoUrl: null }, esOrganizador: true, invitadosExternos: [] },
-      { usuario: { id: PARTICIPANTE, nombre: 'Juan Pérez', fotoUrl: null }, esOrganizador: false, invitadosExternos: ['Sofía'] },
-      { usuario: null, esOrganizador: false, invitadosExternos: [] },
+      {
+        usuario: { id: ORGANIZADORA, nombre: 'Martina Rodríguez', fotoUrl: null },
+        esOrganizador: true,
+        invitadosExternos: [],
+        puntoPartida: null,
+      },
+      {
+        usuario: { id: PARTICIPANTE, nombre: 'Juan Pérez', fotoUrl: null },
+        esOrganizador: false,
+        invitadosExternos: ['Sofía'],
+        puntoPartida: PUNTO_DE_JUAN,
+      },
+      { usuario: null, esOrganizador: false, invitadosExternos: [], puntoPartida: null },
     ],
   };
 }
@@ -169,15 +182,40 @@ describe('CU09 – Detalle de actividad', () => {
 describe('CU09 A1 – Ver la lista de participantes', () => {
   it('A1: incluye usuarios registrados, invitados externos y cuentas cerradas', async () => {
     const { servicio } = crearServicio();
-    const respuesta = await servicio.obtenerParticipantes(ACTIVIDAD_ID, 1);
+    const respuesta = await servicio.obtenerParticipantes(PARTICIPANTE, ACTIVIDAD_ID, 1);
 
     expect(respuesta.pagina).toBe(1);
     expect(respuesta.hayMas).toBe(false);
     expect(respuesta.participantes).toEqual([
-      { usuario: { id: ORGANIZADORA, nombre: 'Martina Rodríguez', fotoUrl: null }, esOrganizador: true, invitadosExternos: [] },
-      { usuario: { id: PARTICIPANTE, nombre: 'Juan Pérez', fotoUrl: null }, esOrganizador: false, invitadosExternos: ['Sofía'] },
-      { usuario: null, esOrganizador: false, invitadosExternos: [] },
+      {
+        usuario: { id: ORGANIZADORA, nombre: 'Martina Rodríguez', fotoUrl: null },
+        esOrganizador: true,
+        invitadosExternos: [],
+        puntoPartida: null,
+      },
+      {
+        usuario: { id: PARTICIPANTE, nombre: 'Juan Pérez', fotoUrl: null },
+        esOrganizador: false,
+        invitadosExternos: ['Sofía'],
+        puntoPartida: PUNTO_DE_JUAN,
+      },
+      { usuario: null, esOrganizador: false, invitadosExternos: [], puntoPartida: null },
     ]);
+  });
+
+  it('CU11 paso 5: quien forma parte de la actividad (también el organizador) ve los puntos de partida', async () => {
+    const { servicio } = crearServicio();
+    for (const quienConsulta of [PARTICIPANTE, ORGANIZADORA]) {
+      const respuesta = await servicio.obtenerParticipantes(quienConsulta, ACTIVIDAD_ID, 1);
+      expect(respuesta.participantes[1].puntoPartida).toEqual(PUNTO_DE_JUAN);
+    }
+  });
+
+  it('CU11 paso 5: quien no forma parte ve la lista, pero sin puntos de partida', async () => {
+    const { servicio } = crearServicio();
+    const respuesta = await servicio.obtenerParticipantes(AJENO, ACTIVIDAD_ID, 1);
+    expect(respuesta.participantes).toHaveLength(3);
+    expect(respuesta.participantes.map((participante) => participante.puntoPartida)).toEqual([null, null, null]);
   });
 
   it(`A1: pagina de a ${TAMANO_PAGINA_PARTICIPANTES} e indica si hay más`, async () => {
@@ -185,8 +223,8 @@ describe('CU09 A1 – Ver la lista de participantes', () => {
       guardada({ participantes: crearParticipantes(TAMANO_PAGINA_PARTICIPANTES + 1) }),
     );
 
-    const primera = await servicio.obtenerParticipantes(ACTIVIDAD_ID, 1);
-    const segunda = await servicio.obtenerParticipantes(ACTIVIDAD_ID, 2);
+    const primera = await servicio.obtenerParticipantes(AJENO, ACTIVIDAD_ID, 1);
+    const segunda = await servicio.obtenerParticipantes(AJENO, ACTIVIDAD_ID, 2);
 
     expect(primera.participantes).toHaveLength(TAMANO_PAGINA_PARTICIPANTES);
     expect(primera.hayMas).toBe(true);
@@ -201,7 +239,7 @@ describe('CU09 A1 – Ver la lista de participantes', () => {
 
   it('E2: si la actividad no existe responde 404 ACTIVIDAD_NO_DISPONIBLE', async () => {
     const { servicio } = crearServicio();
-    await expect(servicio.obtenerParticipantes(ID_INEXISTENTE, 1)).rejects.toMatchObject({
+    await expect(servicio.obtenerParticipantes(AJENO, ID_INEXISTENTE, 1)).rejects.toMatchObject({
       estado: 404,
       codigo: 'ACTIVIDAD_NO_DISPONIBLE',
     });

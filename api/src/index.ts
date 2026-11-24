@@ -8,11 +8,14 @@ import { VerificadorGoogle } from './infra/oauth';
 import { crearPoolPostgres } from './infra/postgres';
 import { crearClienteRedis } from './infra/redis';
 import { TiempoReal } from './infra/tiempo-real';
+import { crearEventosDeActividades } from './modulos/actividades/actividades.eventos';
+import { ActividadesRepositorio } from './modulos/actividades/actividades.repositorio';
 import { SesionesRepositorio } from './modulos/auth/sesiones.repositorio';
 import { NotificacionesRepositorio } from './modulos/notificaciones/notificaciones.repositorio';
 import { DIAS_DE_RETENCION, NotificacionesServicio } from './modulos/notificaciones/notificaciones.servicio';
+import { conectarSuscripciones } from './suscripciones';
 
-/** Arranque: lee la configuración, abre las conexiones, arma el contexto y levanta el servidor. */
+/** Arranque: lee la configuración, abre las conexiones, arma el contexto, conecta las suscripciones y levanta el servidor. */
 function iniciar(): void {
   const config = leerConfig();
   const db = crearPoolPostgres(config.POSTGRES_URL);
@@ -48,7 +51,16 @@ function iniciar(): void {
     sesiones,
     verificadorGoogle: new VerificadorGoogle(config.GOOGLE_CLIENT_IDS, logger),
     notificaciones: new NotificacionesServicio(repositorioNotificaciones, tiempoReal),
+    eventosActividades: crearEventosDeActividades(logger),
   };
+  // Las suscripciones viven lo mismo que el proceso: no hace falta desuscribirlas al apagar
+  conectarSuscripciones({
+    eventosActividades: contexto.eventosActividades,
+    logger,
+    actividades: new ActividadesRepositorio(db),
+    // CU11 paso 9: avisa al organizador por el CU40
+    notificador: contexto.notificaciones,
+  });
 
   servidor.on('request', crearApp(contexto));
   servidor.listen(config.PUERTO, () => {

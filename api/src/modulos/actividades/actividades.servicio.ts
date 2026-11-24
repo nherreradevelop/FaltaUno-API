@@ -14,12 +14,21 @@ import type { ActividadesRepositorio } from './actividades.repositorio';
 
 /** Solo los métodos que usa este servicio: permite probarlo con dobles en memoria. */
 export interface DependenciasActividades {
-  actividades: Pick<ActividadesRepositorio, 'buscarDisponibles' | 'buscarDetalle' | 'existe' | 'buscarParticipantes'>;
+  actividades: Pick<ActividadesRepositorio, 'buscarDisponibles' | 'buscarDetalle' | 'buscarRelacion' | 'buscarParticipantes'>;
 }
 
 /** CU09 E2: la actividad no existe. También se usa para un id con formato inválido. */
 export function actividadNoDisponible() {
   return errores.noEncontrado('ACTIVIDAD_NO_DISPONIBLE', 'La actividad no está disponible.');
+}
+
+/**
+ * Quién ve el punto de partida de los demás (CU11 paso 5). Decisión del equipo del 21/11/2026, pendiente de pasar
+ * a la ficha: lo ven quienes forman parte de la actividad (participantes y organizador), no cualquiera que abra el detalle.
+ * Si se decide ocultarlo, alcanza con cambiar esta función.
+ */
+export function puedeVerPuntosDePartida(participaQuienConsulta: boolean): boolean {
+  return participaQuienConsulta;
 }
 
 export class ActividadesServicio {
@@ -51,17 +60,20 @@ export class ActividadesServicio {
     return aDetalleActividadDto(detalle, usuarioId);
   }
 
-  /** CU09 A1: participantes (usuarios registrados e invitados externos), de a TAMANO_PAGINA_PARTICIPANTES. */
-  async obtenerParticipantes(actividadId: string, pagina: number): Promise<ParticipantesDto> {
+  /**
+   * CU09 A1: participantes (usuarios registrados e invitados externos), de a TAMANO_PAGINA_PARTICIPANTES.
+   * Incluye el punto de partida de cada uno solo si quien consulta puede verlo (puedeVerPuntosDePartida).
+   */
+  async obtenerParticipantes(usuarioId: string, actividadId: string, pagina: number): Promise<ParticipantesDto> {
     const { actividades } = this.dependencias;
     // Las dos consultas son independientes: se hacen en paralelo
-    const [existe, paginaDeParticipantes] = await Promise.all([
-      actividades.existe(actividadId),
+    const [relacion, paginaDeParticipantes] = await Promise.all([
+      actividades.buscarRelacion(actividadId, usuarioId),
       actividades.buscarParticipantes(actividadId, pagina, TAMANO_PAGINA_PARTICIPANTES),
     ]);
-    if (!existe) {
+    if (!relacion.existe) {
       throw actividadNoDisponible(); // CU09 E2
     }
-    return aParticipantesDto(paginaDeParticipantes, pagina);
+    return aParticipantesDto(paginaDeParticipantes, pagina, puedeVerPuntosDePartida(relacion.participa));
   }
 }
