@@ -9,6 +9,7 @@ import type { Db } from 'mongodb';
 import { crearApp } from '../src/app';
 import { leerConfig } from '../src/config/env';
 import { logger } from '../src/infra/logger';
+import { crearEventosDeActividades } from '../src/modulos/actividades/actividades.eventos';
 import { enTransaccion } from '../src/infra/postgres';
 import { VerificadorGoogle } from '../src/infra/oauth';
 import { SesionesRepositorio } from '../src/modulos/auth/sesiones.repositorio';
@@ -109,6 +110,7 @@ integracion('CU23–CU25 HTTP y SQL reales, esquema aislado', () => {
         logger,
         verificadorGoogle: new VerificadorGoogle([], logger),
         notificaciones: {} as NotificacionesServicio,
+        eventosActividades: crearEventosDeActividades(logger),
       }).listen(0, '127.0.0.1', () => resolve(s));
     });
     url = `http://127.0.0.1:${(servidor.address() as AddressInfo).port}/api/actividades/${actividad}`;

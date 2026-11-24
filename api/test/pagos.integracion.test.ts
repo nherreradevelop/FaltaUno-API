@@ -13,6 +13,7 @@ import type { Db } from 'mongodb';
 import { crearApp } from '../src/app';
 import { leerConfig } from '../src/config/env';
 import { logger } from '../src/infra/logger';
+import { crearEventosDeActividades } from '../src/modulos/actividades/actividades.eventos';
 import { enTransaccion } from '../src/infra/postgres';
 import { VerificadorGoogle } from '../src/infra/oauth';
 import { SesionesRepositorio } from '../src/modulos/auth/sesiones.repositorio';
@@ -129,6 +130,7 @@ integracion('CU26 pagos HTTP/SQL reales y retención', () => {
         logger,
         verificadorGoogle: new VerificadorGoogle([], logger),
         notificaciones: {} as NotificacionesServicio,
+        eventosActividades: crearEventosDeActividades(logger),
       }).listen(0, '127.0.0.1', () => resolve(s));
     });
     url = `http://127.0.0.1:${(servidor.address() as AddressInfo).port}/api/actividades/${actividad}`;
@@ -252,6 +254,7 @@ integracion('CU26 pagos HTTP/SQL reales y retención', () => {
         eventosPagos,
         verificadorGoogle: new VerificadorGoogle([], logger),
         notificaciones: {} as NotificacionesServicio,
+        eventosActividades: crearEventosDeActividades(logger),
       }),
     );
     const tiempoReal = TiempoReal.iniciar(canalServidor, { origenes: [], sesiones, logger });

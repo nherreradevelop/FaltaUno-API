@@ -1,5 +1,5 @@
 import { esquemasSwaggerPagos, rutasSwaggerPagos } from './modulos/pagos/pagos.swagger';
-import { rutasSwaggerActividades } from './modulos/actividades/actividades.swagger';
+import { operacionUnirseActividad, rutasSwaggerActividades } from './modulos/actividades/actividades.swagger';
 import { esquemasSwaggerGastos, rutasSwaggerGastos } from './modulos/gastos/gastos.swagger';
 import { esquemaSwaggerNotificacion, rutasSwaggerNotificaciones } from './modulos/notificaciones/notificaciones.swagger';
 import { rutasSwaggerValoraciones } from './modulos/valoraciones/valoraciones.swagger';
@@ -210,6 +210,17 @@ export const documentoSwagger = {
                 },
                 esOrganizador: { type: 'boolean' },
                 invitadosExternos: { type: 'array', items: { type: 'string' } },
+                puntoPartida: {
+                  type: 'object',
+                  nullable: true,
+                  description:
+                    'CU11 paso 5. null si no lo indicó o si quien consulta no forma parte de la actividad (solo lo ven participantes y organizador).',
+                  properties: {
+                    direccion: { type: 'string' },
+                    lat: { type: 'number' },
+                    lng: { type: 'number' },
+                  },
+                },
               },
             },
           },
@@ -440,6 +451,7 @@ export const documentoSwagger = {
           500: error('ER1: no se pudo recuperar la lista (ERROR_INTERNO).'),
         },
       },
+      post: operacionUnirseActividad, // CU11
     },
     '/actividades': {
       // CU10: el alta (POST) está en actividades.swagger.ts; acá se suma la búsqueda (GET) a la misma ruta

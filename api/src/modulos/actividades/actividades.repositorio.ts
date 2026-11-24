@@ -140,6 +140,14 @@ export interface ParticipanteDeActividad {
   usuario: { id: string; nombre: string; fotoUrl: string | null } | null;
   esOrganizador: boolean;
   invitadosExternos: string[];
+  /** CU11 paso 5: null si no indicó punto de partida. Quién puede verlo lo decide ActividadesServicio. */
+  puntoPartida: Ubicacion | null;
+}
+
+/** CU09: si la actividad existe y si el usuario que consulta forma parte de ella. */
+export interface RelacionConActividad {
+  existe: boolean;
+  participa: boolean;
 }
 
 export interface PaginaDeParticipantes {
@@ -183,6 +191,9 @@ interface FilaParticipante {
   nombre: string | null;
   foto_url: string | null;
   es_organizador: boolean;
+  punto_partida_direccion: string | null;
+  punto_partida_lat: string | null; // NUMERIC, que pg entrega como texto
+  punto_partida_lng: string | null;
 }
 
 interface FilaInvitado {
@@ -246,13 +257,17 @@ export class ActividadesRepositorio {
     return fila ? aDetalleDeActividad(fila) : null;
   }
 
-  /** CU09 E2: si la actividad existe (para la lista de participantes). */
-  async existe(actividadId: string): Promise<boolean> {
-    const resultado = await this.db.query<{ existe: boolean }>(
-      `SELECT EXISTS (SELECT 1 FROM actividad WHERE id = $1) AS existe`,
-      [actividadId],
+  /**
+   * CU09 E2: si la actividad existe, y si el usuario forma parte (decide si ve los puntos de partida).
+   * El organizador también tiene participación (CU10 paso 10), así que alcanza con buscar en participacion.
+   */
+  async buscarRelacion(actividadId: string, usuarioId: string): Promise<RelacionConActividad> {
+    const resultado = await this.db.query<RelacionConActividad>(
+      `SELECT EXISTS (SELECT 1 FROM actividad WHERE id = $1) AS existe,
+              EXISTS (SELECT 1 FROM participacion WHERE actividad_id = $1 AND usuario_id = $2) AS participa`,
+      [actividadId, usuarioId],
     );
-    return resultado.rows[0]?.existe ?? false;
+    return resultado.rows[0] ?? { existe: false, participa: false };
   }
 
   /**
@@ -263,7 +278,8 @@ export class ActividadesRepositorio {
   async buscarParticipantes(actividadId: string, pagina: number, tamanoPagina: number): Promise<PaginaDeParticipantes> {
     const desplazamiento = (pagina - 1) * tamanoPagina;
     const resultado = await this.db.query<FilaParticipante>(
-      `SELECT p.id AS participacion_id, u.id AS usuario_id, u.nombre, u.foto_url, p.es_organizador
+      `SELECT p.id AS participacion_id, u.id AS usuario_id, u.nombre, u.foto_url, p.es_organizador,
+              p.punto_partida_direccion, p.punto_partida_lat, p.punto_partida_lng
        FROM participacion p
        LEFT JOIN usuario u ON u.id = p.usuario_id AND u.estado = 'activo'
        WHERE p.actividad_id = $1
@@ -280,6 +296,8 @@ export class ActividadesRepositorio {
       usuario: fila.usuario_id === null ? null : { id: fila.usuario_id, nombre: fila.nombre ?? '', fotoUrl: fila.foto_url },
       esOrganizador: fila.es_organizador,
       invitadosExternos: invitadosPorParticipacion.get(fila.participacion_id) ?? [],
+      // CU33: si la cuenta se cerró, su punto de partida es un dato personal que ya no se muestra
+      puntoPartida: fila.usuario_id === null ? null : aPuntoDePartida(fila),
     }));
     return { participantes, hayMas };
   }
@@ -479,6 +497,157 @@ export class ActividadesRepositorio {
       ]);
     }
   }
+
+  // --- CU11 – Unirse a una actividad ---
+
+  /**
+   * CU11 paso 4, RN8 y RNF-14: bloquea la fila de la actividad y devuelve sus cupos y si el usuario ya participa.
+   * Se usa dentro de una transacción: quien llega segundo espera a que el primero confirme o revierta.
+   * Son dos consultas a propósito: con READ COMMITTED, la segunda ve las participaciones que el otro acaba
+   * de confirmar. Si el conteo fuera parte del mismo SELECT ... FOR UPDATE, podría usar datos de antes de esperar.
+   * Devuelve null si la actividad no existe.
+   */
+  async bloquearParaIncorporacion(actividadId: string, usuarioId: string): Promise<ActividadParaIncorporacion | null> {
+    const bloqueo = await this.db.query<{ id: string }>('SELECT id FROM actividad WHERE id = $1 FOR UPDATE', [actividadId]);
+    if (bloqueo.rows.length === 0) {
+      return null;
+    }
+
+    const resultado = await this.db.query<FilaParaIncorporacion>(
+      `SELECT a.id, a.nombre, a.deporte_id, d.nombre AS deporte_nombre, a.estado, a.fecha_hora_inicio, a.nivel,
+              a.descripcion, a.origen_direccion, a.origen_lat, a.origen_lng, a.destino_direccion, a.destino_lat,
+              a.destino_lng, a.departamento, a.cupo_maximo, a.costo_estimado, a.organizador_id,
+              (SELECT count(*) FROM participacion p WHERE p.actividad_id = a.id)
+                + (SELECT count(*) FROM invitado_externo ie
+                   JOIN participacion p ON p.id = ie.participacion_id
+                   WHERE p.actividad_id = a.id) AS cupos_ocupados,
+              EXISTS (SELECT 1 FROM participacion p WHERE p.actividad_id = a.id AND p.usuario_id = $2) AS participa
+       FROM actividad a
+       JOIN deporte d ON d.id = a.deporte_id
+       WHERE a.id = $1`,
+      [actividadId, usuarioId],
+    );
+    const fila = resultado.rows[0];
+    return { actividad: aActividadParaIncorporacion(fila), yaParticipa: fila.participa };
+  }
+
+  /**
+   * CU11 paso 9: lo que necesita el aviso al organizador, en una sola consulta.
+   * Devuelve null si la actividad o la cuenta del participante ya no existen.
+   */
+  async buscarDatosDelAviso(actividadId: string, usuarioId: string): Promise<DatosDelAviso | null> {
+    const resultado = await this.db.query<{
+      nombre_actividad: string;
+      nombre_participante: string;
+      organizador_silencio: boolean | null;
+    }>(
+      `SELECT a.nombre AS nombre_actividad, u.nombre AS nombre_participante, org.silenciada AS organizador_silencio
+       FROM actividad a
+       JOIN usuario u ON u.id = $2 AND u.estado = 'activo'
+       LEFT JOIN participacion org ON org.actividad_id = a.id AND org.es_organizador
+       WHERE a.id = $1`,
+      [actividadId, usuarioId],
+    );
+    const fila = resultado.rows[0];
+    if (!fila) {
+      return null;
+    }
+    return {
+      nombreActividad: fila.nombre_actividad,
+      nombreParticipante: fila.nombre_participante,
+      organizadorSilencio: fila.organizador_silencio ?? false,
+    };
+  }
+
+  /** CU11 FP paso 7: registra la participación y sus invitados externos (RN5). Va dentro de la transacción. */
+  async registrarParticipacion(actividadId: string, usuarioId: string, participacion: NuevaParticipacion): Promise<void> {
+    const { tieneVehiculo, lugaresVehiculo, puntoPartida, invitados } = participacion;
+    const insertada = await this.db.query<{ id: string }>(
+      `INSERT INTO participacion (actividad_id, usuario_id, es_organizador, tiene_vehiculo, lugares_vehiculo,
+        punto_partida_direccion, punto_partida_lat, punto_partida_lng)
+       VALUES ($1,$2,FALSE,$3,$4,$5,$6,$7) RETURNING id`,
+      [
+        actividadId,
+        usuarioId,
+        tieneVehiculo,
+        lugaresVehiculo,
+        puntoPartida?.direccion ?? null,
+        puntoPartida?.lat ?? null,
+        puntoPartida?.lng ?? null,
+      ],
+    );
+    if (invitados.length > 0) {
+      // Todos los invitados en un solo INSERT, sin una consulta por invitado
+      await this.db.query('INSERT INTO invitado_externo (participacion_id, nombre) SELECT $1, unnest($2::text[])', [
+        insertada.rows[0].id,
+        invitados,
+      ]);
+    }
+  }
+}
+
+/** CU11 paso 9: nombres para el texto del aviso y si el organizador silenció la actividad (RN14, CU20). */
+export interface DatosDelAviso {
+  nombreActividad: string;
+  nombreParticipante: string;
+  organizadorSilencio: boolean;
+}
+
+/** CU11: la actividad bloqueada, con sus cupos actuales y si el usuario ya forma parte. */
+export interface ActividadParaIncorporacion {
+  actividad: Actividad;
+  yaParticipa: boolean;
+}
+
+/** CU11 pasos 5 y 6: lo que el usuario indica al unirse. */
+export interface NuevaParticipacion {
+  tieneVehiculo: boolean;
+  lugaresVehiculo: number | null;
+  /** null si no indicó punto de partida (es opcional, RN10). */
+  puntoPartida: Ubicacion | null;
+  invitados: string[];
+}
+
+interface FilaParaIncorporacion {
+  id: string;
+  nombre: string;
+  deporte_id: number;
+  deporte_nombre: string;
+  estado: EstadoActividad;
+  fecha_hora_inicio: Date;
+  nivel: NivelActividad;
+  descripcion: string | null;
+  origen_direccion: string | null;
+  origen_lat: string | null;
+  origen_lng: string | null;
+  destino_direccion: string;
+  destino_lat: string;
+  destino_lng: string;
+  departamento: string;
+  cupo_maximo: number;
+  costo_estimado: string | null;
+  organizador_id: string | null;
+  cupos_ocupados: string; // count() devuelve bigint, que pg entrega como texto
+  participa: boolean;
+}
+
+function aActividadParaIncorporacion(fila: FilaParaIncorporacion): Actividad {
+  return new Actividad(
+    fila.id,
+    fila.nombre,
+    new Deporte(fila.deporte_id, fila.deporte_nombre),
+    fila.estado,
+    fila.fecha_hora_inicio,
+    fila.nivel,
+    fila.descripcion,
+    aOrigen(fila),
+    { direccion: fila.destino_direccion, lat: Number(fila.destino_lat), lng: Number(fila.destino_lng) },
+    fila.departamento,
+    fila.cupo_maximo,
+    Number(fila.cupos_ocupados),
+    fila.organizador_id,
+    fila.costo_estimado === null ? null : aCentesimos(fila.costo_estimado),
+  );
 }
 
 function aActividadDelHistorial(fila: FilaHistorial): ActividadDelHistorial {
@@ -651,6 +820,18 @@ function aOrganizadorEncontrado(fila: FilaActividadEncontrada): OrganizadorEncon
     id: fila.organizador_id,
     nombre: fila.organizador_nombre,
     valoracionPromedio: valoracion === null ? null : Number(valoracion),
+  };
+}
+
+/** CU11 paso 5: el punto de partida es opcional; sin dirección o coordenadas no hay punto. */
+function aPuntoDePartida(fila: FilaParticipante): Ubicacion | null {
+  if (fila.punto_partida_direccion === null || fila.punto_partida_lat === null || fila.punto_partida_lng === null) {
+    return null;
+  }
+  return {
+    direccion: fila.punto_partida_direccion,
+    lat: Number(fila.punto_partida_lat),
+    lng: Number(fila.punto_partida_lng),
   };
 }
 

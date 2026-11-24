@@ -18,6 +18,7 @@ import type { Db } from 'mongodb';
 import { crearApp } from '../src/app';
 import { leerConfig } from '../src/config/env';
 import { logger } from '../src/infra/logger';
+import { crearEventosDeActividades } from '../src/modulos/actividades/actividades.eventos';
 import { VerificadorGoogle } from '../src/infra/oauth';
 import { SesionesRepositorio } from '../src/modulos/auth/sesiones.repositorio';
 import type { NotificacionesServicio } from '../src/modulos/notificaciones/notificaciones.servicio';
@@ -122,6 +123,7 @@ async function iniciar() {
       logger,
       verificadorGoogle: new VerificadorGoogle([], logger),
       notificaciones: { contarNoLeidas: async () => ({ cantidad: 0 }) } as unknown as NotificacionesServicio,
+      eventosActividades: crearEventosDeActividades(logger),
     }),
   );
   const servidor = createServer(app);

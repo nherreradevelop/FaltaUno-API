@@ -11,6 +11,7 @@ import type {
   PaginaDeActividades,
   PaginaDeParticipantes,
   ParticipanteDeActividad,
+  RelacionConActividad,
 } from '../src/modulos/actividades/actividades.repositorio';
 import type { DependenciasActividades } from '../src/modulos/actividades/actividades.servicio';
 import { Deporte } from '../src/modulos/deportes/deporte.entidad';
@@ -99,9 +100,10 @@ export class DetallesDeActividadEnMemoria implements RepositorioActividades {
     return { ...guardada.detalle, participaElUsuario: guardada.participanteIds.includes(usuarioId) };
   }
 
-  async existe(actividadId: string): Promise<boolean> {
+  async buscarRelacion(actividadId: string, usuarioId: string): Promise<RelacionConActividad> {
     this.fallarSiCorresponde();
-    return actividadId in this.guardadas;
+    const guardada = this.guardadas[actividadId];
+    return { existe: guardada !== undefined, participa: guardada?.participanteIds.includes(usuarioId) ?? false };
   }
 
   async buscarParticipantes(actividadId: string, pagina: number, tamanoPagina: number): Promise<PaginaDeParticipantes> {

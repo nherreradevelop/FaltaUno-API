@@ -4,6 +4,7 @@ import type { Pool } from 'pg';
 import type { Config } from './config/env';
 import type { Logger } from './infra/logger';
 import type { VerificadorGoogle } from './infra/oauth';
+import type { EventosDeActividades } from './modulos/actividades/actividades.eventos';
 import type { SesionesRepositorio } from './modulos/auth/sesiones.repositorio';
 import type { NotificacionesServicio } from './modulos/notificaciones/notificaciones.servicio';
 import type { Observable } from './comun/observable';
@@ -23,4 +24,6 @@ export interface Contexto {
   notificaciones: NotificacionesServicio;
   eventosGastos?: Observable<EventoGasto>;
   eventosPagos?: Observable<EventoPago>;
+  /** Eventos de dominio de actividades (CU11). Sus observadores se conectan en suscripciones.ts. */
+  eventosActividades: EventosDeActividades;
 }

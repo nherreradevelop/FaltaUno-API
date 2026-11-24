@@ -16,6 +16,7 @@ import { SesionesRepositorio } from '../src/modulos/auth/sesiones.repositorio';
 import type { NotificacionesServicio } from '../src/modulos/notificaciones/notificaciones.servicio';
 import { datosActividad, DESTINO_PROVISIONAL_PRUEBA, LUGAR_ACTIVIDAD } from './actividades.fixtures';
 import { DESTINO_PROVISIONAL_ID } from '../src/modulos/actividades/destino-provisional';
+import { crearEventosDeActividades } from '../src/modulos/actividades/actividades.eventos';
 
 const postgresUrl = process.env.POSTGRES_URL_TEST;
 const redisUrl = process.env.REDIS_URL_TEST;
@@ -93,6 +94,7 @@ integracion('CU10 HTTP + PostgreSQL + Redis reales', () => {
       logger,
       verificadorGoogle: new VerificadorGoogle([], logger),
       notificaciones: {} as NotificacionesServicio,
+      eventosActividades: crearEventosDeActividades(logger),
     });
     servidor = await new Promise<Server>((resolve) => {
       const activo = app.listen(0, '127.0.0.1', () => resolve(activo));

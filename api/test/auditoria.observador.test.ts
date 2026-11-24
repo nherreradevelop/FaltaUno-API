@@ -2,7 +2,7 @@ import type { Db } from 'mongodb';
 import type { Ejecutor } from '../src/infra/postgres';
 import { AuditoriaObservador } from '../src/modulos/auditoria/auditoria.observador';
 import { Observable } from '../src/comun/observable';
-import { conectarSuscripciones } from '../src/suscripciones';
+import { conectarSuscripcionesDeGastos } from '../src/suscripciones';
 import type { EventoGasto } from '../src/modulos/gastos/gastos.eventos';
 import { logger } from '../src/infra/logger';
 
@@ -62,7 +62,7 @@ describe('CU25 RNF-26 – auditoría de gastos', () => {
     jest.useFakeTimers();
     const eventos = new Observable<EventoGasto>(() => undefined);
     const entregar = jest.fn().mockResolvedValue(undefined);
-    const salir = conectarSuscripciones(eventos, { entregar } as unknown as AuditoriaObservador, logger);
+    const salir = conectarSuscripcionesDeGastos(eventos, { entregar } as unknown as AuditoriaObservador, logger);
     expect(entregar).toHaveBeenCalledTimes(1);
     eventos.notificar(evento as EventoGasto);
     await Promise.resolve();
@@ -82,7 +82,7 @@ describe('CU25 RNF-26 – auditoría de gastos', () => {
     const auditoria = { entregar: jest.fn().mockRejectedValue(new Error('Auditoría indisponible')) };
     const notificaciones = { entregar: jest.fn().mockResolvedValue(undefined) };
     const error = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
-    const salir = conectarSuscripciones(eventos, auditoria as unknown as AuditoriaObservador, logger, notificaciones);
+    const salir = conectarSuscripcionesDeGastos(eventos, auditoria as unknown as AuditoriaObservador, logger, notificaciones);
     try {
       await jest.advanceTimersByTimeAsync(0);
       expect(notificaciones.entregar).toHaveBeenCalledTimes(1);

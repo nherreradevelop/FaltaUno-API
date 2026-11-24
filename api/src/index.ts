@@ -9,19 +9,21 @@ import { VerificadorGoogle } from './infra/oauth';
 import { crearPoolPostgres } from './infra/postgres';
 import { crearClienteRedis } from './infra/redis';
 import { TiempoReal } from './infra/tiempo-real';
+import { crearEventosDeActividades } from './modulos/actividades/actividades.eventos';
+import { ActividadesRepositorio } from './modulos/actividades/actividades.repositorio';
 import { SesionesRepositorio } from './modulos/auth/sesiones.repositorio';
 import { NotificacionesRepositorio } from './modulos/notificaciones/notificaciones.repositorio';
 import { DIAS_DE_RETENCION, NotificacionesServicio } from './modulos/notificaciones/notificaciones.servicio';
 import { Observable } from './comun/observable';
 import type { EventoGasto } from './modulos/gastos/gastos.eventos';
 import { AuditoriaObservador } from './modulos/auditoria/auditoria.observador';
-import { conectarSuscripciones, conectarActualizacionesFinancieras } from './suscripciones';
+import { conectarSuscripciones, conectarSuscripcionesDeGastos, conectarActualizacionesFinancieras } from './suscripciones';
 import { GastosNotificacionesObservador } from './modulos/gastos/gastos-notificaciones.observador';
 import type { EventoPago } from './modulos/pagos/pagos.eventos';
 import { FinanzasTiempoRealObservador } from './modulos/gastos/finanzas-tiempo-real.observador';
 import { FinanzasTiempoRealRepositorio } from './modulos/gastos/finanzas-tiempo-real.repositorio';
 
-/** Arranque: lee la configuración, abre las conexiones, arma el contexto y levanta el servidor. */
+/** Arranque: lee la configuración, abre las conexiones, arma el contexto, conecta las suscripciones y levanta el servidor. */
 function iniciar(): void {
   const config = leerConfig();
   const db = crearPoolPostgres(config.POSTGRES_URL);
@@ -60,7 +62,7 @@ function iniciar(): void {
     eventosPagos,
     new FinanzasTiempoRealObservador(new FinanzasTiempoRealRepositorio(db), tiempoReal),
   );
-  const desconectarGastos = conectarSuscripciones(
+  const desconectarGastos = conectarSuscripcionesDeGastos(
     eventosGastos,
     new AuditoriaObservador(db, mongo.db),
     logger,
@@ -80,7 +82,16 @@ function iniciar(): void {
     eventosPagos,
     verificadorGoogle: new VerificadorGoogle(config.GOOGLE_CLIENT_IDS, logger),
     notificaciones,
+    eventosActividades: crearEventosDeActividades(logger),
   };
+  // Las suscripciones viven lo mismo que el proceso: no hace falta desuscribirlas al apagar
+  conectarSuscripciones({
+    eventosActividades: contexto.eventosActividades,
+    logger,
+    actividades: new ActividadesRepositorio(db),
+    // CU11 paso 9: avisa al organizador por el CU40
+    notificador: contexto.notificaciones,
+  });
 
   servidor.once('close', detenerRetencion);
   process.once('SIGTERM', detenerRetencion);

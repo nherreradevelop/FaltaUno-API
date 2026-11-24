@@ -256,3 +256,75 @@ export const rutasSwaggerActividades = {
     },
   },
 };
+
+/** CU11 – Unirse a una actividad. Se monta como POST de /actividades/{id}/participantes en swagger.ts. */
+export const operacionUnirseActividad = {
+  tags: ['Actividades'],
+  summary: 'CU11 – Unirse a una actividad',
+  description:
+    'El usuario de la sesión se une con sus invitados externos; cada uno ocupa un lugar (RN5). La actividad se bloquea durante la operación (RN8). Un reintento después de unirse responde 409 YA_PARTICIPA.',
+  security: seguridad,
+  parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+  requestBody: {
+    required: true,
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['tieneVehiculo', 'lugaresVehiculo', 'invitados'],
+          properties: {
+            tieneVehiculo: { type: 'boolean' },
+            lugaresVehiculo: {
+              type: 'integer',
+              minimum: 0,
+              nullable: true,
+              description: 'Obligatorio con vehículo propio; null si no tiene vehículo.',
+            },
+            puntoPartidaPlaceId: {
+              type: 'string',
+              nullable: true,
+              description: 'Opcional (RN10). No combinar con puntoPartidaCoordenadas.',
+            },
+            puntoPartidaCoordenadas: coordenadas,
+            invitados: {
+              type: 'array',
+              items: { type: 'string', minLength: 1, maxLength: 100 },
+              description: 'Nombres de los invitados externos (RN9: hasta completar el cupo).',
+            },
+          },
+        },
+      },
+    },
+  },
+  responses: {
+    201: {
+      description: 'El usuario quedó registrado como participante (FP pasos 7 y 8).',
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            required: ['actividadId', 'cupoMaximo', 'cuposOcupados', 'cuposLibres'],
+            properties: {
+              actividadId: { type: 'string', format: 'uuid' },
+              cupoMaximo: { type: 'integer' },
+              cuposOcupados: { type: 'integer', description: 'Participantes más invitados externos.' },
+              cuposLibres: { type: 'integer' },
+            },
+          },
+        },
+      },
+    },
+    400: error,
+    401: { ...error, description: 'ER2: sin sesión o sesión vencida (SESION_INVALIDA).' },
+    404: { ...error, description: 'La actividad no existe (ACTIVIDAD_NO_DISPONIBLE).' },
+    409: {
+      ...error,
+      description:
+        'E1 ACTIVIDAD_COMPLETA, E2 ACTIVIDAD_NO_ADMITE_INCORPORACIONES, E3 ACTIVIDAD_CANCELADA, RN2 YA_PARTICIPA, RN9 LUGARES_INSUFICIENTES.',
+    },
+    429: error,
+    500: { ...error, description: 'ER1: no se pudo registrar la incorporación (ERROR_INTERNO).' },
+    503: { ...error, description: 'Google Maps no está disponible para validar el punto de partida.' },
+  },
+};

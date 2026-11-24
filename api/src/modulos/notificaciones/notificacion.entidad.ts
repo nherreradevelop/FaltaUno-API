@@ -9,6 +9,7 @@ export const TIPOS_NOTIFICACION = [
   'solicitudAmistadRecibida', // Pendiente: CU06 – Gestionar lista de amigos
   'solicitudAmistadAceptada', // Pendiente: CU06
   'invitacionRecibida', // Pendiente: CU17 – Invitar a una actividad
+  'participanteUnido', // CU11 – Unirse a una actividad (aviso al organizador)
   'participanteAbandono', // Pendiente: CU12 – Abandonar una actividad (aviso al organizador)
   'actividadCancelada', // Pendiente: CU13 – Cancelar una actividad
   'actividadEditada', // Pendiente: CU29 – Editar una actividad
