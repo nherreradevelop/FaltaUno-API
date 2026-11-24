@@ -7,6 +7,7 @@ import { crearRutasAuth } from './modulos/auth/auth.rutas';
 import { crearRutasDeportes } from './modulos/deportes/deportes.rutas';
 import { crearRutasNotificaciones } from './modulos/notificaciones/notificaciones.rutas';
 import { crearRutasUsuarios } from './modulos/usuarios/usuarios.rutas';
+import { crearRutasValoraciones } from './modulos/valoraciones/valoraciones.rutas';
 import { documentoSwagger } from './swagger';
 
 /** Arma la aplicación de Express: middlewares globales y routers de cada módulo. */
@@ -21,6 +22,8 @@ export function crearApp(contexto: Contexto): Express {
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(documentoSwagger));
   app.use('/api/auth', crearRutasAuth(contexto));
   app.use('/api/usuarios', crearRutasUsuarios(contexto));
+  // Antes que /api/actividades: así esas rutas no pasan dos veces por requiereSesion
+  app.use('/api/actividades/:id/valoraciones', crearRutasValoraciones(contexto));
   app.use('/api/actividades', crearRutasActividades(contexto));
   app.use('/api/deportes', crearRutasDeportes(contexto));
   app.use('/api/notificaciones', crearRutasNotificaciones(contexto));

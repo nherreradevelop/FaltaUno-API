@@ -225,10 +225,26 @@ Las notificaciones se guardan en MongoDB (colección `notificaciones`) y se cons
 
 **Crear una notificación** desde otro caso de uso: `contexto.notificaciones.notificar(usuarioId, { tipo, texto, destino })`, siempre después del commit. Los tipos están en `notificacion.entidad.ts`; cada caso de uso define su texto.
 
-**Datos de prueba** en el Mongo local (25 notificaciones para Elian y 1 para Diego). El archivo se lee dentro del contenedor, así no se rompen los tildes en Windows:
+**Datos de prueba** en el Mongo local (6 notificaciones para Elian y 1 para Diego, cada una lleva a una actividad o un usuario de los datos de prueba de PostgreSQL). El archivo se lee dentro del contenedor, así no se rompen los tildes en Windows:
 
 ```bash
 docker compose exec mongo mongosh "mongodb://faltauno:faltauno_dev@localhost:27017/faltauno?authSource=admin" /seeds-mongo/001_notificaciones_prueba.js
+```
+
+## CU21 Valoración de usuarios
+
+Los participantes de una actividad Iniciada o Archivada se valoran entre sí con 1 a 5 estrellas y un comentario opcional. Una nueva valoración al mismo participante en la misma actividad reemplaza a la anterior (A2, RN2). El promedio no se guarda: se calcula con todas las valoraciones al consultar el perfil, así que siempre está al día.
+
+| Método y ruta                                      | Para qué                                                             |
+| -------------------------------------------------- | -------------------------------------------------------------------- |
+| `GET /api/actividades/:id/valoraciones`            | Los demás participantes, con la valoración que ya les diste o `null` |
+| `PUT /api/actividades/:id/valoraciones/:usuarioId` | Valorar (o cambiar la valoración de) un participante                 |
+
+Nada pasa todavía una actividad a Iniciada ni a Archivada (es automático según el glosario; el archivado es CU32), así que para probar hay datos de prueba. Se cargan después de `003`:
+
+```bash
+docker cp db/seeds/005_valoraciones_prueba.sql faltauno-postgres:/tmp/seed5.sql
+docker exec faltauno-postgres psql -U faltauno -d faltauno -v ON_ERROR_STOP=1 -f /tmp/seed5.sql
 ```
 
 ## CU10 Crear actividad
