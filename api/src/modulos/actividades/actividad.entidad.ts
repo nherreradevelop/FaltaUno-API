@@ -76,6 +76,14 @@ const REGLAS_DE_OPCIONES: Record<OpcionDeActividad, ReglaDeOpcion> = {
   archivar: { roles: ['organizador'], estados: ['iniciada'] }, // CU32
 };
 
+/**
+ * CU21 E2 y glosario: los participantes pueden valorarse con la actividad Iniciada o Archivada.
+ * Es la misma regla que decide si el detalle ofrece "valorar" (CU09 RN5).
+ */
+export function admiteValoraciones(estado: EstadoActividad): boolean {
+  return REGLAS_DE_OPCIONES.valorar.estados.includes(estado);
+}
+
 /** Glosario, Estado Iniciada: dura 14 días desde el inicio; ese es el plazo para registrar gastos y pagos. */
 const DIAS_PARA_REGISTRAR_GASTOS = 14;
 const MILISEGUNDOS_POR_DIA = 24 * 60 * 60 * 1000;
