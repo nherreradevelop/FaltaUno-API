@@ -1,0 +1,18 @@
+{
+  "paginasOriginal": 529,
+  "paginasActualizado": 529,
+  "titulos": {
+    "Testing CU23": 469,
+    "Testing CU24": 475,
+    "Testing CU25": 480,
+    "Testing CU26": 486,
+    "Testing CU27": 503
+  },
+  "paginasConCambios": [
+    469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493,
+    494, 495, 496, 497, 498, 499, 500, 501, 502, 503
+  ],
+  "paginasIdenticas": 494,
+  "cambiosFueraDeCU23a26": [],
+  "zonaCU27aCU36EnPaginaCompartidaIdentica": true
+}

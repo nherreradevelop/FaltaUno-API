@@ -1,0 +1,46 @@
+{
+  "esquema": "gastos_visual_7827c59b9f494946b83bf0cfefe5bc72",
+  "actividad": "33733a44-ad92-443a-9c6c-1b3ca777314d",
+  "usuario": "9e838d92-479e-4774-a5f0-3cb2f7eba438",
+  "otro": "c1a8eb8e-b44f-441b-ad85-8323f2efa062",
+  "participacion": "fe41a03b-579c-436a-905e-801387d0751e",
+  "participacionOtro": "24aa17b0-c51a-4b71-9887-62c8468cd9ac",
+  "invitado": "73076b02-f804-492b-816c-cf68c4cbe882",
+  "gastos": [
+    {
+      "id": "41730902-4a1a-4070-8b21-0385e428ca03",
+      "concepto": "Combustible de prueba",
+      "monto": "1200.00",
+      "version": 1,
+      "fecha_eliminacion": null
+    },
+    {
+      "id": "9e5d9ca8-0881-4eb6-85cd-473dbec716ac",
+      "concepto": "Merienda Android",
+      "monto": "180.02",
+      "version": 3,
+      "fecha_eliminacion": "2026-11-25T15:00:37.996Z"
+    }
+  ],
+  "pagos": [
+    {
+      "id": "9cfb2064-5d90-4bef-aba3-7b61a9284f14",
+      "monto": "450.00",
+      "version": 3,
+      "fecha_eliminacion": "2026-11-25T15:03:59.341Z"
+    },
+    {
+      "id": "f7784d4b-70ad-470b-9cc5-44b732124478",
+      "monto": "500.00",
+      "version": 1,
+      "fecha_eliminacion": null
+    },
+    {
+      "id": "4dd26d57-f7e4-4a46-8dbe-9968d16203e4",
+      "monto": "700.00",
+      "version": 1,
+      "fecha_eliminacion": null
+    }
+  ],
+  "balances": []
+}
