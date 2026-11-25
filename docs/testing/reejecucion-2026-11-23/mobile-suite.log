@@ -1,0 +1,160 @@
+(node:13640) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13640) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/comun/actualizacionesFinancieras.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Usuario\source\repos\FaltaUno-Mobile\package.json.
+▶ CU23–CU26: actualización financiera entre sesiones
+  ✔ refresca solo la actividad y el usuario correspondientes; agrupa una ráfaga (179.9297ms)
+  ✔ recupera cambios al conectar o volver a primer plano (347.6729ms)
+  ✔ un cambio durante una consulta provoca otra consulta al terminar, sin superponerlas (516.2978ms)
+  ✔ desmontar cancela consultas pendientes y elimina listeners del socket (172.1078ms)
+  ✔ ignora avisos malformados sin perder la suscripción (171.6895ms)
+  ✔ no vuelve a consultar cuando se desmonta durante un GET (341.3587ms)
+✔ CU23–CU26: actualización financiera entre sesiones (1735.6079ms)
+(node:31096) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:31096) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/api/actividades.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Usuario\source\repos\FaltaUno-Mobile\package.json.
+▶ CU09 H01 contrato del detalle
+  ✔ ER1: controla objeto vacío aunque el HTTP sea 200 (4.0996ms)
+  ✔ ER1: controla null aunque el HTTP sea 200 (0.1746ms)
+  ✔ ER1: controla arreglo aunque el HTTP sea 200 (0.108ms)
+  ✔ ER1: controla texto aunque el HTTP sea 200 (0.0943ms)
+  ✔ ER1: controla opciones ausentes aunque el HTTP sea 200 (0.2273ms)
+  ✔ ER1: controla opción desconocida aunque el HTTP sea 200 (0.1462ms)
+  ✔ ER1: controla opciones inválidas aunque el HTTP sea 200 (0.1768ms)
+  ✔ ER1: controla deporte incompleto aunque el HTTP sea 200 (1.3685ms)
+  ✔ ER1: controla fecha inválida aunque el HTTP sea 200 (0.692ms)
+  ✔ ER1: controla plazo inválido aunque el HTTP sea 200 (0.469ms)
+  ✔ ER1: controla destino incompleto aunque el HTTP sea 200 (0.1314ms)
+  ✔ ER1: controla coordenadas inválidas aunque el HTTP sea 200 (0.0823ms)
+  ✔ ER1: controla organizador incompleto aunque el HTTP sea 200 (0.0897ms)
+  ✔ ER1: controla pronóstico incompleto aunque el HTTP sea 200 (0.0793ms)
+  ✔ ER1: controla rol desconocido aunque el HTTP sea 200 (0.1787ms)
+  ✔ ER1: controla estado desconocido aunque el HTTP sea 200 (0.0665ms)
+  ✔ ER1: controla cupo inválido aunque el HTTP sea 200 (0.0661ms)
+  ✔ ER1: controla costo inválido aunque el HTTP sea 200 (0.0662ms)
+  ✔ FP: conserva los nulos permitidos y el contrato válido (0.1456ms)
+  ✔ ER1: permite recuperar el detalle con un reintento válido (0.1923ms)
+✔ CU09 H01 contrato del detalle (30.4354ms)
+(node:38868) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38868) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/comun/filtrosDeSesion.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Usuario\source\repos\FaltaUno-Mobile\package.json.
+▶ CU08 dashboard: filtros durante la sesión
+  ✔ la primera visita queda pendiente del perfil y los filtros aplicados sobreviven a una recarga (102.2981ms)
+  ✔ quitar todos los deportes es una selección válida y actualizar el usuario no la reemplaza (61.1906ms)
+  ✔ una sesión nueva del mismo usuario y otra cuenta no heredan filtros anteriores (56.5449ms)
+  ✔ cerrar sesión durante un guardado no restaura datos en el almacenamiento (31.6375ms)
+  ✔ CU37: cerrar sesión por el usuario durante un guardado de filtros no deja la sesión guardada (46.1636ms)
+  ✔ actualizar el usuario durante un guardado conserva filtros y notifica el usuario vigente (62.7488ms)
+  ✔ el vencimiento elimina los filtros junto con la sesión (46.8152ms)
+  ✔ descarta filtros corruptos o inválidos antes de volver a consultar la API (32.1602ms)
+✔ CU08 dashboard: filtros durante la sesión (441.294ms)
+▶ CU09 y CU10 H04 fechas en Uruguay
+  ✔ mantiene listado, detalle y plazo en Uruguay con el dispositivo en UTC (343.8417ms)
+  ✔ mantiene listado, detalle y plazo en Uruguay con el dispositivo en America/Montevideo (101.9938ms)
+  ✔ mantiene listado, detalle y plazo en Uruguay con el dispositivo en America/Los_Angeles (103.9872ms)
+  ✔ mantiene listado, detalle y plazo en Uruguay con el dispositivo en Asia/Tokyo (93.24ms)
+✔ CU09 y CU10 H04 fechas en Uruguay (644.0884ms)
+(node:16044) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16044) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/comun/fechaHoraActividad.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Usuario\source\repos\FaltaUno-Mobile\package.json.
+▶ CU10 validación de formularios independiente de Maps
+  ✔ E1/E4: informa todos los obligatorios aunque no haya ubicaciones seleccionadas (1.6577ms)
+  ✔ E2/E3/E4: conserva errores de fecha, cupo y dinero junto a los de ubicaciones (4.6905ms)
+  ✔ E4: sigue impidiendo crear si solo falta el destino válido (0.4609ms)
+  ✔ FP: admite crear sin origen y lo envía como null (0.2722ms)
+  ✔ E4: el destino provisional usa el identificador del servidor sin enviar coordenadas arbitrarias (0.563ms)
+  ✔ FP: genera el mismo contrato de alta con datos válidos (0.2925ms)
+  ✔ E3: toma el máximo recibido del servidor sin fijarlo en el cliente (0.4024ms)
+  ✔ E2: rechaza un instante igual al actual y una fecha imposible (0.4269ms)
+  ✔ E1: valida los nombres de invitados y el cupo ocupado (0.3344ms)
+  ✔ E4: exige un origen seleccionado cuando se tiene vehículo propio (0.4826ms)
+  ✔ E4: al desmarcar vehículo permite continuar sin origen (0.1615ms)
+  ✔ E1: exige lugares solo cuando se tiene vehículo propio (0.1575ms)
+✔ CU10 validación de formularios independiente de Maps (12.0414ms)
+▶ CU10 selectores nativos de fecha y hora
+  ✔ FP: interpreta el instante del selector como hora uruguaya (17.0034ms)
+  ✔ E2: respeta el día uruguayo cerca de medianoche y del cambio de año (19.927ms)
+  ✔ FP: reabre con los valores existentes sin depender de la zona del dispositivo (0.7076ms)
+  ✔ FP/E2: mantiene el contrato ISO y la validación de inicio futuro al seleccionar (0.5052ms)
+✔ CU10 selectores nativos de fecha y hora (38.4004ms)
+▶ CU10 selección con pin en mobile
+  ✔ FP/E4: acepta pin para el origen del conductor y conserva las coordenadas exactas (0.3089ms)
+  ✔ E4: rechaza pines incompletos, infinitos y fuera de rango (0.2622ms)
+  ✔ FP: conserva la selección por lugar y solo envía coordenadas para el pin (0.1377ms)
+  ✔ ER2: permite corregir el pin tras un fallo de Google previo a persistir (0.1116ms)
+✔ CU10 selección con pin en mobile (0.9634ms)
+▶ CU10 ubicación actual de mobile sin GPS real
+  ✔ FP: solicita permiso y una sola posición, conservando precisión y coordenadas (1.5023ms)
+  ✔ E4: denegar permiso no consulta servicios ni GPS (0.5312ms)
+  ✔ E4: informa servicios apagados sin consultar la posición (0.2844ms)
+  ✔ ER2: un fallo nativo conserva la alternativa manual y no expone datos internos (0.4703ms)
+  ✔ E4: rechaza coordenadas y precisión inválidas del dispositivo (0.4406ms)
+  ✔ A1: cancelar antes de iniciar no solicita permiso (0.2857ms)
+  ✔ A1: cancelar mientras se pide permiso impide iniciar el GPS tras una respuesta tardía (0.4185ms)
+  ✔ A1: ignora una posición que llega después de cerrar el mapa (0.3148ms)
+  ✔ ER2: limita la espera de GPS e ignora su respuesta tardía (17.294ms)
+✔ CU10 ubicación actual de mobile sin GPS real (22.0581ms)
+(node:960) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:960) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/comun/gastos.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Usuario\source\repos\FaltaUno-Mobile\package.json.
+▶ CU23–CU25 – formulario y reparto de gastos
+  ✔ CU23 FP/RN6: previsualiza reparto exacto, estable y con invitados (2.3175ms)
+  ✔ CU23 E1: valida campos y montos sin coma flotante (1.872ms)
+  ✔ CU23 E2: al quitar todas las personas, no permite guardar (0.1951ms)
+  ✔ CU24 FP/A1: carga los datos vigentes sin modificar el registro original (0.3346ms)
+  ✔ CU23 RN4: identifica explícitamente al invitado y su responsable (0.263ms)
+✔ CU23–CU25 – formulario y reparto de gastos (7.3002ms)
+(node:19900) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19900) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/notificaciones/notificaciones.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Usuario\source\repos\FaltaUno-Mobile\package.json.
+▶ CU40 – notificaciones en mobile
+  ✔ RN4: el indicador muestra hasta 9, "9+" desde 10 y nada con cero (10.1171ms)
+  ✔ RN9: el texto alternativo incluye la cantidad sin leer (0.3561ms)
+  ✔ FP paso 7: lleva a la actividad o al perfil, y a ningún lado si no tiene destino (0.2199ms)
+  ✔ A3: una nueva se agrega al principio y no se duplica si ya estaba (6.8792ms)
+  ✔ A5: marcar una como leída sin abrirla cambia solo esa y conserva el orden (0.4378ms)
+  ✔ FP paso 4: indica hace cuánto llegó cada notificación (24.7519ms)
+✔ CU40 – notificaciones en mobile (45.1967ms)
+(node:24956) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:24956) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/comun/pagos.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Usuario\source\repos\FaltaUno-Mobile\package.json.
+▶ CU26 – importes sugeridos y validación de pagos
+  ✔ FP4: propone el total exacto, incluido un centésimo (0.815ms)
+  ✔ RN3: permite total y parcial (0.1897ms)
+  ✔ E1: explica el máximo para monto vacío, cero, negativo, fraccionario o superior (0.3342ms)
+  ✔ E2: no habilita un pago si desaparece la deuda (0.1487ms)
+  ✔ CU24: usa el máximo del servidor sin inferirlo del balance neto (0.1954ms)
+✔ CU26 – importes sugeridos y validación de pagos (2.9689ms)
+(node:41700) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41700) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/navegacion/secciones.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Usuario\source\repos\FaltaUno-Mobile\package.json.
+▶ CU39 – menú de navegabilidad
+  ✔ RN2: las opciones y su orden son fijos (1.3392ms)
+  ✔ RN5: el indicador muestra hasta 9, "9+" desde 10 y nada con cero (0.2827ms)
+  ✔ FP paso 4: Explorar y Perfil no tienen indicador (0.1078ms)
+  ✔ RN7: la etiqueta accesible incluye el indicador (0.249ms)
+  ✔ RN7: sin novedades la etiqueta es solo el nombre de la sección (0.1127ms)
+✔ CU39 – menú de navegabilidad (3.9746ms)
+ℹ tests 88
+ℹ suites 12
+ℹ pass 88
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1945.1601

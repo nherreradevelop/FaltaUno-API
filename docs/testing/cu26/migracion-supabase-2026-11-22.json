@@ -1,0 +1,58 @@
+{
+  "estado": "confirmada",
+  "fechaUTC": "2026-11-23T01:44:29.071Z",
+  "destino": "Supabase configurado en api/.env",
+  "aplicadas": [
+    {
+      "archivo": "005_cu23_cu24_cu25_gastos.sql",
+      "sha256": "7a8285af6dec94fae3e104f193d9510ae9c8f43f1ebc2249263580fe4f191a9b"
+    },
+    {
+      "archivo": "006_notificaciones_gastos.sql",
+      "sha256": "2ac6d0cce4cdf8224d060e38240a7cba99bd3b4055af1928047f3f3aca37f205"
+    },
+    {
+      "archivo": "007_cu26_pagos.sql",
+      "sha256": "4968be21dc9836a0f0a2c60262b8e66f8603538375d4bdcf310b9ff5edd26b25"
+    }
+  ],
+  "tablas": [
+    {
+      "relname": "auditoria_gasto_pendiente",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "balance",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "gasto",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "notificacion_gasto_pendiente",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "operacion_gasto",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "operacion_pago",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "pago",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "pago_acumulado_archivado",
+      "relrowsecurity": true
+    },
+    {
+      "relname": "parte_gasto",
+      "relrowsecurity": true
+    }
+  ],
+  "permisosDirectosClientes": 0
+}

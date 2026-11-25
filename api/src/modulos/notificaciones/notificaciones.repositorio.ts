@@ -12,12 +12,15 @@ interface DocumentoNotificacion {
   destino: DestinoNotificacion | null;
   leida: boolean;
   creadaEn: Date;
+  claveEntrega?: string;
 }
 
 export interface DatosNotificacionNueva {
   tipo: TipoNotificacion;
   texto: string;
   destino: DestinoNotificacion | null;
+  /** Correlación interna opcional para reentregas durables; nunca se expone en el DTO. */
+  claveEntrega?: string;
 }
 
 function aNotificacion(documento: DocumentoNotificacion): Notificacion {
@@ -35,6 +38,7 @@ function aNotificacion(documento: DocumentoNotificacion): Notificacion {
 /** Notificaciones en MongoDB ↔ entidades. */
 export class NotificacionesRepositorio {
   private readonly coleccion: Collection<DocumentoNotificacion>;
+  private indiceEntrega?: Promise<string>;
 
   constructor(db: Db) {
     this.coleccion = db.collection<DocumentoNotificacion>(NOMBRE_COLECCION);
@@ -48,6 +52,7 @@ export class NotificacionesRepositorio {
    * - TTL: MongoDB borra solo las notificaciones con más días que la retención (RN8, RNF-16).
    */
   async crearIndices(diasDeRetencion: number): Promise<void> {
+    await this.asegurarIndiceEntrega();
     await this.coleccion.createIndexes([
       { key: { usuarioId: 1, creadaEn: -1, _id: -1 }, name: 'ix_usuario_creada_en' },
       { key: { usuarioId: 1, leida: 1 }, name: 'ix_usuario_leida' },
@@ -106,7 +111,34 @@ export class NotificacionesRepositorio {
       leida: false,
       creadaEn,
     };
+    if (datos.claveEntrega) {
+      await this.asegurarIndiceEntrega();
+      documento.claveEntrega = datos.claveEntrega;
+      const filtro = { usuarioId, claveEntrega: datos.claveEntrega };
+      try {
+        await this.coleccion.updateOne(filtro, { $setOnInsert: documento }, { upsert: true });
+      } catch (error) {
+        // Dos instancias pueden intentar la misma entrega: el índice único decide cuál inserta.
+        if ((error as { code?: number }).code !== 11000) throw error;
+      }
+      const guardada = await this.coleccion.findOne(filtro);
+      if (!guardada) throw new Error('No se pudo recuperar la notificación de la entrega confirmada.');
+      return aNotificacion(guardada);
+    }
     await this.coleccion.insertOne(documento);
     return aNotificacion(documento);
+  }
+
+  private async asegurarIndiceEntrega(): Promise<string> {
+    this.indiceEntrega ??= this.coleccion.createIndex(
+      { claveEntrega: 1 },
+      { name: 'uk_clave_entrega', unique: true, sparse: true },
+    );
+    try {
+      return await this.indiceEntrega;
+    } catch (error) {
+      this.indiceEntrega = undefined;
+      throw error;
+    }
   }
 }

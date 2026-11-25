@@ -1,0 +1,540 @@
+{
+  "fechaLocal": "2026-11-23",
+  "responsable": "Codex",
+  "api": {
+    "aprobadas": 331,
+    "fallidas": 0,
+    "suites": 27
+  },
+  "web": {
+    "aprobadas": 94,
+    "fallidas": 0
+  },
+  "mobile": {
+    "aprobadas": 88,
+    "fallidas": 0,
+    "plataformaVisual": "Android API 37",
+    "iOS": "No ejecutado"
+  },
+  "capturas": [
+    "android-01-pago-web-sincronizado.png",
+    "android-02-edicion-web-sincronizada.png",
+    "android-03-gasto-web-sincronizado.png",
+    "android-04-pago-sugerido.png",
+    "android-05-pago-cancelado.png",
+    "android-06-pago-invalido-teclado.png",
+    "android-07-pago-parcial.png",
+    "android-08-pago-editado.png",
+    "android-09-confirmacion-eliminar.png",
+    "android-10-eliminacion-cancelada.png",
+    "android-11-pago-eliminado.png",
+    "android-12-respuesta-perdida.png",
+    "android-13-pago-verificado.png",
+    "android-14-pago-total.png",
+    "android-15-gasto-validaciones.png",
+    "android-16-reparto-gasto.png",
+    "android-17-gasto-registrado.png",
+    "android-18-gasto-editado.png",
+    "android-19-confirmacion-gasto.png",
+    "android-20-baja-gasto-cancelada.png",
+    "android-21-gasto-eliminado.png",
+    "android-22-actividad-archivada.png",
+    "android-23-pago-archivado-solo-lectura.png",
+    "android-24-retencion-vencida.png",
+    "web-01-pago-sugerido.jpg",
+    "web-02-cancelacion.jpg",
+    "web-03-monto-invalido.jpg",
+    "web-04-pago-parcial.jpg",
+    "web-05-pago-editado.jpg",
+    "web-06-confirmacion-eliminar.jpg",
+    "web-07-pago-eliminado.jpg",
+    "web-08-respuesta-perdida.jpg",
+    "web-09-pago-verificado.jpg",
+    "web-10-gasto-validaciones.jpg",
+    "web-11-reparto-centesimos.jpg",
+    "web-12-gasto-registrado.jpg",
+    "web-13-gasto-editado.jpg",
+    "web-14-confirmacion-gasto.jpg",
+    "web-15-gasto-eliminado.jpg",
+    "web-16-pago-android-sincronizado.jpg",
+    "web-17-deuda-saldada.jpg",
+    "web-18-gasto-android-sincronizado.jpg",
+    "web-19-actividad-archivada.jpg",
+    "web-20-pago-archivado-solo-lectura.jpg",
+    "web-21-retencion-vencida.jpg"
+  ],
+  "suites": [
+    {
+      "archivo": "pagos.integracion.test.ts",
+      "casos": [
+        {
+          "nombre": "emite pagos solo tras confirmar cambios: omite reenvíos, ediciones iguales y rollbacks",
+          "estado": "passed"
+        },
+        {
+          "nombre": "Socket.IO real: CRUD de gastos y pagos refresca otra sesión del autor y del participante, sin avisar a ajenos",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU26 FP: sugiere deuda completa, registra parcial y luego total",
+          "estado": "passed"
+        },
+        {
+          "nombre": "P1: quien cobró también puede registrar; un tercero no",
+          "estado": "passed"
+        },
+        {
+          "nombre": "P2/RN4: solo pagador y receptor consultan historial/detalle, incluido el organizador ajeno al pago",
+          "estado": "passed"
+        },
+        {
+          "nombre": "A1: abrir opciones y cancelar no modifica pagos ni balance",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E1: importe 0 indica máximo y no modifica datos",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E1: importe -1 indica máximo y no modifica datos",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E1: importe 301 indica máximo y no modifica datos",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E1: importe 1.5 indica máximo y no modifica datos",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E1: importe \"100\" indica máximo y no modifica datos",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E1: importe \"no-numérico\" indica máximo y no modifica datos",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E1: importe null indica máximo y no modifica datos",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E1: monto ausente también informa máximo vigente",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E2: no acepta pagos sobre deuda saldada ni en dirección opuesta",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E3/RN6: estado archivada no admite escrituras",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E3/RN6: estado programada no admite escrituras",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E3/RN6: estado cancelada no admite escrituras",
+          "estado": "passed"
+        },
+        {
+          "nombre": "RN6/glosario: rechaza al cumplirse 14 días aunque CU32 todavía no haya archivado",
+          "estado": "passed"
+        },
+        {
+          "nombre": "RN1: exige sesión, participación, misma actividad y dos personas distintas",
+          "estado": "passed"
+        },
+        {
+          "nombre": "RN7: deuda de invitada se paga desde su responsable",
+          "estado": "passed"
+        },
+        {
+          "nombre": "RNF-23: mismo intento concurrente y respuesta perdida producen un único pago",
+          "estado": "passed"
+        },
+        {
+          "nombre": "RN2: pagos concurrentes distintos revalidan la deuda al adquirir el bloqueo",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU24 FP/A2: máximo excluye pago previo, permite aumentar, sin cambios conserva versión",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU24/CU25: solo autor; no permite cambiar personas; versión requiere reconfirmar",
+          "estado": "passed"
+        },
+        {
+          "nombre": "ER1: falla después de guardar revierte pago y balance, y permite reintentar",
+          "estado": "passed"
+        },
+        {
+          "nombre": "RN4: pagina con microsegundos sin duplicar ni omitir pagos; rechaza cursor inválido",
+          "estado": "passed"
+        },
+        {
+          "nombre": "RNF-16: seis meses calendario desde archivo, retiro atómico sin recrear deuda",
+          "estado": "passed"
+        },
+        {
+          "nombre": "RNF-16/ER1: fallo al retirar historial revierte el acumulado y admite nuevo intento",
+          "estado": "passed"
+        },
+        {
+          "nombre": "Protección Supabase: tablas financieras con RLS y sin grants de PUBLIC",
+          "estado": "passed"
+        },
+        {
+          "nombre": "RNF-23: recupera el mismo intento confirmado después del archivo, dentro de la retención",
+          "estado": "passed"
+        },
+        {
+          "nombre": "RNF-16: seis meses son calendario, no 180 días",
+          "estado": "passed"
+        },
+        {
+          "nombre": "RNF-16: retirar pagos eliminados no conserva su efecto financiero",
+          "estado": "passed"
+        }
+      ]
+    },
+    {
+      "archivo": "gastos.integracion.test.ts",
+      "casos": [
+        {
+          "nombre": "CU23 FP: registra gasto, reparto y balance como una operación",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 RN4/RN6 D3: invitada pagadora conserva identidad y crédito del responsable",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 E1/E2/RN5: rechaza {\"montoCentesimos\": 0} sin efectos parciales",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 E1/E2/RN5: rechaza {\"concepto\": \"\"} sin efectos parciales",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 E1/E2/RN5: rechaza {\"participantes\": [Array]} sin efectos parciales",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 E1/E2/RN5: rechaza {\"participantes\": [Array]} sin efectos parciales",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 E1/E2/RN5: rechaza {\"pagadorId\": \"p:f194f0ab-486a-4603-bd30-53fcc962e3f6\"} sin efectos parciales",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 E1/E2/RN5: rechaza {\"participantes\": [Array]} sin efectos parciales",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 E3: rechaza actividad programada",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 E3: rechaza actividad archivada",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 E3: rechaza actividad cancelada",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 RN2: rechaza exactamente al vencer los 14 días",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 RN1 / CU24 RN1: exige sesión, participación y autoría",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 ER1/RNF-10: dos solicitudes simultáneas y reenvío tras perder respuesta no duplican",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU24 FP: cambia pagador y reparto, retirando efectos de quienes salen",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU24 A2: confirmar sin cambios conserva versión y no recalcula",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU24: notifica solo al pagador y reparto NUEVOS, sin copiar al autor anterior",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 RN4: invita a notificar al responsable una sola vez, aunque también haya pagado",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 ER1: los reintentos no vuelven a reservar avisos de una versión confirmada",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU25: reserva avisos de eliminación para los involucrados del gasto eliminado",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23: un fallo al reservar avisos revierte el gasto, el balance y la intención",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU24 ER1: consulta y reenvío recuperan la edición confirmada incluso tras archivar",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU24 E1/E2/E4: valida edición y detecta un gasto ya eliminado",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU24 E4: dos ediciones de la misma versión no se sobrescriben",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU25 FP/RN6: elimina una vez y recupera la misma respuesta de reintento",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU25 E2: exige nueva confirmación si cambió el gasto",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU24/CU25 ER2: rollback de editar si falla el recálculo",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU24/CU25 ER2: rollback de eliminar si falla el recálculo",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 ER2: rollback del alta completa y auditoría del fallo",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU24/CU25: conserva el efecto de pagos anteriores, incluso si invierte la deuda",
+          "estado": "passed"
+        },
+        {
+          "nombre": "paginación: cursor con microsegundos y consultas de detalle/balances",
+          "estado": "passed"
+        }
+      ]
+    },
+    {
+      "archivo": "notificaciones.entrega.integracion.test.ts",
+      "casos": [
+        {
+          "nombre": "una entrega concurrente se persiste una sola vez y conserva el mismo ID en los eventos",
+          "estado": "passed"
+        },
+        {
+          "nombre": "reintentar después de marcar leída no resetea lectura ni fecha de creación",
+          "estado": "passed"
+        },
+        {
+          "nombre": "el flujo de Nico sin clave conserva avisos independientes y distintos destinatarios",
+          "estado": "passed"
+        }
+      ]
+    },
+    {
+      "archivo": "auditoria.observador.test.ts",
+      "casos": [
+        {
+          "nombre": "entrega por ID y marca el acuse después de MongoDB",
+          "estado": "passed"
+        },
+        {
+          "nombre": "fallo de MongoDB mantiene el evento pendiente para su reentrega",
+          "estado": "passed"
+        },
+        {
+          "nombre": "sin pendientes no escribe MongoDB",
+          "estado": "passed"
+        },
+        {
+          "nombre": "Observer aísla fallos y permite desuscripción",
+          "estado": "passed"
+        },
+        {
+          "nombre": "suscripciones: reintenta pendientes y libera intervalo y observador",
+          "estado": "passed"
+        },
+        {
+          "nombre": "un fallo de auditoría no impide los avisos; la limpieza detiene ambos observadores",
+          "estado": "passed"
+        }
+      ]
+    },
+    {
+      "archivo": "finanzas-tiempo-real.test.ts",
+      "casos": [
+        {
+          "nombre": "avisa a los participantes sin enviar importes, partes ni identificadores de pagos",
+          "estado": "passed"
+        },
+        {
+          "nombre": "suscribe ambos dominios y los desconecta al cerrar",
+          "estado": "passed"
+        }
+      ]
+    },
+    {
+      "archivo": "gasto.entidad.test.ts",
+      "casos": [
+        {
+          "nombre": "CU23 RN6: reparte el resto en orden estable, sin depender de la selección",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 RN4: mantiene identidad externa y participación responsable",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 E1: rechaza monto 0",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 E1: rechaza monto -1",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 E1: rechaza monto 1.5",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 E1: rechaza monto NaN",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 E1: rechaza monto Infinity",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 E1: rechaza monto 1000000000000",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU23 E2/RN5: rechaza selección vacía y duplicados",
+          "estado": "passed"
+        },
+        {
+          "nombre": "CU24 RN6 / CU25 RN4: compensa por pareja e ignora partes propias",
+          "estado": "passed"
+        },
+        {
+          "nombre": "RN6: no aplica simplificaciones entre tres personas",
+          "estado": "passed"
+        },
+        {
+          "nombre": "capacidad SQL: revierte un balance fuera de NUMERIC(12,2)",
+          "estado": "passed"
+        },
+        {
+          "nombre": "conversión exacta de 0.01",
+          "estado": "passed"
+        },
+        {
+          "nombre": "conversión exacta de 1234567890.99",
+          "estado": "passed"
+        },
+        {
+          "nombre": "conversión exacta de 9999999999.99",
+          "estado": "passed"
+        },
+        {
+          "nombre": "conversión exacta de 4.00",
+          "estado": "passed"
+        },
+        {
+          "nombre": "conversión exacta de 12.30",
+          "estado": "passed"
+        }
+      ]
+    },
+    {
+      "archivo": "gastos.notificaciones.test.ts",
+      "casos": [
+        {
+          "nombre": "paga un invitado: notifica al responsable y a los usuarios del reparto, sin duplicar roles",
+          "estado": "passed"
+        },
+        {
+          "nombre": "una parte cero no genera un cobro; el pagador sí recibe el aviso aunque no tenga parte",
+          "estado": "passed"
+        },
+        {
+          "nombre": "no inventa una dirección para una participación sin cuenta",
+          "estado": "passed"
+        },
+        {
+          "nombre": "entrega mediante CU40 y acusa solo las entregas confirmadas",
+          "estado": "passed"
+        },
+        {
+          "nombre": "una caída al guardar el acuse conserva las mismas claves de entrega para reintentar",
+          "estado": "passed"
+        },
+        {
+          "nombre": "no solapa dos drenajes del mismo proceso y no llama al módulo si la cola está vacía",
+          "estado": "passed"
+        },
+        {
+          "nombre": "mantiene el orden por usuario sin bloquear la entrega de otros usuarios",
+          "estado": "passed"
+        }
+      ]
+    },
+    {
+      "archivo": "pago.entidad.test.ts",
+      "casos": [
+        {
+          "nombre": "FP/RN3: permite total, parcial y un centésimo sin redondear",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E1: rechaza NaN e informa máximo",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E1: rechaza Infinity e informa máximo",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E1: rechaza 0 e informa máximo",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E1: rechaza -1 e informa máximo",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E1: rechaza 1.1 e informa máximo",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E1: rechaza 301 e informa máximo",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E1: rechaza 9007199254740991 e informa máximo",
+          "estado": "passed"
+        },
+        {
+          "nombre": "E2: rechaza deuda cero",
+          "estado": "passed"
+        }
+      ]
+    }
+  ]
+}

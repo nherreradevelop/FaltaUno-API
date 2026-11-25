@@ -1,3 +1,4 @@
+import { iniciarRetencionPagos } from './modulos/pagos/pagos-retencion';
 import { createServer } from 'node:http';
 import { crearApp } from './app';
 import { leerConfig } from './config/env';
@@ -13,7 +14,14 @@ import { ActividadesRepositorio } from './modulos/actividades/actividades.reposi
 import { SesionesRepositorio } from './modulos/auth/sesiones.repositorio';
 import { NotificacionesRepositorio } from './modulos/notificaciones/notificaciones.repositorio';
 import { DIAS_DE_RETENCION, NotificacionesServicio } from './modulos/notificaciones/notificaciones.servicio';
-import { conectarSuscripciones } from './suscripciones';
+import { Observable } from './comun/observable';
+import type { EventoGasto } from './modulos/gastos/gastos.eventos';
+import { AuditoriaObservador } from './modulos/auditoria/auditoria.observador';
+import { conectarSuscripciones, conectarSuscripcionesDeGastos, conectarActualizacionesFinancieras } from './suscripciones';
+import { GastosNotificacionesObservador } from './modulos/gastos/gastos-notificaciones.observador';
+import type { EventoPago } from './modulos/pagos/pagos.eventos';
+import { FinanzasTiempoRealObservador } from './modulos/gastos/finanzas-tiempo-real.observador';
+import { FinanzasTiempoRealRepositorio } from './modulos/gastos/finanzas-tiempo-real.repositorio';
 
 /** Arranque: lee la configuración, abre las conexiones, arma el contexto, conecta las suscripciones y levanta el servidor. */
 function iniciar(): void {
@@ -29,6 +37,12 @@ function iniciar(): void {
   redis.on('error', (error) => logger.error({ evento: 'redis_error', err: error }, 'Error de conexión con Redis'));
 
   const sesiones = new SesionesRepositorio(redis, config.SESION_DIAS);
+  const eventosGastos = new Observable<EventoGasto>((error, evento) =>
+    logger.error({ err: error, evento }, 'Falló un observador de gastos.'),
+  );
+  const eventosPagos = new Observable<EventoPago>((error, evento) =>
+    logger.error({ err: error, evento }, 'Falló un observador de pagos.'),
+  );
 
   // El servidor HTTP se crea antes que la app: Socket.IO (CU40 A3) comparte el puerto de la API
   const servidor = createServer();
@@ -42,6 +56,21 @@ function iniciar(): void {
       logger.error({ evento: 'mongo_indices', err: error }, 'No se pudieron crear los índices de notificaciones'),
     );
 
+  const notificaciones = new NotificacionesServicio(repositorioNotificaciones, tiempoReal);
+  const desconectarFinanzas = conectarActualizacionesFinancieras(
+    eventosGastos,
+    eventosPagos,
+    new FinanzasTiempoRealObservador(new FinanzasTiempoRealRepositorio(db), tiempoReal),
+  );
+  const desconectarGastos = conectarSuscripcionesDeGastos(
+    eventosGastos,
+    new AuditoriaObservador(db, mongo.db),
+    logger,
+    new GastosNotificacionesObservador(db, notificaciones),
+  );
+
+  const detenerRetencion = iniciarRetencionPagos(db, logger);
+
   const contexto: Contexto = {
     config,
     logger,
@@ -49,8 +78,10 @@ function iniciar(): void {
     redis,
     mongo: mongo.db,
     sesiones,
+    eventosGastos,
+    eventosPagos,
     verificadorGoogle: new VerificadorGoogle(config.GOOGLE_CLIENT_IDS, logger),
-    notificaciones: new NotificacionesServicio(repositorioNotificaciones, tiempoReal),
+    notificaciones,
     eventosActividades: crearEventosDeActividades(logger),
   };
   // Las suscripciones viven lo mismo que el proceso: no hace falta desuscribirlas al apagar
@@ -62,7 +93,16 @@ function iniciar(): void {
     notificador: contexto.notificaciones,
   });
 
+  servidor.once('close', detenerRetencion);
+  process.once('SIGTERM', detenerRetencion);
+  process.once('SIGINT', detenerRetencion);
   servidor.on('request', crearApp(contexto));
+  servidor.once('close', desconectarGastos);
+  servidor.once('close', desconectarFinanzas);
+  process.once('SIGTERM', desconectarFinanzas);
+  process.once('SIGINT', desconectarFinanzas);
+  process.once('SIGTERM', desconectarGastos);
+  process.once('SIGINT', desconectarGastos);
   servidor.listen(config.PUERTO, () => {
     logger.info(
       { evento: 'api_iniciada', puerto: config.PUERTO },

@@ -3,6 +3,9 @@
  * Pendiente: CU06, CU12, CU13, CU17, CU21, CU29, CU31, CU32, CU36 y CU38.
  */
 export const TIPOS_NOTIFICACION = [
+  'gastoRegistrado', // CU23 – Pagador y usuarios del reparto
+  'gastoEditado', // CU24 – Solo pagador y reparto nuevos, según alcance acordado
+  'gastoEliminado', // CU25 – Personas involucradas en el gasto eliminado
   'solicitudAmistadRecibida', // Pendiente: CU06 – Gestionar lista de amigos
   'solicitudAmistadAceptada', // Pendiente: CU06
   'invitacionRecibida', // Pendiente: CU17 – Invitar a una actividad

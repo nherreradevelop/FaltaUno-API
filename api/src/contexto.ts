@@ -7,6 +7,9 @@ import type { VerificadorGoogle } from './infra/oauth';
 import type { EventosDeActividades } from './modulos/actividades/actividades.eventos';
 import type { SesionesRepositorio } from './modulos/auth/sesiones.repositorio';
 import type { NotificacionesServicio } from './modulos/notificaciones/notificaciones.servicio';
+import type { Observable } from './comun/observable';
+import type { EventoGasto } from './modulos/gastos/gastos.eventos';
+import type { EventoPago } from './modulos/pagos/pagos.eventos';
 
 /** Dependencias compartidas que se crean una sola vez al arrancar y se pasan a cada módulo. */
 export interface Contexto {
@@ -19,6 +22,8 @@ export interface Contexto {
   verificadorGoogle: VerificadorGoogle;
   /** CU40: los casos de uso que notifican lo usan para crear y avisar notificaciones. */
   notificaciones: NotificacionesServicio;
+  eventosGastos?: Observable<EventoGasto>;
+  eventosPagos?: Observable<EventoPago>;
   /** Eventos de dominio de actividades (CU11). Sus observadores se conectan en suscripciones.ts. */
   eventosActividades: EventosDeActividades;
 }

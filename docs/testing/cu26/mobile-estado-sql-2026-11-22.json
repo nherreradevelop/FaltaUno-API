@@ -1,0 +1,10 @@
+{
+  "fechaUTC": "2026-11-23T01:59:02.864Z",
+  "entorno": "PostgreSQL local aislado",
+  "resultado": {
+    "pagos_activos": 2,
+    "pagos_eliminados": 1,
+    "total_pagado": "1200.00",
+    "deudas": 0
+  }
+}

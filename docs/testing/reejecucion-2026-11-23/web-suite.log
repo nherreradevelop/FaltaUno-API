@@ -1,0 +1,144 @@
+(node:2608) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▶ CU23–CU26: actualización financiera entre sesiones
+  ✔ refresca solo la actividad y el usuario correspondientes; agrupa una ráfaga (167.6103ms)
+  ✔ recupera cambios al conectar o volver a primer plano (340.0533ms)
+  ✔ un cambio durante una consulta provoca otra consulta al terminar, sin superponerlas (516.9241ms)
+  ✔ desmontar cancela consultas pendientes y elimina listeners del socket (171.5917ms)
+  ✔ ignora avisos malformados sin perder la suscripción (171.6077ms)
+  ✔ no vuelve a consultar cuando se desmonta durante un GET (341.0427ms)
+✔ CU23–CU26: actualización financiera entre sesiones (1710.6428ms)
+(node:25756) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▶ CU37 H03 cierre persistente
+  ✔ FP: marca antes de invalidar, retira autorización y limpia después de confirmar (136.3623ms)
+  ✔ H03: desconexión y borrado fallido no restauran la sesión al recargar; el reintento completa el cierre (20.3855ms)
+  ✔ usa la cookie si falla la marca local, incluso al reabrir sin sessionStorage (29.1502ms)
+  ✔ sessionStorage mantiene el bloqueo de la pestaña si también están bloqueadas las cookies (22.2953ms)
+  ✔ una lectura de marcas inaccesible impide restaurar, pero permite un nuevo login explícito (26.3689ms)
+  ✔ no promete persistencia si ningún medio acepta la marca (0.6258ms)
+  ✔ una sesión nueva sigue activa cuando termina tarde el cierre anterior (8.2593ms)
+  ✔ otra pestaña que ya tenía A deja de usarla y no vuelve a persistir sus filtros (17.5974ms)
+  ✔ no bloquea B al cargarla mientras A tiene un cierre pendiente (11.6657ms)
+  ✔ procesa el evento de cierre aunque la marca ya haya sido retirada por otra pestaña (6.2771ms)
+  ✔ un cierre tardío no borra B si el almacenamiento no permite comprobar qué token contiene (7.6281ms)
+  ✔ un perfil o guardado tardío no puede reabrir A después de cerrar (4.9383ms)
+  ✔ conserva la marca no confirmada aunque el token local se haya borrado (10.5606ms)
+  ✔ la marca no guarda el token y los reintentos son idempotentes (5.23ms)
+✔ CU37 H03 cierre persistente (309.5166ms)
+(node:16972) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▶ CU37 aislamiento de solicitudes tardías
+  ✔ envía el token capturado y un 401 viejo no cierra una autenticación nueva (20.2309ms)
+  ✔ un 401 de la sesión actual sí elimina su acceso (0.6367ms)
+✔ CU37 aislamiento de solicitudes tardías (21.7823ms)
+(node:42404) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▶ CU09 H01 contrato del detalle
+  ✔ ER1: controla objeto vacío aunque el HTTP sea 200 (2.1807ms)
+  ✔ ER1: controla null aunque el HTTP sea 200 (0.2101ms)
+  ✔ ER1: controla arreglo aunque el HTTP sea 200 (2.0822ms)
+  ✔ ER1: controla texto aunque el HTTP sea 200 (0.5994ms)
+  ✔ ER1: controla opciones ausentes aunque el HTTP sea 200 (0.4549ms)
+  ✔ ER1: controla opción desconocida aunque el HTTP sea 200 (0.2568ms)
+  ✔ ER1: controla opciones inválidas aunque el HTTP sea 200 (0.2955ms)
+  ✔ ER1: controla deporte incompleto aunque el HTTP sea 200 (0.8067ms)
+  ✔ ER1: controla fecha inválida aunque el HTTP sea 200 (0.4072ms)
+  ✔ ER1: controla plazo inválido aunque el HTTP sea 200 (2.3189ms)
+  ✔ ER1: controla destino incompleto aunque el HTTP sea 200 (0.1239ms)
+  ✔ ER1: controla coordenadas inválidas aunque el HTTP sea 200 (0.0701ms)
+  ✔ ER1: controla organizador incompleto aunque el HTTP sea 200 (0.069ms)
+  ✔ ER1: controla pronóstico incompleto aunque el HTTP sea 200 (0.0688ms)
+  ✔ ER1: controla rol desconocido aunque el HTTP sea 200 (0.1121ms)
+  ✔ ER1: controla estado desconocido aunque el HTTP sea 200 (0.0571ms)
+  ✔ ER1: controla cupo inválido aunque el HTTP sea 200 (0.3653ms)
+  ✔ ER1: controla costo inválido aunque el HTTP sea 200 (0.6049ms)
+  ✔ FP: conserva los nulos permitidos y el contrato válido (0.6649ms)
+  ✔ ER1: permite recuperar el detalle con un reintento válido (0.2453ms)
+✔ CU09 H01 contrato del detalle (14.445ms)
+(node:26144) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▶ CU08 dashboard: filtros durante la sesión
+  ✔ la primera visita queda pendiente del perfil y los filtros aplicados sobreviven a una recarga (31.2208ms)
+  ✔ quitar todos los deportes es una selección válida y actualizar el usuario no la reemplaza (3.8249ms)
+  ✔ una sesión nueva del mismo usuario y otra cuenta no heredan filtros anteriores (1.3132ms)
+  ✔ cerrar sesión durante un guardado no restaura datos en el almacenamiento (11.1559ms)
+  ✔ actualizar el usuario durante un guardado conserva filtros y notifica el usuario vigente (4.65ms)
+  ✔ el vencimiento elimina los filtros junto con la sesión (8.213ms)
+  ✔ descarta filtros corruptos o inválidos antes de volver a consultar la API (3.0116ms)
+✔ CU08 dashboard: filtros durante la sesión (67.3133ms)
+▶ CU09 y CU10 H04 fechas en Uruguay
+  ✔ mantiene listado, detalle y plazo en Uruguay con el dispositivo en UTC (326.6177ms)
+  ✔ mantiene listado, detalle y plazo en Uruguay con el dispositivo en America/Montevideo (107.8945ms)
+  ✔ mantiene listado, detalle y plazo en Uruguay con el dispositivo en America/Los_Angeles (102.7123ms)
+  ✔ mantiene listado, detalle y plazo en Uruguay con el dispositivo en Asia/Tokyo (90.695ms)
+✔ CU09 y CU10 H04 fechas en Uruguay (628.8473ms)
+(node:39848) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▶ CU10 validación de formularios independiente de Maps
+  ✔ E1/E4: informa todos los obligatorios aunque no haya ubicaciones seleccionadas (2.2ms)
+  ✔ E2/E3/E4: conserva errores de fecha, cupo y dinero junto a los de ubicaciones (4.3846ms)
+  ✔ E4: sigue impidiendo crear si solo falta el destino válido (0.3399ms)
+  ✔ FP: admite crear sin origen y lo envía como null (0.2799ms)
+  ✔ E4: el destino provisional usa el identificador del servidor sin enviar coordenadas arbitrarias (0.1608ms)
+  ✔ FP: genera el mismo contrato de alta con datos válidos (0.2638ms)
+  ✔ E3: toma el máximo recibido del servidor sin fijarlo en el cliente (0.7949ms)
+  ✔ E2: rechaza un instante igual al actual y una fecha imposible (0.9022ms)
+  ✔ E1: valida los nombres de invitados y el cupo ocupado (0.4765ms)
+  ✔ E4: exige un origen seleccionado cuando se tiene vehículo propio (0.5479ms)
+  ✔ E4: al desmarcar vehículo permite continuar sin origen (0.2119ms)
+  ✔ E1: exige lugares solo cuando se tiene vehículo propio (0.2457ms)
+✔ CU10 validación de formularios independiente de Maps (12.6608ms)
+▶ CU10 selección de ubicaciones con pin
+  ✔ FP: conserva las coordenadas del pin en el contrato y permite al conductor usarlo como origen (0.3276ms)
+  ✔ E4: rechaza pines incompletos o fuera de rango antes de enviar (0.2566ms)
+  ✔ FP: mantiene el contrato anterior cuando se busca por lugar (0.1112ms)
+✔ CU10 selección de ubicaciones con pin (0.833ms)
+✔ ER2: un fallo al validar el pin permite corregir el formulario porque no comenzó la persistencia (0.139ms)
+▶ CU10 usar la ubicación del dispositivo en el mapa
+  ✔ FP: devuelve el punto y su precisión mediante una única solicitud explícita (0.5241ms)
+  ✔ ER2: informa el error de geolocalización 1 sin inventar un punto (0.759ms)
+  ✔ ER2: informa el error de geolocalización 2 sin inventar un punto (0.1179ms)
+  ✔ ER2: informa el error de geolocalización 3 sin inventar un punto (0.0854ms)
+  ✔ ER2: permite volver al mapa cuando el navegador no soporta geolocalización (0.4117ms)
+  ✔ ER2: cancelar impide procesar una ubicación que llega después de salir o elegir otro pin (0.348ms)
+  ✔ ER2: no solicita permisos si la operación ya estaba cancelada (0.1757ms)
+  ✔ ER2: maneja bloqueos del navegador sin propagar sus detalles internos (0.1916ms)
+  ✔ ER2: rechaza coordenadas inválidas antes de centrar el mapa (0.154ms)
+✔ CU10 usar la ubicación del dispositivo en el mapa (3.0299ms)
+(node:42672) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▶ CU23–CU25 – formulario y reparto de gastos
+  ✔ CU23 FP/RN6: previsualiza reparto exacto, estable y con invitados (1.6438ms)
+  ✔ CU23 E1: valida campos y montos sin coma flotante (0.6312ms)
+  ✔ CU23 E2: al quitar todas las personas, no permite guardar (0.2531ms)
+  ✔ CU24 FP/A1: carga los datos vigentes sin modificar el registro original (0.2541ms)
+  ✔ CU23 RN4: identifica explícitamente al invitado y su responsable (0.2598ms)
+✔ CU23–CU25 – formulario y reparto de gastos (4.4197ms)
+(node:3144) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▶ CU40 – notificaciones en la web
+  ✔ RN4: el indicador muestra hasta 9, "9+" desde 10 y nada con cero (1.0883ms)
+  ✔ RN9: el texto alternativo incluye la cantidad sin leer (0.166ms)
+  ✔ FP paso 7: lleva a la actividad o al perfil, y a ningún lado si no tiene destino (0.1353ms)
+  ✔ A3: una nueva se agrega al principio y no se duplica si ya estaba (0.8864ms)
+  ✔ A5: marcar una como leída sin abrirla cambia solo esa y conserva el orden (0.2974ms)
+  ✔ FP paso 4: indica hace cuánto llegó cada notificación (30.2581ms)
+✔ CU40 – notificaciones en la web (34.4493ms)
+(node:23016) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▶ CU26 – importes sugeridos y validación de pagos
+  ✔ FP4: propone el total exacto, incluido un centésimo (0.9489ms)
+  ✔ RN3: permite total y parcial (0.1639ms)
+  ✔ E1: explica el máximo para monto vacío, cero, negativo, fraccionario o superior (0.2547ms)
+  ✔ E2: no habilita un pago si desaparece la deuda (0.7449ms)
+  ✔ CU24: usa el máximo del servidor sin inferirlo del balance neto (0.1941ms)
+✔ CU26 – importes sugeridos y validación de pagos (3.7774ms)
+ℹ tests 94
+ℹ suites 12
+ℹ pass 94
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1929.8754

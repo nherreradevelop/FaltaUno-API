@@ -63,6 +63,8 @@ export class NotificacionesServicio {
    * Pendiente: CU06, CU12, CU13, CU17, CU21, CU29, CU31, CU32, CU36 y CU38 (como observadores de sus eventos).
    */
   async notificar(usuarioId: string, datos: DatosNotificacionNueva): Promise<NotificacionDto> {
+    // Una reentrega durable conserva el mismo ID. Los clientes ya deduplican por ID;
+    // reenviar el evento permite recuperar el contador si se perdió el aviso en vivo anterior.
     const creada = await this.repositorio.crear(usuarioId, datos, this.reloj());
     const notificacion = aNotificacionDto(creada);
     const noLeidas = await this.repositorio.contarNoLeidas(usuarioId);

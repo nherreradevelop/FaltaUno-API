@@ -1,0 +1,221 @@
+{
+  "secciones": ["Testing CU23", "Testing CU24", "Testing CU25", "Testing CU26"],
+  "bloquesFueraDeAlcanceIdenticos": 6106,
+  "capturasReemplazadas": 30,
+  "partesModificadas": [
+    "word/document.xml",
+    "word/media/testing_cu23_cu26_20261123_01.jpg",
+    "word/media/testing_cu23_cu26_20261123_02.png",
+    "word/media/testing_cu23_cu26_20261123_03.jpg",
+    "word/media/testing_cu23_cu26_20261123_04.png",
+    "word/media/testing_cu23_cu26_20261123_05.jpg",
+    "word/media/testing_cu23_cu26_20261123_06.png",
+    "word/media/testing_cu23_cu26_20261123_07.jpg",
+    "word/media/testing_cu23_cu26_20261123_08.png",
+    "word/media/testing_cu23_cu26_20261123_09.jpg",
+    "word/media/testing_cu23_cu26_20261123_10.png",
+    "word/media/testing_cu23_cu26_20261123_11.jpg",
+    "word/media/testing_cu23_cu26_20261123_12.png",
+    "word/media/testing_cu23_cu26_20261123_13.jpg",
+    "word/media/testing_cu23_cu26_20261123_14.png",
+    "word/media/testing_cu23_cu26_20261123_15.jpg",
+    "word/media/testing_cu23_cu26_20261123_16.png",
+    "word/media/testing_cu23_cu26_20261123_17.jpg",
+    "word/media/testing_cu23_cu26_20261123_18.png",
+    "word/media/testing_cu23_cu26_20261123_19.jpg",
+    "word/media/testing_cu23_cu26_20261123_20.png",
+    "word/media/testing_cu23_cu26_20261123_21.jpg",
+    "word/media/testing_cu23_cu26_20261123_22.png",
+    "word/media/testing_cu23_cu26_20261123_23.jpg",
+    "word/media/testing_cu23_cu26_20261123_24.png",
+    "word/media/testing_cu23_cu26_20261123_25.jpg",
+    "word/media/testing_cu23_cu26_20261123_26.png",
+    "word/media/testing_cu23_cu26_20261123_27.jpg",
+    "word/media/testing_cu23_cu26_20261123_28.png",
+    "word/media/testing_cu23_cu26_20261123_29.jpg",
+    "word/media/testing_cu23_cu26_20261123_30.png"
+  ],
+  "imagenes": [
+    {
+      "grupo": "previsualizacion",
+      "lado": "web",
+      "original": "web-previsualizacion.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_01.jpg"
+    },
+    {
+      "grupo": "previsualizacion",
+      "lado": "android",
+      "original": "android-previsualizacion.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_02.png"
+    },
+    {
+      "grupo": "alta",
+      "lado": "web",
+      "original": "web-alta.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_03.jpg"
+    },
+    {
+      "grupo": "alta",
+      "lado": "android",
+      "original": "android-alta.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_04.png"
+    },
+    {
+      "grupo": "edicion",
+      "lado": "web",
+      "original": "web-edicion.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_05.jpg"
+    },
+    {
+      "grupo": "edicion",
+      "lado": "android",
+      "original": "android-edicion.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_06.png"
+    },
+    {
+      "grupo": "pago-edicion",
+      "lado": "web",
+      "original": "web-pago-edicion.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_07.jpg"
+    },
+    {
+      "grupo": "pago-edicion",
+      "lado": "android",
+      "original": "android-pago-edicion.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_08.png"
+    },
+    {
+      "grupo": "baja-confirmacion",
+      "lado": "web",
+      "original": "web-baja-confirmacion.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_09.jpg"
+    },
+    {
+      "grupo": "baja-confirmacion",
+      "lado": "android",
+      "original": "android-baja-confirmacion.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_10.png"
+    },
+    {
+      "grupo": "baja",
+      "lado": "web",
+      "original": "web-baja.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_11.jpg"
+    },
+    {
+      "grupo": "baja",
+      "lado": "android",
+      "original": "android-baja.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_12.png"
+    },
+    {
+      "grupo": "pago-baja-confirmacion",
+      "lado": "web",
+      "original": "web-pago-baja-confirmacion.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_13.jpg"
+    },
+    {
+      "grupo": "pago-baja-confirmacion",
+      "lado": "android",
+      "original": "android-pago-baja-confirmacion.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_14.png"
+    },
+    {
+      "grupo": "pago-parcial",
+      "lado": "web",
+      "original": "web-pago-parcial.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_15.jpg"
+    },
+    {
+      "grupo": "pago-parcial",
+      "lado": "android",
+      "original": "android-pago-parcial.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_16.png"
+    },
+    {
+      "grupo": "saldada",
+      "lado": "web",
+      "original": "web-saldada.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_17.jpg"
+    },
+    {
+      "grupo": "saldada",
+      "lado": "android",
+      "original": "android-saldada.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_18.png"
+    },
+    {
+      "grupo": "importe-invalido",
+      "lado": "web",
+      "original": "web-importe-invalido.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_19.jpg"
+    },
+    {
+      "grupo": "importe-invalido",
+      "lado": "android",
+      "original": "android-importe-invalido.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_20.png"
+    },
+    {
+      "grupo": "archivada",
+      "lado": "web",
+      "original": "web-archivada.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_21.jpg"
+    },
+    {
+      "grupo": "archivada",
+      "lado": "android",
+      "original": "android-archivada.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_22.png"
+    },
+    {
+      "grupo": "archivada-detalle",
+      "lado": "web",
+      "original": "web-archivada-detalle.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_23.jpg"
+    },
+    {
+      "grupo": "archivada-detalle",
+      "lado": "android",
+      "original": "android-archivada-detalle.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_24.png"
+    },
+    {
+      "grupo": "confirmacion-perdida",
+      "lado": "web",
+      "original": "web-confirmacion-perdida.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_25.jpg"
+    },
+    {
+      "grupo": "confirmacion-perdida",
+      "lado": "android",
+      "original": "android-confirmacion-perdida.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_26.png"
+    },
+    {
+      "grupo": "recuperacion",
+      "lado": "web",
+      "original": "web-recuperacion.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_27.jpg"
+    },
+    {
+      "grupo": "recuperacion",
+      "lado": "android",
+      "original": "android-recuperacion.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_28.png"
+    },
+    {
+      "grupo": "retencion",
+      "lado": "web",
+      "original": "web-retencion.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_29.jpg"
+    },
+    {
+      "grupo": "retencion",
+      "lado": "android",
+      "original": "android-retencion.jpg",
+      "parte": "word/media/testing_cu23_cu26_20261123_30.png"
+    }
+  ],
+  "sha256": "b709126aca5983896135e9c15cec9df3e81078570ab456aee719496167f1b076"
+}
