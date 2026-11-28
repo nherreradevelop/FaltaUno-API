@@ -11,6 +11,7 @@ import {
   esquemaCrearActividad,
   esquemaIdDeActividad,
   esquemaPaginaParticipantes,
+  esquemaPaginaIniciadas,
   esquemaUnirseActividad,
 } from './actividades.dto';
 import { actividadNoDisponible, type ActividadesServicio } from './actividades.servicio';
@@ -32,6 +33,12 @@ export class ActividadesControlador {
   buscar = async (req: Request, res: Response): Promise<void> => {
     const datos = validar(esquemaBusqueda, req.query);
     res.json(await this.servicio.buscar(req.usuarioId!, aFiltrosDeBusqueda(datos), datos.pagina));
+  };
+
+  /** GET /api/actividades/iniciadas?pagina=1 – CU42. La identidad procede exclusivamente de la sesión. */
+  obtenerIniciadas = async (req: Request, res: Response): Promise<void> => {
+    const { pagina } = validar(esquemaPaginaIniciadas, req.query);
+    res.json(await this.servicio.obtenerIniciadas(req.usuarioId!, pagina));
   };
 
   /** GET /api/actividades/departamentos – CU08 A5: opciones del filtro de ubicación. */

@@ -267,6 +267,11 @@ export const documentoSwagger = {
       ResultadoBusqueda: {
         type: 'object',
         properties: {
+          hayIniciadasHoy: {
+            type: 'boolean',
+            description:
+              'CU42 A4. Se incluye con grupo=otras. Hay una actividad iniciada cuyo inicio es hoy en America/Montevideo y de la que el usuario autenticado es miembro. No depende de filtros ni paginación.',
+          },
           actividades: { type: 'array', items: { $ref: '#/components/schemas/ActividadEncontrada' } },
           pagina: { type: 'integer', example: 1 },
           hayMas: { type: 'boolean' },

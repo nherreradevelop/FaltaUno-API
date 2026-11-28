@@ -164,7 +164,12 @@ export class Actividad {
     if (this.estado !== 'iniciada') {
       return null;
     }
-    return new Date(this.fechaHoraInicio.getTime() + DIAS_PARA_REGISTRAR_GASTOS * MILISEGUNDOS_POR_DIA);
+    return Actividad.calcularFechaLimiteGastos(this.fechaHoraInicio);
+  }
+
+  /** CU09 RN4 y CU42: el listado y el detalle usan el mismo plazo del dominio. */
+  static calcularFechaLimiteGastos(fechaHoraInicio: Date): Date {
+    return new Date(fechaHoraInicio.getTime() + DIAS_PARA_REGISTRAR_GASTOS * MILISEGUNDOS_POR_DIA);
   }
 
   /** CU09 FP paso 3. El organizador también tiene participación (CU10 paso 10), pero su rol es organizador. */

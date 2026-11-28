@@ -1,0 +1,34 @@
+
+> faltauno-api@0.1.0 test:cobertura
+> jest --coverage --runInBand --json --outputFile=../docs/testing/cu42-2026-11-27/api-resultados.json
+
+-------------------------------|---------|----------|---------|---------|-------------------
+File                           | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+-------------------------------|---------|----------|---------|---------|-------------------
+All files                      |   97.83 |    96.16 |   98.09 |   98.71 |
+ actividades                   |   97.47 |    98.21 |   96.55 |   97.27 |
+  actividades.servicio.ts      |     100 |      100 |     100 |     100 |
+  crear-actividad.servicio.ts  |   94.64 |    96.87 |   91.66 |   93.61 | 66-67,121
+  unirse-actividad.servicio.ts |     100 |      100 |     100 |     100 |
+ auth                          |     100 |    93.33 |     100 |     100 |
+  auth.servicio.ts             |     100 |    93.33 |     100 |     100 | 36,167
+ deportes                      |     100 |      100 |     100 |     100 |
+  deportes.servicio.ts         |     100 |      100 |     100 |     100 |
+ gastos                        |   95.57 |    94.66 |     100 |   97.95 |
+  gastos.servicio.ts           |   95.57 |    94.66 |     100 |   97.95 | 50,204
+ notificaciones                |   96.55 |    66.66 |    87.5 |     100 |
+  notificaciones.servicio.ts   |   96.55 |    66.66 |    87.5 |     100 | 27
+ pagos                         |   98.27 |    98.01 |     100 |      99 |
+  pagos.servicio.ts            |   98.27 |    98.01 |     100 |      99 | 172
+ usuarios                      |     100 |      100 |     100 |     100 |
+  usuarios.servicio.ts         |     100 |      100 |     100 |     100 |
+ valoraciones                  |     100 |    91.66 |     100 |     100 |
+  valoraciones.servicio.ts     |     100 |    91.66 |     100 |     100 | 77
+-------------------------------|---------|----------|---------|---------|-------------------
+
+Test Suites: 1 skipped, 35 passed, 35 of 36 total
+Tests:       3 skipped, 429 passed, 432 total
+Snapshots:   0 total
+Time:        19.715 s
+Ran all test suites.
+Test results written to: ..\docs\testing\cu42-2026-11-27\api-resultados.json

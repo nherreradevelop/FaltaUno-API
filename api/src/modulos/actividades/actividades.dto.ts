@@ -19,6 +19,30 @@ import type {
 /** CU08: la búsqueda se muestra de a 10 actividades. */
 export const TAMANO_PAGINA_BUSQUEDA = 10;
 
+/** CU42 RN4: tamaño fijo; permite recorrer todas las actividades con “Ver más”. */
+export const TAMANO_PAGINA_INICIADAS = 10;
+
+export const esquemaPaginaIniciadas = z.object({
+  pagina: z.coerce.number().int().min(1).max(Number.MAX_SAFE_INTEGER).default(1),
+});
+
+export interface ActividadIniciadaDto {
+  id: string;
+  nombre: string;
+  deporte: { id: number; nombre: string };
+  estado: 'iniciada';
+  fechaHoraInicio: string;
+  fechaLimiteGastos: string;
+  departamento: string;
+  esOrganizador: boolean;
+}
+
+export interface ResultadoDeIniciadasDto {
+  actividades: ActividadIniciadaDto[];
+  pagina: number;
+  hayMas: boolean;
+}
+
 /** CU08 A5: opciones del filtro de ubicación. El departamento de cada actividad se calcula a partir del mapa (CU10). */
 export const DEPARTAMENTOS = [
   'Artigas',
@@ -147,6 +171,8 @@ export interface ActividadEncontradaDto {
 }
 
 export interface ResultadoDeBusquedaDto {
+  /** CU42 A4: solo se incluye para grupo=otras; consulta todas las participaciones del usuario, al margen de los filtros. */
+  hayIniciadasHoy?: boolean;
   actividades: ActividadEncontradaDto[];
   pagina: number;
   hayMas: boolean;

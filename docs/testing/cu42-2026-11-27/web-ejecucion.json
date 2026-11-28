@@ -1,0 +1,57 @@
+{
+  "fecha": "2026-11-27",
+  "entorno": "http://127.0.0.1:3002",
+  "datos": "PostgreSQL faltauno_test y esquema temporal; fallas controladas por el servidor de evidencia.",
+  "casos": [
+    {
+      "id": "CP-CU42-01",
+      "estado": "aprobado",
+      "obtenido": "Diez actividades propias, orden descendente, una etiqueta verde es hoy! y plazo de gastos visible."
+    },
+    {
+      "id": "CP-CU42-04",
+      "estado": "aprobado",
+      "obtenido": "Ver detalle abre CU09 de la actividad seleccionada."
+    },
+    {
+      "id": "CP-CU42-03",
+      "estado": "aprobado",
+      "obtenido": "El banner usa el texto solicitado, muestra condición real desde PostgreSQL y enlaza a Mis actividades; 390 px sin desborde."
+    },
+    {
+      "id": "CP-CU42-02",
+      "estado": "aprobado",
+      "obtenido": "Ver más agrega dos actividades, sin duplicados, y retira el botón al terminar."
+    },
+    {
+      "id": "CP-CU42-11",
+      "estado": "aprobado",
+      "obtenido": "Actualizar retira las actividades archivadas en SQL y, al restaurar el escenario, vuelve a cargar las diez iniciadas."
+    },
+    {
+      "id": "CP-CU42-06",
+      "estado": "aprobado",
+      "obtenido": "503 inicial muestra mensaje recuperable; reintentar recupera las diez tarjetas."
+    },
+    {
+      "id": "CP-CU42-07",
+      "estado": "aprobado",
+      "obtenido": "La falla en página dos conserva diez registros y el reintento completa doce sin duplicar."
+    },
+    {
+      "id": "CP-CU42-08",
+      "estado": "aprobado",
+      "obtenido": "HTTP 200 con datos incompletos se rechaza y muestra Reintentar."
+    },
+    {
+      "id": "CP-CU42-05",
+      "estado": "aprobado",
+      "obtenido": "Vacío válido con enlace Explorar; actividades de otros estados y ajenas no habilitan el banner."
+    },
+    {
+      "id": "CP-CU42-09",
+      "estado": "aprobado",
+      "obtenido": "401 cierra el acceso privado y lleva a inicio de sesión."
+    }
+  ]
+}

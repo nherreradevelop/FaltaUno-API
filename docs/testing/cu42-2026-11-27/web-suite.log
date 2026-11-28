@@ -1,0 +1,892 @@
+
+> faltauno-web@0.1.0 test
+> node --experimental-transform-types --test test/actualizacionesFinancieras.test.mjs test/pagos.test.mjs test/gastos.test.mjs test/formularioActividad.test.mjs test/filtrosDeSesion.test.mjs test/formato.test.mjs test/detalleActividad.test.mjs test/cierreSesion.test.mjs test/clienteSesion.test.mjs test/notificaciones.test.mjs test/valoraciones.test.mjs test/formularioUnirse.test.mjs test/puntosDePartida.test.mjs test/actividadesIniciadas.test.mjs
+
+TAP version 13
+# (node:32032) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: CU42 – Actividades iniciadas
+    # Subtest: FP y E1: acepta actividades válidas y una lista vacía
+    ok 1 - FP y E1: acepta actividades válidas y una lista vacía
+      ---
+      duration_ms: 26.7173
+      type: 'test'
+      ...
+    # Subtest: ER3: rechaza fechas, estado, página y datos incompletos
+    ok 2 - ER3: rechaza fechas, estado, página y datos incompletos
+      ---
+      duration_ms: 0.6525
+      type: 'test'
+      ...
+    # Subtest: ER3: rechaza duplicados y páginas de más de diez registros
+    ok 3 - ER3: rechaza duplicados y páginas de más de diez registros
+      ---
+      duration_ms: 0.3058
+      type: 'test'
+      ...
+    # Subtest: A1: agrega páginas sin duplicar registros y conserva actualizaciones recibidas
+    ok 4 - A1: agrega páginas sin duplicar registros y conserva actualizaciones recibidas
+      ---
+      duration_ms: 20.4116
+      type: 'test'
+      ...
+    1..4
+ok 1 - CU42 – Actividades iniciadas
+  ---
+  duration_ms: 69.0021
+  type: 'suite'
+  ...
+# Subtest: CU42 – etiqueta es hoy!
+    # Subtest: usa el día de Uruguay y sus dos límites, aunque UTC ya cambió de día
+    ok 1 - usa el día de Uruguay y sus dos límites, aunque UTC ya cambió de día
+      ---
+      duration_ms: 445.398
+      type: 'test'
+      ...
+    # Subtest: no marca fechas inválidas, de ayer o de mañana
+    ok 2 - no marca fechas inválidas, de ayer o de mañana
+      ---
+      duration_ms: 0.8271
+      type: 'test'
+      ...
+    1..2
+ok 2 - CU42 – etiqueta es hoy!
+  ---
+  duration_ms: 467.2766
+  type: 'suite'
+  ...
+# (node:35148) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: CU23–CU26: actualización financiera entre sesiones
+    # Subtest: refresca solo la actividad y el usuario correspondientes; agrupa una ráfaga
+    ok 1 - refresca solo la actividad y el usuario correspondientes; agrupa una ráfaga
+      ---
+      duration_ms: 205.4434
+      type: 'test'
+      ...
+    # Subtest: recupera cambios al conectar o volver a primer plano
+    ok 2 - recupera cambios al conectar o volver a primer plano
+      ---
+      duration_ms: 362.6441
+      type: 'test'
+      ...
+    # Subtest: un cambio durante una consulta provoca otra consulta al terminar, sin superponerlas
+    ok 3 - un cambio durante una consulta provoca otra consulta al terminar, sin superponerlas
+      ---
+      duration_ms: 516.3327
+      type: 'test'
+      ...
+    # Subtest: desmontar cancela consultas pendientes y elimina listeners del socket
+    ok 4 - desmontar cancela consultas pendientes y elimina listeners del socket
+      ---
+      duration_ms: 171.8292
+      type: 'test'
+      ...
+    # Subtest: ignora avisos malformados sin perder la suscripción
+    ok 5 - ignora avisos malformados sin perder la suscripción
+      ---
+      duration_ms: 168.5539
+      type: 'test'
+      ...
+    # Subtest: no vuelve a consultar cuando se desmonta durante un GET
+    ok 6 - no vuelve a consultar cuando se desmonta durante un GET
+      ---
+      duration_ms: 343.1081
+      type: 'test'
+      ...
+    1..6
+ok 3 - CU23–CU26: actualización financiera entre sesiones
+  ---
+  duration_ms: 1789.5384
+  type: 'suite'
+  ...
+# (node:33668) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: CU37 H03 cierre persistente
+    # Subtest: FP: marca antes de invalidar, retira autorización y limpia después de confirmar
+    ok 1 - FP: marca antes de invalidar, retira autorización y limpia después de confirmar
+      ---
+      duration_ms: 867.3698
+      type: 'test'
+      ...
+    # Subtest: H03: desconexión y borrado fallido no restauran la sesión al recargar; el reintento completa el cierre
+    ok 2 - H03: desconexión y borrado fallido no restauran la sesión al recargar; el reintento completa el cierre
+      ---
+      duration_ms: 244.1987
+      type: 'test'
+      ...
+    # Subtest: usa la cookie si falla la marca local, incluso al reabrir sin sessionStorage
+    ok 3 - usa la cookie si falla la marca local, incluso al reabrir sin sessionStorage
+      ---
+      duration_ms: 98.0054
+      type: 'test'
+      ...
+    # Subtest: sessionStorage mantiene el bloqueo de la pestaña si también están bloqueadas las cookies
+    ok 4 - sessionStorage mantiene el bloqueo de la pestaña si también están bloqueadas las cookies
+      ---
+      duration_ms: 82.5616
+      type: 'test'
+      ...
+    # Subtest: una lectura de marcas inaccesible impide restaurar, pero permite un nuevo login explícito
+    ok 5 - una lectura de marcas inaccesible impide restaurar, pero permite un nuevo login explícito
+      ---
+      duration_ms: 82.2946
+      type: 'test'
+      ...
+    # Subtest: no promete persistencia si ningún medio acepta la marca
+    ok 6 - no promete persistencia si ningún medio acepta la marca
+      ---
+      duration_ms: 6.0775
+      type: 'test'
+      ...
+    # Subtest: una sesión nueva sigue activa cuando termina tarde el cierre anterior
+    ok 7 - una sesión nueva sigue activa cuando termina tarde el cierre anterior
+      ---
+      duration_ms: 31.0006
+      type: 'test'
+      ...
+    # Subtest: otra pestaña que ya tenía A deja de usarla y no vuelve a persistir sus filtros
+    ok 8 - otra pestaña que ya tenía A deja de usarla y no vuelve a persistir sus filtros
+      ---
+      duration_ms: 48.4966
+      type: 'test'
+      ...
+    # Subtest: no bloquea B al cargarla mientras A tiene un cierre pendiente
+    ok 9 - no bloquea B al cargarla mientras A tiene un cierre pendiente
+      ---
+      duration_ms: 45.5559
+      type: 'test'
+      ...
+    # Subtest: procesa el evento de cierre aunque la marca ya haya sido retirada por otra pestaña
+    ok 10 - procesa el evento de cierre aunque la marca ya haya sido retirada por otra pestaña
+      ---
+      duration_ms: 30.2119
+      type: 'test'
+      ...
+    # Subtest: un cierre tardío no borra B si el almacenamiento no permite comprobar qué token contiene
+    ok 11 - un cierre tardío no borra B si el almacenamiento no permite comprobar qué token contiene
+      ---
+      duration_ms: 30.7556
+      type: 'test'
+      ...
+    # Subtest: un perfil o guardado tardío no puede reabrir A después de cerrar
+    ok 12 - un perfil o guardado tardío no puede reabrir A después de cerrar
+      ---
+      duration_ms: 23.5116
+      type: 'test'
+      ...
+    # Subtest: conserva la marca no confirmada aunque el token local se haya borrado
+    ok 13 - conserva la marca no confirmada aunque el token local se haya borrado
+      ---
+      duration_ms: 48.4067
+      type: 'test'
+      ...
+    # Subtest: la marca no guarda el token y los reintentos son idempotentes
+    ok 14 - la marca no guarda el token y los reintentos son idempotentes
+      ---
+      duration_ms: 21.4638
+      type: 'test'
+      ...
+    1..14
+ok 4 - CU37 H03 cierre persistente
+  ---
+  duration_ms: 1666.6856
+  type: 'suite'
+  ...
+# (node:33600) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: CU37 aislamiento de solicitudes tardías
+    # Subtest: envía el token capturado y un 401 viejo no cierra una autenticación nueva
+    ok 1 - envía el token capturado y un 401 viejo no cierra una autenticación nueva
+      ---
+      duration_ms: 104.6181
+      type: 'test'
+      ...
+    # Subtest: un 401 de la sesión actual sí elimina su acceso
+    ok 2 - un 401 de la sesión actual sí elimina su acceso
+      ---
+      duration_ms: 2.2066
+      type: 'test'
+      ...
+    1..2
+ok 5 - CU37 aislamiento de solicitudes tardías
+  ---
+  duration_ms: 114.2342
+  type: 'suite'
+  ...
+# (node:38844) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: CU09 H01 contrato del detalle
+    # Subtest: ER1: controla objeto vacío aunque el HTTP sea 200
+    ok 1 - ER1: controla objeto vacío aunque el HTTP sea 200
+      ---
+      duration_ms: 17.268
+      type: 'test'
+      ...
+    # Subtest: ER1: controla null aunque el HTTP sea 200
+    ok 2 - ER1: controla null aunque el HTTP sea 200
+      ---
+      duration_ms: 0.4882
+      type: 'test'
+      ...
+    # Subtest: ER1: controla arreglo aunque el HTTP sea 200
+    ok 3 - ER1: controla arreglo aunque el HTTP sea 200
+      ---
+      duration_ms: 16.501
+      type: 'test'
+      ...
+    # Subtest: ER1: controla texto aunque el HTTP sea 200
+    ok 4 - ER1: controla texto aunque el HTTP sea 200
+      ---
+      duration_ms: 0.1545
+      type: 'test'
+      ...
+    # Subtest: ER1: controla opciones ausentes aunque el HTTP sea 200
+    ok 5 - ER1: controla opciones ausentes aunque el HTTP sea 200
+      ---
+      duration_ms: 0.8786
+      type: 'test'
+      ...
+    # Subtest: ER1: controla opción desconocida aunque el HTTP sea 200
+    ok 6 - ER1: controla opción desconocida aunque el HTTP sea 200
+      ---
+      duration_ms: 14.4885
+      type: 'test'
+      ...
+    # Subtest: ER1: controla opciones inválidas aunque el HTTP sea 200
+    ok 7 - ER1: controla opciones inválidas aunque el HTTP sea 200
+      ---
+      duration_ms: 0.8125
+      type: 'test'
+      ...
+    # Subtest: ER1: controla deporte incompleto aunque el HTTP sea 200
+    ok 8 - ER1: controla deporte incompleto aunque el HTTP sea 200
+      ---
+      duration_ms: 0.6029
+      type: 'test'
+      ...
+    # Subtest: ER1: controla fecha inválida aunque el HTTP sea 200
+    ok 9 - ER1: controla fecha inválida aunque el HTTP sea 200
+      ---
+      duration_ms: 16.0647
+      type: 'test'
+      ...
+    # Subtest: ER1: controla plazo inválido aunque el HTTP sea 200
+    ok 10 - ER1: controla plazo inválido aunque el HTTP sea 200
+      ---
+      duration_ms: 2.6095
+      type: 'test'
+      ...
+    # Subtest: ER1: controla destino incompleto aunque el HTTP sea 200
+    ok 11 - ER1: controla destino incompleto aunque el HTTP sea 200
+      ---
+      duration_ms: 22.3878
+      type: 'test'
+      ...
+    # Subtest: ER1: controla coordenadas inválidas aunque el HTTP sea 200
+    ok 12 - ER1: controla coordenadas inválidas aunque el HTTP sea 200
+      ---
+      duration_ms: 0.2684
+      type: 'test'
+      ...
+    # Subtest: ER1: controla organizador incompleto aunque el HTTP sea 200
+    ok 13 - ER1: controla organizador incompleto aunque el HTTP sea 200
+      ---
+      duration_ms: 0.1692
+      type: 'test'
+      ...
+    # Subtest: ER1: controla pronóstico incompleto aunque el HTTP sea 200
+    ok 14 - ER1: controla pronóstico incompleto aunque el HTTP sea 200
+      ---
+      duration_ms: 0.1186
+      type: 'test'
+      ...
+    # Subtest: ER1: controla rol desconocido aunque el HTTP sea 200
+    ok 15 - ER1: controla rol desconocido aunque el HTTP sea 200
+      ---
+      duration_ms: 0.1801
+      type: 'test'
+      ...
+    # Subtest: ER1: controla estado desconocido aunque el HTTP sea 200
+    ok 16 - ER1: controla estado desconocido aunque el HTTP sea 200
+      ---
+      duration_ms: 0.1729
+      type: 'test'
+      ...
+    # Subtest: ER1: controla cupo inválido aunque el HTTP sea 200
+    ok 17 - ER1: controla cupo inválido aunque el HTTP sea 200
+      ---
+      duration_ms: 42.4957
+      type: 'test'
+      ...
+    # Subtest: ER1: controla costo inválido aunque el HTTP sea 200
+    ok 18 - ER1: controla costo inválido aunque el HTTP sea 200
+      ---
+      duration_ms: 0.2609
+      type: 'test'
+      ...
+    # Subtest: FP: conserva los nulos permitidos y el contrato válido
+    ok 19 - FP: conserva los nulos permitidos y el contrato válido
+      ---
+      duration_ms: 0.2427
+      type: 'test'
+      ...
+    # Subtest: ER1: permite recuperar el detalle con un reintento válido
+    ok 20 - ER1: permite recuperar el detalle con un reintento válido
+      ---
+      duration_ms: 2.56
+      type: 'test'
+      ...
+    1..20
+ok 6 - CU09 H01 contrato del detalle
+  ---
+  duration_ms: 181.482
+  type: 'suite'
+  ...
+# (node:37124) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: CU08 dashboard: filtros durante la sesión
+    # Subtest: la primera visita queda pendiente del perfil y los filtros aplicados sobreviven a una recarga
+    ok 1 - la primera visita queda pendiente del perfil y los filtros aplicados sobreviven a una recarga
+      ---
+      duration_ms: 424.5549
+      type: 'test'
+      ...
+    # Subtest: quitar todos los deportes es una selección válida y actualizar el usuario no la reemplaza
+    ok 2 - quitar todos los deportes es una selección válida y actualizar el usuario no la reemplaza
+      ---
+      duration_ms: 22.9039
+      type: 'test'
+      ...
+    # Subtest: una sesión nueva del mismo usuario y otra cuenta no heredan filtros anteriores
+    ok 3 - una sesión nueva del mismo usuario y otra cuenta no heredan filtros anteriores
+      ---
+      duration_ms: 21.3214
+      type: 'test'
+      ...
+    # Subtest: cerrar sesión durante un guardado no restaura datos en el almacenamiento
+    ok 4 - cerrar sesión durante un guardado no restaura datos en el almacenamiento
+      ---
+      duration_ms: 12.8926
+      type: 'test'
+      ...
+    # Subtest: actualizar el usuario durante un guardado conserva filtros y notifica el usuario vigente
+    ok 5 - actualizar el usuario durante un guardado conserva filtros y notifica el usuario vigente
+      ---
+      duration_ms: 11.6222
+      type: 'test'
+      ...
+    # Subtest: el vencimiento elimina los filtros junto con la sesión
+    ok 6 - el vencimiento elimina los filtros junto con la sesión
+      ---
+      duration_ms: 9.7255
+      type: 'test'
+      ...
+    # Subtest: descarta filtros corruptos o inválidos antes de volver a consultar la API
+    ok 7 - descarta filtros corruptos o inválidos antes de volver a consultar la API
+      ---
+      duration_ms: 7.415
+      type: 'test'
+      ...
+    1..7
+ok 7 - CU08 dashboard: filtros durante la sesión
+  ---
+  duration_ms: 520.3093
+  type: 'suite'
+  ...
+# Subtest: CU09 y CU10 H04 fechas en Uruguay
+    # Subtest: mantiene listado, detalle y plazo en Uruguay con el dispositivo en UTC
+    ok 1 - mantiene listado, detalle y plazo en Uruguay con el dispositivo en UTC
+      ---
+      duration_ms: 1946.9034
+      type: 'test'
+      ...
+    # Subtest: mantiene listado, detalle y plazo en Uruguay con el dispositivo en America/Montevideo
+    ok 2 - mantiene listado, detalle y plazo en Uruguay con el dispositivo en America/Montevideo
+      ---
+      duration_ms: 428.3196
+      type: 'test'
+      ...
+    # Subtest: mantiene listado, detalle y plazo en Uruguay con el dispositivo en America/Los_Angeles
+    ok 3 - mantiene listado, detalle y plazo en Uruguay con el dispositivo en America/Los_Angeles
+      ---
+      duration_ms: 463.7248
+      type: 'test'
+      ...
+    # Subtest: mantiene listado, detalle y plazo en Uruguay con el dispositivo en Asia/Tokyo
+    ok 4 - mantiene listado, detalle y plazo en Uruguay con el dispositivo en Asia/Tokyo
+      ---
+      duration_ms: 461.479
+      type: 'test'
+      ...
+    1..4
+ok 8 - CU09 y CU10 H04 fechas en Uruguay
+  ---
+  duration_ms: 3324.0152
+  type: 'suite'
+  ...
+# (node:21328) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: CU10 validación de formularios independiente de Maps
+    # Subtest: E1/E4: informa todos los obligatorios aunque no haya ubicaciones seleccionadas
+    ok 1 - E1/E4: informa todos los obligatorios aunque no haya ubicaciones seleccionadas
+      ---
+      duration_ms: 35.8253
+      type: 'test'
+      ...
+    # Subtest: E2/E3/E4: conserva errores de fecha, cupo y dinero junto a los de ubicaciones
+    ok 2 - E2/E3/E4: conserva errores de fecha, cupo y dinero junto a los de ubicaciones
+      ---
+      duration_ms: 74.4669
+      type: 'test'
+      ...
+    # Subtest: E4: sigue impidiendo crear si solo falta el destino válido
+    ok 3 - E4: sigue impidiendo crear si solo falta el destino válido
+      ---
+      duration_ms: 0.3999
+      type: 'test'
+      ...
+    # Subtest: FP: admite crear sin origen y lo envía como null
+    ok 4 - FP: admite crear sin origen y lo envía como null
+      ---
+      duration_ms: 0.4348
+      type: 'test'
+      ...
+    # Subtest: E4: el destino provisional usa el identificador del servidor sin enviar coordenadas arbitrarias
+    ok 5 - E4: el destino provisional usa el identificador del servidor sin enviar coordenadas arbitrarias
+      ---
+      duration_ms: 0.819
+      type: 'test'
+      ...
+    # Subtest: FP: genera el mismo contrato de alta con datos válidos
+    ok 6 - FP: genera el mismo contrato de alta con datos válidos
+      ---
+      duration_ms: 17.2712
+      type: 'test'
+      ...
+    # Subtest: E3: toma el máximo recibido del servidor sin fijarlo en el cliente
+    ok 7 - E3: toma el máximo recibido del servidor sin fijarlo en el cliente
+      ---
+      duration_ms: 1.2138
+      type: 'test'
+      ...
+    # Subtest: E2: rechaza un instante igual al actual y una fecha imposible
+    ok 8 - E2: rechaza un instante igual al actual y una fecha imposible
+      ---
+      duration_ms: 15.2667
+      type: 'test'
+      ...
+    # Subtest: E1: valida los nombres de invitados y el cupo ocupado
+    ok 9 - E1: valida los nombres de invitados y el cupo ocupado
+      ---
+      duration_ms: 13.8754
+      type: 'test'
+      ...
+    # Subtest: E4: exige un origen seleccionado cuando se tiene vehículo propio
+    ok 10 - E4: exige un origen seleccionado cuando se tiene vehículo propio
+      ---
+      duration_ms: 1.8362
+      type: 'test'
+      ...
+    # Subtest: E4: al desmarcar vehículo permite continuar sin origen
+    ok 11 - E4: al desmarcar vehículo permite continuar sin origen
+      ---
+      duration_ms: 15.2545
+      type: 'test'
+      ...
+    # Subtest: E1: exige lugares solo cuando se tiene vehículo propio
+    ok 12 - E1: exige lugares solo cuando se tiene vehículo propio
+      ---
+      duration_ms: 0.3456
+      type: 'test'
+      ...
+    1..12
+ok 9 - CU10 validación de formularios independiente de Maps
+  ---
+  duration_ms: 181.9576
+  type: 'suite'
+  ...
+# Subtest: CU10 selección de ubicaciones con pin
+    # Subtest: FP: conserva las coordenadas del pin en el contrato y permite al conductor usarlo como origen
+    ok 1 - FP: conserva las coordenadas del pin en el contrato y permite al conductor usarlo como origen
+      ---
+      duration_ms: 11.7362
+      type: 'test'
+      ...
+    # Subtest: E4: rechaza pines incompletos o fuera de rango antes de enviar
+    ok 2 - E4: rechaza pines incompletos o fuera de rango antes de enviar
+      ---
+      duration_ms: 0.9782
+      type: 'test'
+      ...
+    # Subtest: FP: mantiene el contrato anterior cuando se busca por lugar
+    ok 3 - FP: mantiene el contrato anterior cuando se busca por lugar
+      ---
+      duration_ms: 0.405
+      type: 'test'
+      ...
+    1..3
+ok 10 - CU10 selección de ubicaciones con pin
+  ---
+  duration_ms: 13.6349
+  type: 'suite'
+  ...
+# Subtest: ER2: un fallo al validar el pin permite corregir el formulario porque no comenzó la persistencia
+ok 11 - ER2: un fallo al validar el pin permite corregir el formulario porque no comenzó la persistencia
+  ---
+  duration_ms: 9.2154
+  type: 'test'
+  ...
+# Subtest: CU10 usar la ubicación del dispositivo en el mapa
+    # Subtest: FP: devuelve el punto y su precisión mediante una única solicitud explícita
+    ok 1 - FP: devuelve el punto y su precisión mediante una única solicitud explícita
+      ---
+      duration_ms: 0.892
+      type: 'test'
+      ...
+    # Subtest: ER2: informa el error de geolocalización 1 sin inventar un punto
+    ok 2 - ER2: informa el error de geolocalización 1 sin inventar un punto
+      ---
+      duration_ms: 0.8055
+      type: 'test'
+      ...
+    # Subtest: ER2: informa el error de geolocalización 2 sin inventar un punto
+    ok 3 - ER2: informa el error de geolocalización 2 sin inventar un punto
+      ---
+      duration_ms: 7.2097
+      type: 'test'
+      ...
+    # Subtest: ER2: informa el error de geolocalización 3 sin inventar un punto
+    ok 4 - ER2: informa el error de geolocalización 3 sin inventar un punto
+      ---
+      duration_ms: 1.0588
+      type: 'test'
+      ...
+    # Subtest: ER2: permite volver al mapa cuando el navegador no soporta geolocalización
+    ok 5 - ER2: permite volver al mapa cuando el navegador no soporta geolocalización
+      ---
+      duration_ms: 1.134
+      type: 'test'
+      ...
+    # Subtest: ER2: cancelar impide procesar una ubicación que llega después de salir o elegir otro pin
+    ok 6 - ER2: cancelar impide procesar una ubicación que llega después de salir o elegir otro pin
+      ---
+      duration_ms: 11.1028
+      type: 'test'
+      ...
+    # Subtest: ER2: no solicita permisos si la operación ya estaba cancelada
+    ok 7 - ER2: no solicita permisos si la operación ya estaba cancelada
+      ---
+      duration_ms: 0.3575
+      type: 'test'
+      ...
+    # Subtest: ER2: maneja bloqueos del navegador sin propagar sus detalles internos
+    ok 8 - ER2: maneja bloqueos del navegador sin propagar sus detalles internos
+      ---
+      duration_ms: 0.2338
+      type: 'test'
+      ...
+    # Subtest: ER2: rechaza coordenadas inválidas antes de centrar el mapa
+    ok 9 - ER2: rechaza coordenadas inválidas antes de centrar el mapa
+      ---
+      duration_ms: 0.1699
+      type: 'test'
+      ...
+    1..9
+ok 12 - CU10 usar la ubicación del dispositivo en el mapa
+  ---
+  duration_ms: 23.437
+  type: 'suite'
+  ...
+# (node:30528) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: CU11 – formulario para unirse
+    # Subtest: FP: sin vehículo, sin punto de partida ni invitados es válido y manda nulls
+    ok 1 - FP: sin vehículo, sin punto de partida ni invitados es válido y manda nulls
+      ---
+      duration_ms: 21.0985
+      type: 'test'
+      ...
+    # Subtest: paso 5: con vehículo exige los lugares como entero no negativo
+    ok 2 - paso 5: con vehículo exige los lugares como entero no negativo
+      ---
+      duration_ms: 22.0974
+      type: 'test'
+      ...
+    # Subtest: paso 5: el punto de partida va como lugar o como pin, nunca los dos
+    ok 3 - paso 5: el punto de partida va como lugar o como pin, nunca los dos
+      ---
+      duration_ms: 0.4202
+      type: 'test'
+      ...
+    # Subtest: paso 6: cada invitado necesita nombre y se envía sin espacios de más
+    ok 4 - paso 6: cada invitado necesita nombre y se envía sin espacios de más
+      ---
+      duration_ms: 18.4959
+      type: 'test'
+      ...
+    # Subtest: RN5/RN9: el usuario ocupa un lugar y los invitados el resto
+    ok 5 - RN5/RN9: el usuario ocupa un lugar y los invitados el resto
+      ---
+      duration_ms: 0.6908
+      type: 'test'
+      ...
+    1..5
+ok 13 - CU11 – formulario para unirse
+  ---
+  duration_ms: 66.1238
+  type: 'suite'
+  ...
+# Subtest: CU11 – qué hace la pantalla con cada error
+    # Subtest: RN2: YA_PARTICIPA se muestra como éxito (reintento con la respuesta perdida)
+    ok 1 - RN2: YA_PARTICIPA se muestra como éxito (reintento con la respuesta perdida)
+      ---
+      duration_ms: 21.9018
+      type: 'test'
+      ...
+    # Subtest: E1/E2/E3: ACTIVIDAD_COMPLETA cierra el formulario con el mensaje de la API
+    ok 2 - E1/E2/E3: ACTIVIDAD_COMPLETA cierra el formulario con el mensaje de la API
+      ---
+      duration_ms: 0.4715
+      type: 'test'
+      ...
+    # Subtest: E1/E2/E3: ACTIVIDAD_NO_ADMITE_INCORPORACIONES cierra el formulario con el mensaje de la API
+    ok 3 - E1/E2/E3: ACTIVIDAD_NO_ADMITE_INCORPORACIONES cierra el formulario con el mensaje de la API
+      ---
+      duration_ms: 0.4187
+      type: 'test'
+      ...
+    # Subtest: E1/E2/E3: ACTIVIDAD_CANCELADA cierra el formulario con el mensaje de la API
+    ok 4 - E1/E2/E3: ACTIVIDAD_CANCELADA cierra el formulario con el mensaje de la API
+      ---
+      duration_ms: 17.9645
+      type: 'test'
+      ...
+    # Subtest: RN9: LUGARES_INSUFICIENTES queda junto a los invitados
+    ok 5 - RN9: LUGARES_INSUFICIENTES queda junto a los invitados
+      ---
+      duration_ms: 0.6678
+      type: 'test'
+      ...
+    # Subtest: Google no disponible: el error queda en el punto de partida
+    ok 6 - Google no disponible: el error queda en el punto de partida
+      ---
+      duration_ms: 24.407
+      type: 'test'
+      ...
+    # Subtest: 400: los campos de la API se muestran en el formulario
+    ok 7 - 400: los campos de la API se muestran en el formulario
+      ---
+      duration_ms: 0.5547
+      type: 'test'
+      ...
+    # Subtest: ER1: falla técnica o sin conexión → mensaje del caso de uso para reintentar
+    ok 8 - ER1: falla técnica o sin conexión → mensaje del caso de uso para reintentar
+      ---
+      duration_ms: 0.4794
+      type: 'test'
+      ...
+    1..8
+ok 14 - CU11 – qué hace la pantalla con cada error
+  ---
+  duration_ms: 68.4293
+  type: 'suite'
+  ...
+# (node:37080) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: CU23–CU25 – formulario y reparto de gastos
+    # Subtest: CU23 FP/RN6: previsualiza reparto exacto, estable y con invitados
+    ok 1 - CU23 FP/RN6: previsualiza reparto exacto, estable y con invitados
+      ---
+      duration_ms: 39.0569
+      type: 'test'
+      ...
+    # Subtest: CU23 E1: valida campos y montos sin coma flotante
+    ok 2 - CU23 E1: valida campos y montos sin coma flotante
+      ---
+      duration_ms: 0.6939
+      type: 'test'
+      ...
+    # Subtest: CU23 E2: al quitar todas las personas, no permite guardar
+    ok 3 - CU23 E2: al quitar todas las personas, no permite guardar
+      ---
+      duration_ms: 0.4788
+      type: 'test'
+      ...
+    # Subtest: CU24 FP/A1: carga los datos vigentes sin modificar el registro original
+    ok 4 - CU24 FP/A1: carga los datos vigentes sin modificar el registro original
+      ---
+      duration_ms: 16.7103
+      type: 'test'
+      ...
+    # Subtest: CU23 RN4: identifica explícitamente al invitado y su responsable
+    ok 5 - CU23 RN4: identifica explícitamente al invitado y su responsable
+      ---
+      duration_ms: 1.3195
+      type: 'test'
+      ...
+    1..5
+ok 15 - CU23–CU25 – formulario y reparto de gastos
+  ---
+  duration_ms: 95.0347
+  type: 'suite'
+  ...
+# (node:13548) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: CU40 – notificaciones en la web
+    # Subtest: RN4: el indicador muestra hasta 9, "9+" desde 10 y nada con cero
+    ok 1 - RN4: el indicador muestra hasta 9, "9+" desde 10 y nada con cero
+      ---
+      duration_ms: 22.2654
+      type: 'test'
+      ...
+    # Subtest: RN9: el texto alternativo incluye la cantidad sin leer
+    ok 2 - RN9: el texto alternativo incluye la cantidad sin leer
+      ---
+      duration_ms: 0.2994
+      type: 'test'
+      ...
+    # Subtest: FP paso 7: lleva a la actividad o al perfil, y a ningún lado si no tiene destino
+    ok 3 - FP paso 7: lleva a la actividad o al perfil, y a ningún lado si no tiene destino
+      ---
+      duration_ms: 0.316
+      type: 'test'
+      ...
+    # Subtest: A3: una nueva se agrega al principio y no se duplica si ya estaba
+    ok 4 - A3: una nueva se agrega al principio y no se duplica si ya estaba
+      ---
+      duration_ms: 22.719
+      type: 'test'
+      ...
+    # Subtest: A5: marcar una como leída sin abrirla cambia solo esa y conserva el orden
+    ok 5 - A5: marcar una como leída sin abrirla cambia solo esa y conserva el orden
+      ---
+      duration_ms: 0.6409
+      type: 'test'
+      ...
+    # Subtest: FP paso 4: indica hace cuánto llegó cada notificación
+    ok 6 - FP paso 4: indica hace cuánto llegó cada notificación
+      ---
+      duration_ms: 305.3701
+      type: 'test'
+      ...
+    1..6
+ok 16 - CU40 – notificaciones en la web
+  ---
+  duration_ms: 391.7588
+  type: 'suite'
+  ...
+# (node:9716) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: CU26 – importes sugeridos y validación de pagos
+    # Subtest: FP4: propone el total exacto, incluido un centésimo
+    ok 1 - FP4: propone el total exacto, incluido un centésimo
+      ---
+      duration_ms: 0.9311
+      type: 'test'
+      ...
+    # Subtest: RN3: permite total y parcial
+    ok 2 - RN3: permite total y parcial
+      ---
+      duration_ms: 1.7447
+      type: 'test'
+      ...
+    # Subtest: E1: explica el máximo para monto vacío, cero, negativo, fraccionario o superior
+    ok 3 - E1: explica el máximo para monto vacío, cero, negativo, fraccionario o superior
+      ---
+      duration_ms: 20.0925
+      type: 'test'
+      ...
+    # Subtest: E2: no habilita un pago si desaparece la deuda
+    ok 4 - E2: no habilita un pago si desaparece la deuda
+      ---
+      duration_ms: 0.2073
+      type: 'test'
+      ...
+    # Subtest: CU24: usa el máximo del servidor sin inferirlo del balance neto
+    ok 5 - CU24: usa el máximo del servidor sin inferirlo del balance neto
+      ---
+      duration_ms: 0.1644
+      type: 'test'
+      ...
+    1..5
+ok 17 - CU26 – importes sugeridos y validación de pagos
+  ---
+  duration_ms: 47.072
+  type: 'suite'
+  ...
+# (node:39024) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: CU09 A2 – puntos de partida en el mapa
+    # Subtest: marca a cada participante que indicó punto de partida
+    ok 1 - marca a cada participante que indicó punto de partida
+      ---
+      duration_ms: 16.3397
+      type: 'test'
+      ...
+    # Subtest: el organizador no lleva marcador propio: su punto es la salida de la actividad
+    ok 2 - el organizador no lleva marcador propio: su punto es la salida de la actividad
+      ---
+      duration_ms: 0.4492
+      type: 'test'
+      ...
+    # Subtest: no marca a quien no indicó punto ni a cuentas cerradas (CU33)
+    ok 3 - no marca a quien no indicó punto ni a cuentas cerradas (CU33)
+      ---
+      duration_ms: 1.211
+      type: 'test'
+      ...
+    # Subtest: el título dice quién sale y desde dónde, y la inicial va en mayúscula
+    ok 4 - el título dice quién sale y desde dónde, y la inicial va en mayúscula
+      ---
+      duration_ms: 1.5447
+      type: 'test'
+      ...
+    1..4
+ok 18 - CU09 A2 – puntos de partida en el mapa
+  ---
+  duration_ms: 35.9583
+  type: 'suite'
+  ...
+# (node:39088) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: CU21 – valoración de usuarios en la web
+    # Subtest: E1: sin puntaje no se arma la valoración
+    ok 1 - E1: sin puntaje no se arma la valoración
+      ---
+      duration_ms: 0.9228
+      type: 'test'
+      ...
+    # Subtest: RN6: el comentario es opcional; vacío o con espacios se envía como null
+    ok 2 - RN6: el comentario es opcional; vacío o con espacios se envía como null
+      ---
+      duration_ms: 1.9022
+      type: 'test'
+      ...
+    # Subtest: FP paso 2 y A1: indica cuántos participantes faltan valorar
+    ok 3 - FP paso 2 y A1: indica cuántos participantes faltan valorar
+      ---
+      duration_ms: 0.221
+      type: 'test'
+      ...
+    # Subtest: A2: la etiqueta accesible dice si está pendiente o con cuántas estrellas lo valoraste
+    ok 4 - A2: la etiqueta accesible dice si está pendiente o con cuántas estrellas lo valoraste
+      ---
+      duration_ms: 11.9439
+      type: 'test'
+      ...
+    1..4
+ok 19 - CU21 – valoración de usuarios en la web
+  ---
+  duration_ms: 26.0989
+  type: 'suite'
+  ...
+1..19
+# tests 121
+# suites 18
+# pass 121
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4207.0634

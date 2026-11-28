@@ -85,6 +85,71 @@ const propiedades = {
 
 /** Contrato de CU10; no expone la clave privada de Google ni implementa CU15/CU22. */
 export const rutasSwaggerActividades = {
+  '/actividades/iniciadas': {
+    get: {
+      tags: ['Actividades'],
+      summary: 'CU42 – Actividades iniciadas del usuario autenticado',
+      description:
+        'Incluye organizador y participante. Solo estado iniciada, sin filtros de fecha ni cupo. Orden por inicio e ID descendentes, de la más reciente a la más antigua; páginas de 10.',
+      security: seguridad,
+      parameters: [{ in: 'query', name: 'pagina', schema: { type: 'integer', minimum: 1, default: 1 } }],
+      responses: {
+        200: {
+          description: 'Página de actividades propias; una lista vacía es válida.',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['actividades', 'pagina', 'hayMas'],
+                properties: {
+                  pagina: { type: 'integer' },
+                  hayMas: { type: 'boolean' },
+                  actividades: {
+                    type: 'array',
+                    maxItems: 10,
+                    items: {
+                      type: 'object',
+                      required: [
+                        'id',
+                        'nombre',
+                        'deporte',
+                        'estado',
+                        'fechaHoraInicio',
+                        'fechaLimiteGastos',
+                        'departamento',
+                        'esOrganizador',
+                      ],
+                      properties: {
+                        id: { type: 'string', format: 'uuid' },
+                        nombre: { type: 'string' },
+                        deporte: {
+                          type: 'object',
+                          required: ['id', 'nombre'],
+                          properties: { id: { type: 'integer' }, nombre: { type: 'string' } },
+                        },
+                        estado: { type: 'string', enum: ['iniciada'] },
+                        fechaHoraInicio: { type: 'string', format: 'date-time' },
+                        fechaLimiteGastos: {
+                          type: 'string',
+                          format: 'date-time',
+                          description: 'Plazo de dominio compartido con CU09.',
+                        },
+                        departamento: { type: 'string' },
+                        esOrganizador: { type: 'boolean' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        400: error,
+        401: error,
+        500: error,
+      },
+    },
+  },
   '/actividades/opciones': {
     get: {
       tags: ['Actividades'],

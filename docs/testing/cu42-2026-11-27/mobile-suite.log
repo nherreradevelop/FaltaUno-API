@@ -1,0 +1,896 @@
+
+> faltauno-mobile@0.1.0 test
+> node --experimental-transform-types --test test/actualizacionesFinancieras.test.mjs test/pagos.test.mjs test/gastos.test.mjs test/formularioActividad.test.mjs test/filtrosDeSesion.test.mjs test/formato.test.mjs test/detalleActividad.test.mjs test/notificaciones.test.mjs test/secciones.test.mjs test/valoraciones.test.mjs test/formularioUnirse.test.mjs test/puntosDePartida.test.mjs test/actividadesIniciadas.test.mjs
+
+TAP version 13
+# (node:16860) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:16860) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/comun/actividadesIniciadas.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to C:\\Users\\Usuario\\source\\repos\\FaltaUno-Mobile\\package.json.
+# Subtest: CU42 – Actividades iniciadas
+    # Subtest: FP y E1: acepta actividades válidas y una lista vacía
+    ok 1 - FP y E1: acepta actividades válidas y una lista vacía
+      ---
+      duration_ms: 5.3671
+      type: 'test'
+      ...
+    # Subtest: ER3: rechaza fechas, estado, página y datos incompletos
+    ok 2 - ER3: rechaza fechas, estado, página y datos incompletos
+      ---
+      duration_ms: 5.7218
+      type: 'test'
+      ...
+    # Subtest: ER3: rechaza duplicados y páginas de más de diez registros
+    ok 3 - ER3: rechaza duplicados y páginas de más de diez registros
+      ---
+      duration_ms: 2.2991
+      type: 'test'
+      ...
+    # Subtest: A1: agrega páginas sin duplicar registros y conserva actualizaciones recibidas
+    ok 4 - A1: agrega páginas sin duplicar registros y conserva actualizaciones recibidas
+      ---
+      duration_ms: 6.7407
+      type: 'test'
+      ...
+    1..4
+ok 1 - CU42 – Actividades iniciadas
+  ---
+  duration_ms: 21.6817
+  type: 'suite'
+  ...
+# Subtest: CU42 – etiqueta es hoy!
+    # Subtest: usa el día de Uruguay y sus dos límites, aunque UTC ya cambió de día
+    ok 1 - usa el día de Uruguay y sus dos límites, aunque UTC ya cambió de día
+      ---
+      duration_ms: 98.1
+      type: 'test'
+      ...
+    # Subtest: no marca fechas inválidas, de ayer o de mañana
+    ok 2 - no marca fechas inválidas, de ayer o de mañana
+      ---
+      duration_ms: 0.6605
+      type: 'test'
+      ...
+    1..2
+ok 2 - CU42 – etiqueta es hoy!
+  ---
+  duration_ms: 99.1283
+  type: 'suite'
+  ...
+# (node:30556) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:30556) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/comun/actualizacionesFinancieras.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to C:\\Users\\Usuario\\source\\repos\\FaltaUno-Mobile\\package.json.
+# Subtest: CU23–CU26: actualización financiera entre sesiones
+    # Subtest: refresca solo la actividad y el usuario correspondientes; agrupa una ráfaga
+    ok 1 - refresca solo la actividad y el usuario correspondientes; agrupa una ráfaga
+      ---
+      duration_ms: 181.4752
+      type: 'test'
+      ...
+    # Subtest: recupera cambios al conectar o volver a primer plano
+    ok 2 - recupera cambios al conectar o volver a primer plano
+      ---
+      duration_ms: 339.7906
+      type: 'test'
+      ...
+    # Subtest: un cambio durante una consulta provoca otra consulta al terminar, sin superponerlas
+    ok 3 - un cambio durante una consulta provoca otra consulta al terminar, sin superponerlas
+      ---
+      duration_ms: 512.8525
+      type: 'test'
+      ...
+    # Subtest: desmontar cancela consultas pendientes y elimina listeners del socket
+    ok 4 - desmontar cancela consultas pendientes y elimina listeners del socket
+      ---
+      duration_ms: 172.8217
+      type: 'test'
+      ...
+    # Subtest: ignora avisos malformados sin perder la suscripción
+    ok 5 - ignora avisos malformados sin perder la suscripción
+      ---
+      duration_ms: 170.2777
+      type: 'test'
+      ...
+    # Subtest: no vuelve a consultar cuando se desmonta durante un GET
+    ok 6 - no vuelve a consultar cuando se desmonta durante un GET
+      ---
+      duration_ms: 339.4131
+      type: 'test'
+      ...
+    1..6
+ok 3 - CU23–CU26: actualización financiera entre sesiones
+  ---
+  duration_ms: 1718.5833
+  type: 'suite'
+  ...
+# (node:36480) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:36480) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/api/actividades.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to C:\\Users\\Usuario\\source\\repos\\FaltaUno-Mobile\\package.json.
+# Subtest: CU09 H01 contrato del detalle
+    # Subtest: ER1: controla objeto vacío aunque el HTTP sea 200
+    ok 1 - ER1: controla objeto vacío aunque el HTTP sea 200
+      ---
+      duration_ms: 18.9758
+      type: 'test'
+      ...
+    # Subtest: ER1: controla null aunque el HTTP sea 200
+    ok 2 - ER1: controla null aunque el HTTP sea 200
+      ---
+      duration_ms: 0.1957
+      type: 'test'
+      ...
+    # Subtest: ER1: controla arreglo aunque el HTTP sea 200
+    ok 3 - ER1: controla arreglo aunque el HTTP sea 200
+      ---
+      duration_ms: 0.1546
+      type: 'test'
+      ...
+    # Subtest: ER1: controla texto aunque el HTTP sea 200
+    ok 4 - ER1: controla texto aunque el HTTP sea 200
+      ---
+      duration_ms: 0.1357
+      type: 'test'
+      ...
+    # Subtest: ER1: controla opciones ausentes aunque el HTTP sea 200
+    ok 5 - ER1: controla opciones ausentes aunque el HTTP sea 200
+      ---
+      duration_ms: 0.2758
+      type: 'test'
+      ...
+    # Subtest: ER1: controla opción desconocida aunque el HTTP sea 200
+    ok 6 - ER1: controla opción desconocida aunque el HTTP sea 200
+      ---
+      duration_ms: 0.1978
+      type: 'test'
+      ...
+    # Subtest: ER1: controla opciones inválidas aunque el HTTP sea 200
+    ok 7 - ER1: controla opciones inválidas aunque el HTTP sea 200
+      ---
+      duration_ms: 5.7344
+      type: 'test'
+      ...
+    # Subtest: ER1: controla deporte incompleto aunque el HTTP sea 200
+    ok 8 - ER1: controla deporte incompleto aunque el HTTP sea 200
+      ---
+      duration_ms: 1.4958
+      type: 'test'
+      ...
+    # Subtest: ER1: controla fecha inválida aunque el HTTP sea 200
+    ok 9 - ER1: controla fecha inválida aunque el HTTP sea 200
+      ---
+      duration_ms: 0.4493
+      type: 'test'
+      ...
+    # Subtest: ER1: controla plazo inválido aunque el HTTP sea 200
+    ok 10 - ER1: controla plazo inválido aunque el HTTP sea 200
+      ---
+      duration_ms: 0.6044
+      type: 'test'
+      ...
+    # Subtest: ER1: controla destino incompleto aunque el HTTP sea 200
+    ok 11 - ER1: controla destino incompleto aunque el HTTP sea 200
+      ---
+      duration_ms: 0.518
+      type: 'test'
+      ...
+    # Subtest: ER1: controla coordenadas inválidas aunque el HTTP sea 200
+    ok 12 - ER1: controla coordenadas inválidas aunque el HTTP sea 200
+      ---
+      duration_ms: 0.3146
+      type: 'test'
+      ...
+    # Subtest: ER1: controla organizador incompleto aunque el HTTP sea 200
+    ok 13 - ER1: controla organizador incompleto aunque el HTTP sea 200
+      ---
+      duration_ms: 0.1253
+      type: 'test'
+      ...
+    # Subtest: ER1: controla pronóstico incompleto aunque el HTTP sea 200
+    ok 14 - ER1: controla pronóstico incompleto aunque el HTTP sea 200
+      ---
+      duration_ms: 0.3678
+      type: 'test'
+      ...
+    # Subtest: ER1: controla rol desconocido aunque el HTTP sea 200
+    ok 15 - ER1: controla rol desconocido aunque el HTTP sea 200
+      ---
+      duration_ms: 0.2793
+      type: 'test'
+      ...
+    # Subtest: ER1: controla estado desconocido aunque el HTTP sea 200
+    ok 16 - ER1: controla estado desconocido aunque el HTTP sea 200
+      ---
+      duration_ms: 0.1092
+      type: 'test'
+      ...
+    # Subtest: ER1: controla cupo inválido aunque el HTTP sea 200
+    ok 17 - ER1: controla cupo inválido aunque el HTTP sea 200
+      ---
+      duration_ms: 3.929
+      type: 'test'
+      ...
+    # Subtest: ER1: controla costo inválido aunque el HTTP sea 200
+    ok 18 - ER1: controla costo inválido aunque el HTTP sea 200
+      ---
+      duration_ms: 0.1604
+      type: 'test'
+      ...
+    # Subtest: FP: conserva los nulos permitidos y el contrato válido
+    ok 19 - FP: conserva los nulos permitidos y el contrato válido
+      ---
+      duration_ms: 0.2227
+      type: 'test'
+      ...
+    # Subtest: ER1: permite recuperar el detalle con un reintento válido
+    ok 20 - ER1: permite recuperar el detalle con un reintento válido
+      ---
+      duration_ms: 0.2206
+      type: 'test'
+      ...
+    1..20
+ok 4 - CU09 H01 contrato del detalle
+  ---
+  duration_ms: 40.3521
+  type: 'suite'
+  ...
+# (node:38088) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:38088) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/comun/filtrosDeSesion.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to C:\\Users\\Usuario\\source\\repos\\FaltaUno-Mobile\\package.json.
+# Subtest: CU08 dashboard: filtros durante la sesión
+    # Subtest: la primera visita queda pendiente del perfil y los filtros aplicados sobreviven a una recarga
+    ok 1 - la primera visita queda pendiente del perfil y los filtros aplicados sobreviven a una recarga
+      ---
+      duration_ms: 89.3829
+      type: 'test'
+      ...
+    # Subtest: quitar todos los deportes es una selección válida y actualizar el usuario no la reemplaza
+    ok 2 - quitar todos los deportes es una selección válida y actualizar el usuario no la reemplaza
+      ---
+      duration_ms: 44.5825
+      type: 'test'
+      ...
+    # Subtest: una sesión nueva del mismo usuario y otra cuenta no heredan filtros anteriores
+    ok 3 - una sesión nueva del mismo usuario y otra cuenta no heredan filtros anteriores
+      ---
+      duration_ms: 58.829
+      type: 'test'
+      ...
+    # Subtest: cerrar sesión durante un guardado no restaura datos en el almacenamiento
+    ok 4 - cerrar sesión durante un guardado no restaura datos en el almacenamiento
+      ---
+      duration_ms: 45.521
+      type: 'test'
+      ...
+    # Subtest: CU37: cerrar sesión por el usuario durante un guardado de filtros no deja la sesión guardada
+    ok 5 - CU37: cerrar sesión por el usuario durante un guardado de filtros no deja la sesión guardada
+      ---
+      duration_ms: 32.438
+      type: 'test'
+      ...
+    # Subtest: actualizar el usuario durante un guardado conserva filtros y notifica el usuario vigente
+    ok 6 - actualizar el usuario durante un guardado conserva filtros y notifica el usuario vigente
+      ---
+      duration_ms: 60.296
+      type: 'test'
+      ...
+    # Subtest: el vencimiento elimina los filtros junto con la sesión
+    ok 7 - el vencimiento elimina los filtros junto con la sesión
+      ---
+      duration_ms: 33.3344
+      type: 'test'
+      ...
+    # Subtest: descarta filtros corruptos o inválidos antes de volver a consultar la API
+    ok 8 - descarta filtros corruptos o inválidos antes de volver a consultar la API
+      ---
+      duration_ms: 29.0147
+      type: 'test'
+      ...
+    1..8
+ok 5 - CU08 dashboard: filtros durante la sesión
+  ---
+  duration_ms: 405.8248
+  type: 'suite'
+  ...
+# Subtest: CU09 y CU10 H04 fechas en Uruguay
+    # Subtest: mantiene listado, detalle y plazo en Uruguay con el dispositivo en UTC
+    ok 1 - mantiene listado, detalle y plazo en Uruguay con el dispositivo en UTC
+      ---
+      duration_ms: 521.4121
+      type: 'test'
+      ...
+    # Subtest: mantiene listado, detalle y plazo en Uruguay con el dispositivo en America/Montevideo
+    ok 2 - mantiene listado, detalle y plazo en Uruguay con el dispositivo en America/Montevideo
+      ---
+      duration_ms: 191.3471
+      type: 'test'
+      ...
+    # Subtest: mantiene listado, detalle y plazo en Uruguay con el dispositivo en America/Los_Angeles
+    ok 3 - mantiene listado, detalle y plazo en Uruguay con el dispositivo en America/Los_Angeles
+      ---
+      duration_ms: 167.3039
+      type: 'test'
+      ...
+    # Subtest: mantiene listado, detalle y plazo en Uruguay con el dispositivo en Asia/Tokyo
+    ok 4 - mantiene listado, detalle y plazo en Uruguay con el dispositivo en Asia/Tokyo
+      ---
+      duration_ms: 162.2052
+      type: 'test'
+      ...
+    1..4
+ok 6 - CU09 y CU10 H04 fechas en Uruguay
+  ---
+  duration_ms: 1043.6266
+  type: 'suite'
+  ...
+# (node:9288) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:9288) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/comun/fechaHoraActividad.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to C:\\Users\\Usuario\\source\\repos\\FaltaUno-Mobile\\package.json.
+# Subtest: CU10 validación de formularios independiente de Maps
+    # Subtest: E1/E4: informa todos los obligatorios aunque no haya ubicaciones seleccionadas
+    ok 1 - E1/E4: informa todos los obligatorios aunque no haya ubicaciones seleccionadas
+      ---
+      duration_ms: 7.1857
+      type: 'test'
+      ...
+    # Subtest: E2/E3/E4: conserva errores de fecha, cupo y dinero junto a los de ubicaciones
+    ok 2 - E2/E3/E4: conserva errores de fecha, cupo y dinero junto a los de ubicaciones
+      ---
+      duration_ms: 5.7322
+      type: 'test'
+      ...
+    # Subtest: E4: sigue impidiendo crear si solo falta el destino válido
+    ok 3 - E4: sigue impidiendo crear si solo falta el destino válido
+      ---
+      duration_ms: 0.5647
+      type: 'test'
+      ...
+    # Subtest: FP: admite crear sin origen y lo envía como null
+    ok 4 - FP: admite crear sin origen y lo envía como null
+      ---
+      duration_ms: 0.2803
+      type: 'test'
+      ...
+    # Subtest: E4: el destino provisional usa el identificador del servidor sin enviar coordenadas arbitrarias
+    ok 5 - E4: el destino provisional usa el identificador del servidor sin enviar coordenadas arbitrarias
+      ---
+      duration_ms: 0.2039
+      type: 'test'
+      ...
+    # Subtest: FP: genera el mismo contrato de alta con datos válidos
+    ok 6 - FP: genera el mismo contrato de alta con datos válidos
+      ---
+      duration_ms: 3.9212
+      type: 'test'
+      ...
+    # Subtest: E3: toma el máximo recibido del servidor sin fijarlo en el cliente
+    ok 7 - E3: toma el máximo recibido del servidor sin fijarlo en el cliente
+      ---
+      duration_ms: 0.6122
+      type: 'test'
+      ...
+    # Subtest: E2: rechaza un instante igual al actual y una fecha imposible
+    ok 8 - E2: rechaza un instante igual al actual y una fecha imposible
+      ---
+      duration_ms: 0.4346
+      type: 'test'
+      ...
+    # Subtest: E1: valida los nombres de invitados y el cupo ocupado
+    ok 9 - E1: valida los nombres de invitados y el cupo ocupado
+      ---
+      duration_ms: 0.3622
+      type: 'test'
+      ...
+    # Subtest: E4: exige un origen seleccionado cuando se tiene vehículo propio
+    ok 10 - E4: exige un origen seleccionado cuando se tiene vehículo propio
+      ---
+      duration_ms: 0.8674
+      type: 'test'
+      ...
+    # Subtest: E4: al desmarcar vehículo permite continuar sin origen
+    ok 11 - E4: al desmarcar vehículo permite continuar sin origen
+      ---
+      duration_ms: 0.2253
+      type: 'test'
+      ...
+    # Subtest: E1: exige lugares solo cuando se tiene vehículo propio
+    ok 12 - E1: exige lugares solo cuando se tiene vehículo propio
+      ---
+      duration_ms: 0.1892
+      type: 'test'
+      ...
+    1..12
+ok 7 - CU10 validación de formularios independiente de Maps
+  ---
+  duration_ms: 36.6856
+  type: 'suite'
+  ...
+# Subtest: CU10 selectores nativos de fecha y hora
+    # Subtest: FP: interpreta el instante del selector como hora uruguaya
+    ok 1 - FP: interpreta el instante del selector como hora uruguaya
+      ---
+      duration_ms: 44.7364
+      type: 'test'
+      ...
+    # Subtest: E2: respeta el día uruguayo cerca de medianoche y del cambio de año
+    ok 2 - E2: respeta el día uruguayo cerca de medianoche y del cambio de año
+      ---
+      duration_ms: 0.7451
+      type: 'test'
+      ...
+    # Subtest: FP: reabre con los valores existentes sin depender de la zona del dispositivo
+    ok 3 - FP: reabre con los valores existentes sin depender de la zona del dispositivo
+      ---
+      duration_ms: 0.488
+      type: 'test'
+      ...
+    # Subtest: FP/E2: mantiene el contrato ISO y la validación de inicio futuro al seleccionar
+    ok 4 - FP/E2: mantiene el contrato ISO y la validación de inicio futuro al seleccionar
+      ---
+      duration_ms: 0.7432
+      type: 'test'
+      ...
+    1..4
+ok 8 - CU10 selectores nativos de fecha y hora
+  ---
+  duration_ms: 46.9623
+  type: 'suite'
+  ...
+# Subtest: CU10 selección con pin en mobile
+    # Subtest: FP/E4: acepta pin para el origen del conductor y conserva las coordenadas exactas
+    ok 1 - FP/E4: acepta pin para el origen del conductor y conserva las coordenadas exactas
+      ---
+      duration_ms: 0.7
+      type: 'test'
+      ...
+    # Subtest: E4: rechaza pines incompletos, infinitos y fuera de rango
+    ok 2 - E4: rechaza pines incompletos, infinitos y fuera de rango
+      ---
+      duration_ms: 0.3656
+      type: 'test'
+      ...
+    # Subtest: FP: conserva la selección por lugar y solo envía coordenadas para el pin
+    ok 3 - FP: conserva la selección por lugar y solo envía coordenadas para el pin
+      ---
+      duration_ms: 0.1657
+      type: 'test'
+      ...
+    # Subtest: ER2: permite corregir el pin tras un fallo de Google previo a persistir
+    ok 4 - ER2: permite corregir el pin tras un fallo de Google previo a persistir
+      ---
+      duration_ms: 0.133
+      type: 'test'
+      ...
+    1..4
+ok 9 - CU10 selección con pin en mobile
+  ---
+  duration_ms: 1.6409
+  type: 'suite'
+  ...
+# Subtest: CU10 ubicación actual de mobile sin GPS real
+    # Subtest: FP: solicita permiso y una sola posición, conservando precisión y coordenadas
+    ok 1 - FP: solicita permiso y una sola posición, conservando precisión y coordenadas
+      ---
+      duration_ms: 1.7618
+      type: 'test'
+      ...
+    # Subtest: E4: denegar permiso no consulta servicios ni GPS
+    ok 2 - E4: denegar permiso no consulta servicios ni GPS
+      ---
+      duration_ms: 0.5529
+      type: 'test'
+      ...
+    # Subtest: E4: informa servicios apagados sin consultar la posición
+    ok 3 - E4: informa servicios apagados sin consultar la posición
+      ---
+      duration_ms: 0.2087
+      type: 'test'
+      ...
+    # Subtest: ER2: un fallo nativo conserva la alternativa manual y no expone datos internos
+    ok 4 - ER2: un fallo nativo conserva la alternativa manual y no expone datos internos
+      ---
+      duration_ms: 0.3387
+      type: 'test'
+      ...
+    # Subtest: E4: rechaza coordenadas y precisión inválidas del dispositivo
+    ok 5 - E4: rechaza coordenadas y precisión inválidas del dispositivo
+      ---
+      duration_ms: 1.0199
+      type: 'test'
+      ...
+    # Subtest: A1: cancelar antes de iniciar no solicita permiso
+    ok 6 - A1: cancelar antes de iniciar no solicita permiso
+      ---
+      duration_ms: 0.344
+      type: 'test'
+      ...
+    # Subtest: A1: cancelar mientras se pide permiso impide iniciar el GPS tras una respuesta tardía
+    ok 7 - A1: cancelar mientras se pide permiso impide iniciar el GPS tras una respuesta tardía
+      ---
+      duration_ms: 1.8884
+      type: 'test'
+      ...
+    # Subtest: A1: ignora una posición que llega después de cerrar el mapa
+    ok 8 - A1: ignora una posición que llega después de cerrar el mapa
+      ---
+      duration_ms: 1.0764
+      type: 'test'
+      ...
+    # Subtest: ER2: limita la espera de GPS e ignora su respuesta tardía
+    ok 9 - ER2: limita la espera de GPS e ignora su respuesta tardía
+      ---
+      duration_ms: 24.6716
+      type: 'test'
+      ...
+    1..9
+ok 10 - CU10 ubicación actual de mobile sin GPS real
+  ---
+  duration_ms: 32.347
+  type: 'suite'
+  ...
+# (node:39460) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:39460) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/comun/formularioUnirse.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to C:\\Users\\Usuario\\source\\repos\\FaltaUno-Mobile\\package.json.
+# Subtest: CU11 – formulario para unirse
+    # Subtest: FP: sin vehículo, sin punto de partida ni invitados es válido y manda nulls
+    ok 1 - FP: sin vehículo, sin punto de partida ni invitados es válido y manda nulls
+      ---
+      duration_ms: 1.6692
+      type: 'test'
+      ...
+    # Subtest: paso 5: con vehículo exige los lugares como entero no negativo
+    ok 2 - paso 5: con vehículo exige los lugares como entero no negativo
+      ---
+      duration_ms: 7.3336
+      type: 'test'
+      ...
+    # Subtest: paso 5: el punto de partida va como lugar o como pin, nunca los dos
+    ok 3 - paso 5: el punto de partida va como lugar o como pin, nunca los dos
+      ---
+      duration_ms: 0.8303
+      type: 'test'
+      ...
+    # Subtest: paso 6: cada invitado necesita nombre y se envía sin espacios de más
+    ok 4 - paso 6: cada invitado necesita nombre y se envía sin espacios de más
+      ---
+      duration_ms: 0.3338
+      type: 'test'
+      ...
+    # Subtest: RN5/RN9: el usuario ocupa un lugar y los invitados el resto
+    ok 5 - RN5/RN9: el usuario ocupa un lugar y los invitados el resto
+      ---
+      duration_ms: 0.314
+      type: 'test'
+      ...
+    1..5
+ok 11 - CU11 – formulario para unirse
+  ---
+  duration_ms: 27.3503
+  type: 'suite'
+  ...
+# Subtest: CU11 – qué hace la pantalla con cada error
+    # Subtest: RN2: YA_PARTICIPA se muestra como éxito (reintento con la respuesta perdida)
+    ok 1 - RN2: YA_PARTICIPA se muestra como éxito (reintento con la respuesta perdida)
+      ---
+      duration_ms: 0.5115
+      type: 'test'
+      ...
+    # Subtest: E1/E2/E3: ACTIVIDAD_COMPLETA cierra el formulario con el mensaje de la API
+    ok 2 - E1/E2/E3: ACTIVIDAD_COMPLETA cierra el formulario con el mensaje de la API
+      ---
+      duration_ms: 8.7064
+      type: 'test'
+      ...
+    # Subtest: E1/E2/E3: ACTIVIDAD_NO_ADMITE_INCORPORACIONES cierra el formulario con el mensaje de la API
+    ok 3 - E1/E2/E3: ACTIVIDAD_NO_ADMITE_INCORPORACIONES cierra el formulario con el mensaje de la API
+      ---
+      duration_ms: 0.3995
+      type: 'test'
+      ...
+    # Subtest: E1/E2/E3: ACTIVIDAD_CANCELADA cierra el formulario con el mensaje de la API
+    ok 4 - E1/E2/E3: ACTIVIDAD_CANCELADA cierra el formulario con el mensaje de la API
+      ---
+      duration_ms: 0.3116
+      type: 'test'
+      ...
+    # Subtest: RN9: LUGARES_INSUFICIENTES queda junto a los invitados
+    ok 5 - RN9: LUGARES_INSUFICIENTES queda junto a los invitados
+      ---
+      duration_ms: 9.2904
+      type: 'test'
+      ...
+    # Subtest: Google no disponible: el error queda en el punto de partida
+    ok 6 - Google no disponible: el error queda en el punto de partida
+      ---
+      duration_ms: 0.2114
+      type: 'test'
+      ...
+    # Subtest: 400: los campos de la API se muestran en el formulario
+    ok 7 - 400: los campos de la API se muestran en el formulario
+      ---
+      duration_ms: 0.3696
+      type: 'test'
+      ...
+    # Subtest: ER1: falla técnica o sin conexión → mensaje del caso de uso para reintentar
+    ok 8 - ER1: falla técnica o sin conexión → mensaje del caso de uso para reintentar
+      ---
+      duration_ms: 0.2372
+      type: 'test'
+      ...
+    1..8
+ok 12 - CU11 – qué hace la pantalla con cada error
+  ---
+  duration_ms: 20.7379
+  type: 'suite'
+  ...
+# (node:39036) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:39036) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/comun/gastos.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to C:\\Users\\Usuario\\source\\repos\\FaltaUno-Mobile\\package.json.
+# Subtest: CU23–CU25 – formulario y reparto de gastos
+    # Subtest: CU23 FP/RN6: previsualiza reparto exacto, estable y con invitados
+    ok 1 - CU23 FP/RN6: previsualiza reparto exacto, estable y con invitados
+      ---
+      duration_ms: 11.2313
+      type: 'test'
+      ...
+    # Subtest: CU23 E1: valida campos y montos sin coma flotante
+    ok 2 - CU23 E1: valida campos y montos sin coma flotante
+      ---
+      duration_ms: 8.1611
+      type: 'test'
+      ...
+    # Subtest: CU23 FP: un gasto nuevo sugiere que pagó el usuario actual y lo reparte entre todos, sin registrarlo
+    ok 3 - CU23 FP: un gasto nuevo sugiere que pagó el usuario actual y lo reparte entre todos, sin registrarlo
+      ---
+      duration_ms: 0.8555
+      type: 'test'
+      ...
+    # Subtest: CU23 E2: al quitar todas las personas, no permite guardar
+    ok 4 - CU23 E2: al quitar todas las personas, no permite guardar
+      ---
+      duration_ms: 0.4093
+      type: 'test'
+      ...
+    # Subtest: CU24 FP/A1: carga los datos vigentes sin modificar el registro original
+    ok 5 - CU24 FP/A1: carga los datos vigentes sin modificar el registro original
+      ---
+      duration_ms: 0.3848
+      type: 'test'
+      ...
+    # Subtest: CU23 RN4: identifica explícitamente al invitado y su responsable
+    ok 6 - CU23 RN4: identifica explícitamente al invitado y su responsable
+      ---
+      duration_ms: 6.3382
+      type: 'test'
+      ...
+    1..6
+ok 13 - CU23–CU25 – formulario y reparto de gastos
+  ---
+  duration_ms: 30.0594
+  type: 'suite'
+  ...
+# (node:37696) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:37696) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/notificaciones/notificaciones.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to C:\\Users\\Usuario\\source\\repos\\FaltaUno-Mobile\\package.json.
+# Subtest: CU40 – notificaciones en mobile
+    # Subtest: RN4: el indicador muestra hasta 9, "9+" desde 10 y nada con cero
+    ok 1 - RN4: el indicador muestra hasta 9, "9+" desde 10 y nada con cero
+      ---
+      duration_ms: 2.288
+      type: 'test'
+      ...
+    # Subtest: RN9: el texto alternativo incluye la cantidad sin leer
+    ok 2 - RN9: el texto alternativo incluye la cantidad sin leer
+      ---
+      duration_ms: 0.2047
+      type: 'test'
+      ...
+    # Subtest: FP paso 7: lleva a la actividad o al perfil, y a ningún lado si no tiene destino
+    ok 3 - FP paso 7: lleva a la actividad o al perfil, y a ningún lado si no tiene destino
+      ---
+      duration_ms: 0.1696
+      type: 'test'
+      ...
+    # Subtest: A3: una nueva se agrega al principio y no se duplica si ya estaba
+    ok 4 - A3: una nueva se agrega al principio y no se duplica si ya estaba
+      ---
+      duration_ms: 1.1312
+      type: 'test'
+      ...
+    # Subtest: A5: marcar una como leída sin abrirla cambia solo esa y conserva el orden
+    ok 5 - A5: marcar una como leída sin abrirla cambia solo esa y conserva el orden
+      ---
+      duration_ms: 0.292
+      type: 'test'
+      ...
+    # Subtest: FP paso 4: indica hace cuánto llegó cada notificación
+    ok 6 - FP paso 4: indica hace cuánto llegó cada notificación
+      ---
+      duration_ms: 28.7606
+      type: 'test'
+      ...
+    1..6
+ok 14 - CU40 – notificaciones en mobile
+  ---
+  duration_ms: 34.8574
+  type: 'suite'
+  ...
+# (node:36104) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:36104) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/comun/pagos.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to C:\\Users\\Usuario\\source\\repos\\FaltaUno-Mobile\\package.json.
+# Subtest: CU26 – importes sugeridos y validación de pagos
+    # Subtest: FP4: propone el total exacto, incluido un centésimo
+    ok 1 - FP4: propone el total exacto, incluido un centésimo
+      ---
+      duration_ms: 1.1909
+      type: 'test'
+      ...
+    # Subtest: RN3: permite total y parcial
+    ok 2 - RN3: permite total y parcial
+      ---
+      duration_ms: 0.2715
+      type: 'test'
+      ...
+    # Subtest: E1: explica el máximo para monto vacío, cero, negativo, fraccionario o superior
+    ok 3 - E1: explica el máximo para monto vacío, cero, negativo, fraccionario o superior
+      ---
+      duration_ms: 0.655
+      type: 'test'
+      ...
+    # Subtest: E2: no habilita un pago si desaparece la deuda
+    ok 4 - E2: no habilita un pago si desaparece la deuda
+      ---
+      duration_ms: 0.1838
+      type: 'test'
+      ...
+    # Subtest: CU24: usa el máximo del servidor sin inferirlo del balance neto
+    ok 5 - CU24: usa el máximo del servidor sin inferirlo del balance neto
+      ---
+      duration_ms: 0.1957
+      type: 'test'
+      ...
+    1..5
+ok 15 - CU26 – importes sugeridos y validación de pagos
+  ---
+  duration_ms: 21.1168
+  type: 'suite'
+  ...
+# (node:38008) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:38008) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/comun/puntosDePartida.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to C:\\Users\\Usuario\\source\\repos\\FaltaUno-Mobile\\package.json.
+# Subtest: CU09 A2 – puntos de partida en el mapa
+    # Subtest: marca a cada participante que indicó punto de partida
+    ok 1 - marca a cada participante que indicó punto de partida
+      ---
+      duration_ms: 8.8584
+      type: 'test'
+      ...
+    # Subtest: el organizador no lleva marcador propio: su punto es la salida de la actividad
+    ok 2 - el organizador no lleva marcador propio: su punto es la salida de la actividad
+      ---
+      duration_ms: 0.2806
+      type: 'test'
+      ...
+    # Subtest: no marca a quien no indicó punto ni a cuentas cerradas (CU33)
+    ok 3 - no marca a quien no indicó punto ni a cuentas cerradas (CU33)
+      ---
+      duration_ms: 0.1782
+      type: 'test'
+      ...
+    # Subtest: el título dice quién sale y desde dónde, y la inicial va en mayúscula
+    ok 4 - el título dice quién sale y desde dónde, y la inicial va en mayúscula
+      ---
+      duration_ms: 0.3352
+      type: 'test'
+      ...
+    1..4
+ok 16 - CU09 A2 – puntos de partida en el mapa
+  ---
+  duration_ms: 18.6963
+  type: 'suite'
+  ...
+# (node:39216) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:39216) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/navegacion/secciones.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to C:\\Users\\Usuario\\source\\repos\\FaltaUno-Mobile\\package.json.
+# Subtest: CU39 – menú de navegabilidad
+    # Subtest: RN2: las opciones y su orden son fijos
+    ok 1 - RN2: las opciones y su orden son fijos
+      ---
+      duration_ms: 4.7942
+      type: 'test'
+      ...
+    # Subtest: RN5: el indicador muestra hasta 9, "9+" desde 10 y nada con cero
+    ok 2 - RN5: el indicador muestra hasta 9, "9+" desde 10 y nada con cero
+      ---
+      duration_ms: 4.3157
+      type: 'test'
+      ...
+    # Subtest: FP paso 4: Explorar y Perfil no tienen indicador
+    ok 3 - FP paso 4: Explorar y Perfil no tienen indicador
+      ---
+      duration_ms: 0.1644
+      type: 'test'
+      ...
+    # Subtest: RN7: la etiqueta accesible incluye el indicador
+    ok 4 - RN7: la etiqueta accesible incluye el indicador
+      ---
+      duration_ms: 0.3307
+      type: 'test'
+      ...
+    # Subtest: RN7: sin novedades la etiqueta es solo el nombre de la sección
+    ok 5 - RN7: sin novedades la etiqueta es solo el nombre de la sección
+      ---
+      duration_ms: 0.1497
+      type: 'test'
+      ...
+    1..5
+ok 17 - CU39 – menú de navegabilidad
+  ---
+  duration_ms: 11.191
+  type: 'suite'
+  ...
+# (node:39160) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:39160) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Usuario/source/repos/FaltaUno-Mobile/src/comun/valoraciones.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to C:\\Users\\Usuario\\source\\repos\\FaltaUno-Mobile\\package.json.
+# Subtest: CU21 – valoración de usuarios en mobile
+    # Subtest: E1: sin puntaje no se arma la valoración
+    ok 1 - E1: sin puntaje no se arma la valoración
+      ---
+      duration_ms: 0.9797
+      type: 'test'
+      ...
+    # Subtest: RN6: el comentario es opcional; vacío o con espacios se envía como null
+    ok 2 - RN6: el comentario es opcional; vacío o con espacios se envía como null
+      ---
+      duration_ms: 0.9252
+      type: 'test'
+      ...
+    # Subtest: FP paso 2 y A1: indica cuántos participantes faltan valorar
+    ok 3 - FP paso 2 y A1: indica cuántos participantes faltan valorar
+      ---
+      duration_ms: 0.1783
+      type: 'test'
+      ...
+    # Subtest: A2: la etiqueta accesible dice si está pendiente o con cuántas estrellas lo valoraste
+    ok 4 - A2: la etiqueta accesible dice si está pendiente o con cuántas estrellas lo valoraste
+      ---
+      duration_ms: 0.2508
+      type: 'test'
+      ...
+    1..4
+ok 18 - CU21 – valoración de usuarios en mobile
+  ---
+  duration_ms: 17.6976
+  type: 'suite'
+  ...
+1..18
+# tests 116
+# suites 18
+# pass 116
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2213.3159

@@ -1,20 +1,31 @@
 import { errores } from '../../comun/errores';
+import { Actividad } from './actividad.entidad';
 import {
   aActividadEncontradaDto,
   aDetalleActividadDto,
   aParticipantesDto,
   TAMANO_PAGINA_BUSQUEDA,
   TAMANO_PAGINA_PARTICIPANTES,
+  TAMANO_PAGINA_INICIADAS,
   type DetalleActividadDto,
   type FiltrosDeBusqueda,
   type ParticipantesDto,
   type ResultadoDeBusquedaDto,
+  type ResultadoDeIniciadasDto,
 } from './actividades.dto';
 import type { ActividadesRepositorio } from './actividades.repositorio';
 
 /** Solo los métodos que usa este servicio: permite probarlo con dobles en memoria. */
 export interface DependenciasActividades {
-  actividades: Pick<ActividadesRepositorio, 'buscarDisponibles' | 'buscarDetalle' | 'buscarRelacion' | 'buscarParticipantes'>;
+  actividades: Pick<
+    ActividadesRepositorio,
+    | 'buscarDisponibles'
+    | 'buscarDetalle'
+    | 'buscarRelacion'
+    | 'buscarParticipantes'
+    | 'buscarIniciadasDeParticipante'
+    | 'tieneIniciadasHoy'
+  >;
 }
 
 /** CU09 E2: la actividad no existe. También se usa para un id con formato inválido. */
@@ -34,16 +45,43 @@ export function puedeVerPuntosDePartida(participaQuienConsulta: boolean): boolea
 export class ActividadesServicio {
   constructor(private readonly dependencias: DependenciasActividades) {}
 
+  /** CU42 FP y E1: solo actividades iniciadas propias; una lista vacía es un resultado válido. */
+  async obtenerIniciadas(usuarioId: string, pagina: number): Promise<ResultadoDeIniciadasDto> {
+    const resultado = await this.dependencias.actividades.buscarIniciadasDeParticipante(
+      usuarioId,
+      pagina,
+      TAMANO_PAGINA_INICIADAS,
+    );
+    return {
+      actividades: resultado.actividades.map((actividad) => ({
+        ...actividad,
+        estado: 'iniciada',
+        fechaHoraInicio: actividad.fechaHoraInicio.toISOString(),
+        fechaLimiteGastos: Actividad.calcularFechaLimiteGastos(actividad.fechaHoraInicio).toISOString(),
+      })),
+      pagina,
+      hayMas: resultado.hayMas,
+    };
+  }
+
   /**
    * CU08 – Buscar actividades. Devuelve una página de actividades disponibles que cumplen los filtros.
    * Una lista vacía es el caso E1: el cliente informa que no hay actividades y sugiere crear una.
    */
   async buscar(usuarioId: string, filtros: FiltrosDeBusqueda, pagina: number): Promise<ResultadoDeBusquedaDto> {
-    const encontradas = await this.dependencias.actividades.buscarDisponibles(filtros, pagina, TAMANO_PAGINA_BUSQUEDA, usuarioId);
+    // CU42 A4: la marca viaja con la consulta de Explorar, sin depender de los filtros ni de la página.
+    // Solo la sección "otras" la consulta: se evita repetir el mismo EXISTS para los tres grupos del dashboard.
+    const [encontradas, hayIniciadasHoy] = await Promise.all([
+      this.dependencias.actividades.buscarDisponibles(filtros, pagina, TAMANO_PAGINA_BUSQUEDA, usuarioId),
+      filtros.grupo === 'otras'
+        ? this.dependencias.actividades.tieneIniciadasHoy(usuarioId, new Date())
+        : Promise.resolve(undefined),
+    ]);
     return {
       actividades: encontradas.actividades.map((encontrada) => aActividadEncontradaDto(encontrada, usuarioId)),
       pagina,
       hayMas: encontradas.hayMas,
+      ...(hayIniciadasHoy !== undefined ? { hayIniciadasHoy } : {}),
     };
   }
 

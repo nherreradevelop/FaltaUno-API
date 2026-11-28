@@ -32,6 +32,21 @@ export interface PaginaDeHistorial {
   hayMas: boolean;
 }
 
+/** CU42: proyección de lectura de las actividades iniciadas del usuario autenticado. */
+export interface ActividadIniciadaDelUsuario {
+  id: string;
+  nombre: string;
+  deporte: { id: number; nombre: string };
+  fechaHoraInicio: Date;
+  departamento: string;
+  esOrganizador: boolean;
+}
+
+export interface PaginaDeActividadesIniciadas {
+  actividades: ActividadIniciadaDelUsuario[];
+  hayMas: boolean;
+}
+
 interface FilaHistorial {
   id: string;
   nombre: string;
@@ -204,6 +219,60 @@ interface FilaInvitado {
 /** Acceso a las tablas actividad y participacion. */
 export class ActividadesRepositorio {
   constructor(private readonly db: Ejecutor) {}
+
+  /** CU42 A4: basta una actividad propia iniciada hoy en Uruguay, independientemente de la página o los cupos. */
+  async tieneIniciadasHoy(usuarioId: string, ahora: Date): Promise<boolean> {
+    const resultado = await this.db.query<{ hay_actividades: boolean }>(
+      `SELECT EXISTS (
+         SELECT 1
+         FROM participacion p
+         JOIN actividad a ON a.id = p.actividad_id
+         WHERE p.usuario_id = $1 AND a.estado = 'iniciada'
+           AND a.fecha_hora_inicio >= (date_trunc('day', $2::timestamptz AT TIME ZONE $3) AT TIME ZONE $3)
+           AND a.fecha_hora_inicio < ((date_trunc('day', $2::timestamptz AT TIME ZONE $3) + interval '1 day') AT TIME ZONE $3)
+       ) AS hay_actividades`,
+      [usuarioId, ahora, ZONA_HORARIA],
+    );
+    return resultado.rows[0].hay_actividades;
+  }
+
+  /** CU42 FP y RN1–RN4: una consulta, sin depender de cupos ni de la hora actual. Usa ix_participacion_usuario. */
+  async buscarIniciadasDeParticipante(
+    usuarioId: string,
+    pagina: number,
+    tamanoPagina: number,
+  ): Promise<PaginaDeActividadesIniciadas> {
+    const resultado = await this.db.query<{
+      id: string;
+      nombre: string;
+      deporte_id: number;
+      deporte_nombre: string;
+      fecha_hora_inicio: Date;
+      departamento: string;
+      es_organizador: boolean;
+    }>(
+      `SELECT a.id, a.nombre, a.deporte_id, d.nombre AS deporte_nombre, a.fecha_hora_inicio,
+              a.departamento, p.es_organizador
+       FROM participacion p
+       JOIN actividad a ON a.id = p.actividad_id
+       JOIN deporte d ON d.id = a.deporte_id
+       WHERE p.usuario_id = $1 AND a.estado = 'iniciada'
+       ORDER BY a.fecha_hora_inicio DESC, a.id DESC
+       LIMIT $2 OFFSET $3`,
+      [usuarioId, tamanoPagina + 1, (pagina - 1) * tamanoPagina],
+    );
+    return {
+      actividades: resultado.rows.slice(0, tamanoPagina).map((fila) => ({
+        id: fila.id,
+        nombre: fila.nombre,
+        deporte: { id: fila.deporte_id, nombre: fila.deporte_nombre },
+        fechaHoraInicio: fila.fecha_hora_inicio,
+        departamento: fila.departamento,
+        esOrganizador: fila.es_organizador,
+      })),
+      hayMas: resultado.rows.length > tamanoPagina,
+    };
+  }
 
   /**
    * CU04 FP paso 2: actividades en las que participó el usuario, de la más reciente a la más antigua.
