@@ -12,6 +12,7 @@ import type {
   PaginaDeParticipantes,
   ParticipanteDeActividad,
   RelacionConActividad,
+  PaginaDeActividadesIniciadas,
 } from '../src/modulos/actividades/actividades.repositorio';
 import type { DependenciasActividades } from '../src/modulos/actividades/actividades.servicio';
 import { Deporte } from '../src/modulos/deportes/deporte.entidad';
@@ -78,6 +79,18 @@ type RepositorioActividades = DependenciasActividades['actividades'];
 
 /** Reproduce en memoria las consultas del CU09 de ActividadesRepositorio. Puede simular una falla de la base (ER1). */
 export class DetallesDeActividadEnMemoria implements RepositorioActividades {
+  async tieneIniciadasHoy(_usuarioId: string, _ahora: Date): Promise<boolean> {
+    this.fallarSiCorresponde();
+    return false;
+  }
+  async buscarIniciadasDeParticipante(
+    _usuarioId: string,
+    _pagina: number,
+    _tamanoPagina: number,
+  ): Promise<PaginaDeActividadesIniciadas> {
+    this.fallarSiCorresponde();
+    return { actividades: [], hayMas: false };
+  }
   readonly pedidosDeParticipantes: { actividadId: string; pagina: number; tamanoPagina: number }[] = [];
 
   constructor(

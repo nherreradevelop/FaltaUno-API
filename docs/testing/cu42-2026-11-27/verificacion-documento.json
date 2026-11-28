@@ -1,0 +1,14 @@
+{
+  "salida": "C:\\Users\\Usuario\\source\\repos\\FaltaUno-API\\docs\\testing\\cu42-2026-11-27\\Anteproyecto_FaltaUno_CU42_y_testing_2026-11-27.docx",
+  "casos": 11,
+  "paresDeCapturas": 12,
+  "bloquesPreviosConservados": 6252,
+  "partesOriginalesIntactas": 286,
+  "sha256Fuente": "15fc49ea772e8c62acd714404d67b4c4e8b1f39658a2b8cae5a54d71ecdac0f8",
+  "pruebas": {
+    "api": 429,
+    "web": 121,
+    "mobile": 116,
+    "omitidasAPI": 3
+  }
+}

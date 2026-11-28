@@ -1,0 +1,20 @@
+{
+  "esquema": "cu42_visual_5da8797845f5459697ea904d086c6096",
+  "usuario": "00000000-0000-4000-8000-000000000001",
+  "propias": [
+    "257d2eec-fd17-4890-ab1c-020c2b14eb0f",
+    "c6fdd1d0-b4a7-4382-82a1-f2b21a118184",
+    "2eb53a55-4999-4eba-a82a-7a8f4d42f736",
+    "1440ef6e-7f7c-4a29-a30f-b14740210869",
+    "9c1cd093-2768-4735-970c-ba9268b684f0",
+    "29bb833c-dcc4-4fc5-8dde-16745d71ec7d",
+    "d9949209-ec3c-4533-9445-af4089210e44",
+    "dfb1cada-d51e-4b5c-89f3-97d8e430f033",
+    "1db3ba0c-1cc6-482a-9175-6667bc54f45e",
+    "725b5cb7-68aa-4fe5-8ac8-6dc23177675e",
+    "237610b7-9f27-4028-9b40-46a1e0d7f467",
+    "025466af-e55d-4bf9-85ef-bec1bb800674"
+  ],
+  "modo": "normal",
+  "limpieza": "API de evidencia detenida y esquema temporal eliminado de faltauno_test. Conexión Android restaurada a la API habitual."
+}

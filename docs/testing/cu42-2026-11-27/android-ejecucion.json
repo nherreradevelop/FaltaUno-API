@@ -1,0 +1,57 @@
+{
+  "datos": "Esquema efímero de faltauno_test con fallas controladas; API y PostgreSQL reales.",
+  "entorno": "http://127.0.0.1:3002",
+  "fecha": "2026-11-27",
+  "casos": [
+    {
+      "estado": "aprobado",
+      "id": "CP-CU42-01",
+      "obtenido": "Actividad de hoy primero, etiqueta es hoy! visible con color de éxito, inicio y plazo correctos."
+    },
+    {
+      "estado": "aprobado",
+      "id": "CP-CU42-03",
+      "obtenido": "Banner con los textos solicitados; Ver mis actividades abre el listado real de PostgreSQL local."
+    },
+    {
+      "estado": "aprobado",
+      "id": "CP-CU42-04",
+      "obtenido": "El botón de la primera actividad abre su detalle CU09."
+    },
+    {
+      "estado": "aprobado",
+      "id": "CP-CU42-02",
+      "obtenido": "La segunda página permite llegar a Salida anterior 11, el último de los doce registros de prueba."
+    },
+    {
+      "estado": "aprobado",
+      "id": "CP-CU42-06",
+      "obtenido": "503 inicial informa la falla; reintentar recupera el listado."
+    },
+    {
+      "estado": "aprobado",
+      "id": "CP-CU42-07",
+      "obtenido": "La primera página se conserva al fallar la siguiente; el reintento permite alcanzar el último registro."
+    },
+    {
+      "estado": "aprobado",
+      "id": "CP-CU42-08",
+      "obtenido": "Una respuesta incompleta se rechaza con error recuperable y no se muestra como vacío."
+    },
+    {
+      "estado": "aprobado",
+      "id": "CP-CU42-05",
+      "obtenido": "Sin iniciadas propias, el banner no aparece y el listado informa vacío con salida a Explorar."
+    },
+    {
+      "estado": "aprobado",
+      "id": "CP-CU42-09",
+      "obtenido": "Un 401 retira la pantalla privada y lleva al login."
+    },
+    {
+      "id": "CP-CU42-11",
+      "obtenido": "Actualizar retira del listado las actividades archivadas en SQL. Al restaurar el escenario, recupera las iniciadas y la etiqueta es hoy!.",
+      "estado": "aprobado"
+    }
+  ]
+}

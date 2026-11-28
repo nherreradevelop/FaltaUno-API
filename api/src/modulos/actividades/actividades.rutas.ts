@@ -58,6 +58,7 @@ export function crearRutasActividades(contexto: Contexto): Router {
   rutas.post('/', limiteMapas, controlador.crear); // CU10
   // Las rutas con nombre fijo van antes que /:id: si no, "departamentos" u "opciones" se tomarían como el id de una actividad
   rutas.get('/departamentos', controlador.listarDepartamentos); // CU08 A5
+  rutas.get('/iniciadas', controlador.obtenerIniciadas); // CU42: antes de /:id
   rutas.get('/opciones', controlador.opciones); // CU10
   rutas.get('/ubicaciones', limiteMapas, controlador.buscarUbicaciones); // CU10
   rutas.get('/ubicaciones/punto', limiteMapas, controlador.resolverPunto); // CU10
